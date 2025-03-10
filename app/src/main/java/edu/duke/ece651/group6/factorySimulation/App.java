@@ -4,11 +4,18 @@
 package edu.duke.ece651.group6.factorySimulation;
 
 public class App {
-    public String getGreeting() {
-        return "Hello World!";
+    private final TextView view;
+
+
+    public App() {
+        this.view = new TextView();
     }
 
+
     public static void main(String[] args) {
-        System.out.println(new App().getGreeting());
+        App app = new App();
+        while (true) {
+            app.view.displayOutput(System.out, app.view.promptUser(System.out));
+        }
     }
 }
