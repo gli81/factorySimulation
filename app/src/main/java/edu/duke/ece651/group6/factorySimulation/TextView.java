@@ -1,28 +1,31 @@
 package edu.duke.ece651.group6.factorySimulation;
 
-import java.io.InputStream;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintStream;
-import java.util.Scanner;
 
 public class TextView {
-    private final Scanner sc;
+    private final BufferedReader input;
+    private final PrintStream out;
 
     
     public TextView() {
-        this(System.in);
+        this(new BufferedReader(new InputStreamReader(System.in)), System.out);
     }
 
-    public TextView(InputStream in) {
-        this.sc = new Scanner(in);
+    public TextView(BufferedReader in, PrintStream out) {
+        this.input = in;
+        this.out = out;
     }
 
     
-    public String promptUser(PrintStream out) {
-        out.print("0> ");
-        return sc.nextLine();
+    public String promptUser() throws IOException{
+        this.out.print("0> ");
+        return this.input.readLine();
     }
 
-    public void displayOutput(PrintStream out, String output) {
-        out.println(output);
+    public void displayOutput(String output) {
+        this.out.println(output);
     }
 }

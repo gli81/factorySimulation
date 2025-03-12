@@ -3,6 +3,8 @@
  */
 package edu.duke.ece651.group6.factorySimulation;
 
+import java.io.IOException;
+
 public class App {
     private final TextView view;
 
@@ -12,10 +14,10 @@ public class App {
     }
 
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         App app = new App();
         while (true) {
-            app.view.displayOutput(System.out, app.view.promptUser(System.out));
+            app.view.displayOutput(app.view.promptUser());
         }
     }
 }
