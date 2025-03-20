@@ -24,10 +24,27 @@ public class BuildingsManager {
         this.buildings.remove(building);
     }
 
-    public Iterable<Building> getBuildingsIterable() {
+    public Iterable<Building> getAllBuildingsIterable() {
         return new ArrayList<Building>(this.buildings);
     }
 
+    public Building getBuilding(String name) {
+        for (Building building : this.buildings) {
+            if (building.getName().equals(name)) {
+                return building;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder buildingsString = new StringBuilder();
+        this.buildings.forEach(building -> {
+            buildingsString.append(building.toString());
+        });
+        return buildingsString.toString();
+    }
     // public void addOrder(Order order) {
 
     // }

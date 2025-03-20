@@ -4,13 +4,18 @@ import java.util.ArrayList;
 
 public class Mine extends BasicBuilding {
 
-    private String mineItem;
+    private Recipe outputItem;
     private boolean isMining;
 
-    public Mine(String name, String utility, ArrayList<Building> sources, String mineItem) {
-        super(name, utility, sources);
-        this.mineItem = mineItem;
+    public Mine(String name, Recipe outputItem) {
+        super(name);
+        this.outputItem = outputItem;
         this.isMining = false;
+    }
+
+    @Override
+    public String toString() {
+        return "Mine: { " + this.name + ", " + this.outputItem.getOutputItem() + " }\n";
     }
 
     @Override

@@ -19,4 +19,16 @@ public class Type {
         return new ArrayList<>(this.recipes);
     }
 
+    @Override
+    public String toString() {
+        StringBuilder recipesString = new StringBuilder();
+        this.recipes.forEach(recipe -> {
+            recipesString.append(recipe.getOutputItem()).append(", ");
+        });
+        // remove the last comma
+        if (recipesString.length() > 0) {
+            recipesString.deleteCharAt(recipesString.length() - 2);
+        }
+        return "Type: { " + this.name + ", { " + recipesString.toString() + "} }\n";
+    }
 }

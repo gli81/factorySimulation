@@ -7,17 +7,7 @@ abstract class BasicBuilding implements Building {
     /*
      * the name of the building
      */
-    private String name;
-
-    /*
-     * whether to be a "factory" or a "mine"
-     */
-    private String utility;
-
-    /*
-     * the sources list of the building
-     */
-    private ArrayList<Building> sources;
+    protected String name;
 
     // private RecipeQueue recipeQueue;
     private int buildingTimeStep;
@@ -26,10 +16,8 @@ abstract class BasicBuilding implements Building {
     private int produceTimeStep;
     // private Recipe currProduction;
 
-    public BasicBuilding(String name, String utility, ArrayList<Building> sources) {
+    public BasicBuilding(String name) {
         this.name = name;
-        this.utility = utility;
-        this.sources = sources;
 
         this.buildingTimeStep = 0;
         this.itemIsReady = false;
@@ -37,20 +25,8 @@ abstract class BasicBuilding implements Building {
         this.produceTimeStep = 0;
     }
 
-    public void setSources(ArrayList<Building> sources) {
-        this.sources = sources;
-    }
-
     public String getName() {
         return this.name;
-    }
-
-    public String getUtility() {
-        return this.utility;
-    }
-
-    public Iterable<Building> getSourcesIterable() {
-        return new ArrayList<Building>(this.sources);
     }
 
     @Override

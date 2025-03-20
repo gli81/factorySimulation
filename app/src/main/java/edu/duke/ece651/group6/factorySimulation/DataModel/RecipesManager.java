@@ -14,6 +14,15 @@ public class RecipesManager {
         this.recipes.add(recipe);
     }
 
+    public Recipe getRecipe(String name) {
+        for (Recipe recipe : this.recipes) {
+            if (recipe.getOutputItem().equals(name)) {
+                return recipe;
+            }
+        }
+        return null;
+    }
+
     /**
      * Get all recipes as an Iterable
      * Iterable is only used to iterate over the recipes
@@ -24,4 +33,12 @@ public class RecipesManager {
         return new ArrayList<>(this.recipes);
     }
 
+    @Override
+    public String toString() {
+        StringBuilder recipesString = new StringBuilder();
+        this.recipes.forEach(recipe -> {
+            recipesString.append(recipe.toString());
+        });
+        return recipesString.toString();
+    }
 }

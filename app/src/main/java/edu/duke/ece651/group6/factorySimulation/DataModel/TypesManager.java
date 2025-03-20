@@ -17,4 +17,22 @@ public class TypesManager {
     public Iterable<Type> getAllTypesIterable() {
         return new ArrayList<>(this.types);
     }
+
+    public Type getType(String name) {
+        for (Type type : this.types) {
+            if (type.getName().equals(name)) {
+                return type;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder typesString = new StringBuilder();
+        this.types.forEach(type -> {
+            typesString.append(type.toString());
+        });
+        return typesString.toString();
+    }
 }
