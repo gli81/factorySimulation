@@ -1,6 +1,7 @@
 package edu.duke.ece651.group6.factorySimulation.DataModel;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 /*
  * Manager of all buildings in the factory
@@ -8,12 +9,19 @@ import java.util.ArrayList;
 public class BuildingsManager {
 
     private ArrayList<Building> buildings;
-    private int currTimeStep;
-    // private OrderQueue orderQueue;
+
+    /**
+     * order of buildings to be processed
+     * pair of recipe and building
+     * 
+     * first: recipe to be processed
+     * second: building to process the recipe / responsible for the recipe
+     */
+    private ArrayList<Map.Entry<Recipe, Building>> orderQueue;
 
     public BuildingsManager() {
         this.buildings = new ArrayList<>();
-        // this.currTimeStep = 0;
+        this.orderQueue = new ArrayList<>();
     }
 
     public void addBuilding(Building building) {
@@ -45,9 +53,18 @@ public class BuildingsManager {
         });
         return buildingsString.toString();
     }
-    // public void addOrder(Order order) {
 
-    // }
+    public void addOrder(Recipe recipe, Building building) {
+        this.orderQueue.add(Map.entry(recipe, building));
+    }
+
+    public void removeOrder(Recipe recipe, Building building) {
+        this.orderQueue.remove(Map.entry(recipe, building));
+    }
+
+    public void processOneTimeStep() {
+        // TODO: implement
+    }
 
     // public void removeOrder(Order order) {
 

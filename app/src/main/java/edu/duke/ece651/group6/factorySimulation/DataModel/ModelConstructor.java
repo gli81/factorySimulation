@@ -14,7 +14,6 @@ import java.util.LinkedHashMap;
 import java.util.Iterator;
 
 public class ModelConstructor {
-
     private TypesManager typesManager;
     private RecipesManager recipesManager;
     private BuildingsManager buildingsManager;
