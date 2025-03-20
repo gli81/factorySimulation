@@ -1,4 +1,6 @@
-package edu.duke.ece651.group6.factorySimulation.DataModel;
+package edu.duke.ece651.group6.factorySimulation;
+
+import edu.duke.ece651.group6.factorySimulation.DataModel.*;
 
 public class ProductionController {
     /**
@@ -14,6 +16,12 @@ public class ProductionController {
     public static int verbose = 0;
 
     public static int currTimeStep = 0;
+
+    private ModelConstructor modelConstructor;
+
+    public ProductionController() {
+        this.modelConstructor = new ModelConstructor();
+    }
 
     public static int setVerbose(int verbose) {
         int oldVerbose = ProductionController.verbose;
