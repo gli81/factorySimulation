@@ -80,12 +80,28 @@ public class ModelConstructor {
             if (output == null) {
                 throw new InvalidInputException("Missing output of recipe in JSON");
             }
+
+            // check 1: check if recipe name contains apostrophes
+            if (output.contains("'")) {
+              throw new InvalidInputException("Recipe name '" + output + "' contains an apostrophe which is not allowed");
+            }
+            
+            // check 2: validate recipe name is unique
+            if (recipesManager.getRecipe(output) != null) {
+              throw new InvalidInputException("Recipe name '" + output + "' is not unique");
+            }
+            
             JsonElement latencyElement = recipeObject.get("latency");
             if (latencyElement == null) {
                 throw new InvalidInputException("Missing latency of recipe " + output + " in JSON");
             }
             int latency = latencyElement.getAsInt();
 
+            // check 3: validate that latency is at least 1
+            if (latency < 1) {
+              throw new InvalidInputException("Recipe latency must be at least 1, got " + latency + " for recipe '" + output + "'");
+            }
+            
             // get the ingredients
             JsonObject ingredientsObject = recipeObject.getAsJsonObject("ingredients");
             if (ingredientsObject == null) {

@@ -5,7 +5,15 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.io.IOException;
 
 public class ModelConstructorTest {
-
+  //Helper to check 
+  private String getResourceFilePath(String resourcePath) {
+    URL url = getClass().getClassLoader().getResource(resourcePath);
+    if (url == null) {
+      fail("Could not find resource: " + resourcePath);
+    }
+    return url.getPath();
+  }
+  
     @Test
     public void testConstructor() throws IOException {
         ModelConstructor constructor = new ModelConstructor();
