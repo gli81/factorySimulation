@@ -16,21 +16,15 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 
 public class ModelConstructor {
-    private TypesManager typesManager;
-    private RecipesManager recipesManager;
-    private BuildingsManager buildingsManager;
+    private ModelManager modelManager;
 
-    public ModelConstructor() {
-        this.typesManager = new TypesManager();
-        this.recipesManager = new RecipesManager();
-        this.buildingsManager = new BuildingsManager();
+    public ModelConstructor(ModelManager modelManager) {
+        this.modelManager = modelManager;
     }
 
     @Override
     public String toString() {
-        return "Types:\n" + typesManager.toString() + "\n" +
-                "Recipes:\n" + recipesManager.toString() + "\n" +
-                "Buildings:\n" + buildingsManager.toString();
+        return modelManager.toString();
     }
 
     /**
@@ -112,22 +106,22 @@ public class ModelConstructor {
 
             ingredientsList.add(ingredients);
             Recipe recipe = new Recipe(output, latency);
-            recipesManager.addRecipe(recipe);
+            modelManager.addRecipe(recipe);
         }
 
         // check 6: ingredidents specified for all receipes must be defined in the
         // recipes section. Then add the ingredient objects to the recipe object
-        Iterator<Recipe> recipeIterator = recipesManager.getAllRecipesIterable().iterator();
+        Iterator<Recipe> recipeIterator = modelManager.getAllRecipesIterable().iterator();
         Iterator<Map<String, Integer>> ingredientsIterator = ingredientsList.iterator();
 
         while (recipeIterator.hasNext() && ingredientsIterator.hasNext()) {
             Recipe recipe = recipeIterator.next();
             Map<String, Integer> ingredients = ingredientsIterator.next();
             for (String ingredientName : ingredients.keySet()) {
-                Recipe ingredient = recipesManager.getRecipe(ingredientName);
+                Recipe ingredient = modelManager.getRecipe(ingredientName);
                 if (ingredient == null) {
                     throw new InvalidInputException(
-                            "Ingredient of recipe " + recipe.getOutputItem() + " not found: " + ingredientName);
+                            "Ingredient of recipe " + recipe.getName() + " not found: " + ingredientName);
                 }
                 recipe.addIngredient(ingredient, ingredients.get(ingredientName));
             }
@@ -167,7 +161,7 @@ public class ModelConstructor {
             for (JsonElement recipeName : recipesArray) {
                 // check 5: recipes specified in the types must be defined in the recipes
                 // section
-                Recipe recipe = recipesManager.getRecipe(recipeName.getAsString());
+                Recipe recipe = modelManager.getRecipe(recipeName.getAsString());
                 if (recipe == null) {
                     throw new InvalidInputException("Recipe of type " + typeName + " not found: "
                             + recipeName.getAsString());
@@ -177,7 +171,7 @@ public class ModelConstructor {
 
             // create and add the new type
             Type type = new Type(typeName, recipes);
-            typesManager.addType(type);
+            modelManager.addType(type);
         }
     }
 
@@ -226,23 +220,23 @@ public class ModelConstructor {
                 }
 
                 String mineType = buildingObject.get("mine").getAsString();
-                Recipe mineItem = recipesManager.getRecipe(mineType);
+                Recipe mineItem = modelManager.getRecipe(mineType);
                 if (mineItem == null) {
                     throw new InvalidInputException("Mine item of building " + name + " not found: " + mineType);
                 }
                 Mine mine = new Mine(name, mineItem);
-                buildingsManager.addBuilding(mine);
+                modelManager.addBuilding(mine);
             } else if (!buildingObject.has("mine") && buildingObject.has("type")) {
                 // factory type
                 String type = buildingObject.get("type").getAsString();
 
                 // check 2: type of each building must be defined in the types section
-                Type buildingType = typesManager.getType(type);
+                Type buildingType = modelManager.getType(type);
                 if (buildingType == null) {
                     throw new InvalidInputException("Type of building " + name + " not found: " + type);
                 }
                 Factory factory = new Factory(name, buildingType);
-                buildingsManager.addBuilding(factory);
+                modelManager.addBuilding(factory);
 
             } else if (buildingObject.has("mine") && buildingObject.has("type")) {
                 throw new InvalidInputException("Building " + name + " cannot be both a factory and a mine");
@@ -253,7 +247,7 @@ public class ModelConstructor {
 
         // check 3: buildings named in the sources of a building must be defined in the
         // buildings section. Then add the building objects to the factory object
-        Iterator<Building> buildingIterator = buildingsManager.getAllBuildingsIterable().iterator();
+        Iterator<Building> buildingIterator = modelManager.getAllBuildingsIterable().iterator();
         Iterator<ArrayList<String>> sourcesIterator = sourcesList.iterator();
 
         while (buildingIterator.hasNext() && sourcesIterator.hasNext()) {
@@ -262,7 +256,7 @@ public class ModelConstructor {
             if (building instanceof Factory) {
                 Factory factory = (Factory) building;
                 for (String sourceName : sources) {
-                    Building sourceBuilding = buildingsManager.getBuilding(sourceName);
+                    Building sourceBuilding = modelManager.getBuilding(sourceName);
                     if (sourceBuilding == null) {
                         throw new InvalidInputException(
                                 "Source building " + sourceName + " not found: " + sourceName);

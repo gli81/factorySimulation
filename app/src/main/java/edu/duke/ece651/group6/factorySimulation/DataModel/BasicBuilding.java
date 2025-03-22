@@ -7,14 +7,15 @@ abstract class BasicBuilding implements Building {
     /*
      * the name of the building
      */
-    protected String name;
+    protected final String name;
 
-    // private RecipeQueue recipeQueue;
-    private int buildingTimeStep;
-    private boolean itemIsReady;
-    private int lastTimeStep;
-    private int produceTimeStep;
-    // private Recipe currProduction;
+    protected ArrayList<RequestItem> requestQueue;
+
+    protected int buildingTimeStep;
+    protected boolean itemIsReady;
+    protected int lastTimeStep;
+    protected int produceTimeStep;
+    protected Recipe currProduction;
 
     public BasicBuilding(String name) {
         this.name = name;
@@ -23,22 +24,33 @@ abstract class BasicBuilding implements Building {
         this.itemIsReady = false;
         this.lastTimeStep = 0;
         this.produceTimeStep = 0;
+        this.requestQueue = new ArrayList<>();
     }
 
     public String getName() {
         return this.name;
     }
 
-    @Override
-    public abstract void addRequest();
+    public int getQueueSize() {
+        return this.requestQueue.size();
+    }
 
-    @Override
-    public abstract void removeRequest();
+    public abstract boolean isRecipeSupported(Recipe recipe);
 
-    @Override
+    public abstract void addRequest(Recipe recipe, Building targetBuilding);
+
+    public abstract void removeRequest(Recipe recipe, Building targetBuilding);
+
     public abstract void processOneTimeStep();
 
-    @Override
     public abstract void passResource();
 
+    @Override
+    public abstract boolean equals(Object obj);
+
+    @Override
+    public abstract int hashCode();
+
+    @Override
+    public abstract String toString();
 }
