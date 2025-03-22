@@ -1,0 +1,15 @@
+image: gradle:alpine
+
+build:
+  script:
+    # - gradle build
+    - echo "build stage"
+
+test:
+  script:
+    # - gradle test
+    - echo "test stage"
+
+# clean:
+  # script:
+  #   - gradle clean
