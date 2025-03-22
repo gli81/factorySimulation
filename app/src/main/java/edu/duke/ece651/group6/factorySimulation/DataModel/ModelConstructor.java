@@ -3,15 +3,17 @@ package edu.duke.ece651.group6.factorySimulation.DataModel;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.LinkedHashMap;
-import java.util.Iterator;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
 
 public class ModelConstructor {
     private TypesManager typesManager;
@@ -68,17 +70,13 @@ public class ModelConstructor {
             throw new InvalidInputException("Missing recipes array in JSON");
         }
 
-        // temporary list to store ingredients strings of each recipe
         ArrayList<Map<String, Integer>> ingredientsList = new ArrayList<>();
-
-        // iterate over the recipes JSON array
         for (JsonElement recipeElement : recipesArray) {
             JsonObject recipeObject = recipeElement.getAsJsonObject();
-
-            // get the output and latency
+            
             String output = recipeObject.get("output").getAsString();
             if (output == null) {
-                throw new InvalidInputException("Missing output of recipe in JSON");
+              throw new InvalidInputException("Missing output of recipe in JSON");
             }
 
             // check 1: check if recipe name contains apostrophes
@@ -106,16 +104,13 @@ public class ModelConstructor {
             JsonObject ingredientsObject = recipeObject.getAsJsonObject("ingredients");
             if (ingredientsObject == null) {
                 throw new InvalidInputException("Missing ingredients of recipe " + output + " in JSON");
-            }
+                } 
             Map<String, Integer> ingredients = new LinkedHashMap<>();
             for (String ingredientName : ingredientsObject.keySet()) {
                 ingredients.put(ingredientName, ingredientsObject.get(ingredientName).getAsInt());
             }
 
-            // add the ingredients to the temporary ingredients list
             ingredientsList.add(ingredients);
-
-            // create and add the new recipe
             Recipe recipe = new Recipe(output, latency);
             recipesManager.addRecipe(recipe);
         }
