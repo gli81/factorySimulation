@@ -3,15 +3,17 @@ package edu.duke.ece651.group6.factorySimulation.DataModel;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.LinkedHashMap;
-import java.util.Iterator;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
 
 public class ModelConstructor {
     private ModelManager modelManager;
@@ -62,38 +64,47 @@ public class ModelConstructor {
             throw new InvalidInputException("Missing recipes array in JSON");
         }
 
-        // temporary list to store ingredients strings of each recipe
         ArrayList<Map<String, Integer>> ingredientsList = new ArrayList<>();
-
-        // iterate over the recipes JSON array
         for (JsonElement recipeElement : recipesArray) {
             JsonObject recipeObject = recipeElement.getAsJsonObject();
-
-            // get the output and latency
+            
             String output = recipeObject.get("output").getAsString();
             if (output == null) {
-                throw new InvalidInputException("Missing output of recipe in JSON");
+              throw new InvalidInputException("Missing output of recipe in JSON");
             }
+
+            // check 1: check if recipe name contains apostrophes
+            if (output.contains("'")) {
+              throw new InvalidInputException("Recipe name '" + output + "' contains an apostrophe which is not allowed");
+            }
+            
+            // check 2: validate recipe name is unique
+            if (modelManager.getRecipe(output) != null) {
+              throw new InvalidInputException("Recipe name '" + output + "' is not unique");
+            }
+            
             JsonElement latencyElement = recipeObject.get("latency");
             if (latencyElement == null) {
                 throw new InvalidInputException("Missing latency of recipe " + output + " in JSON");
             }
             int latency = latencyElement.getAsInt();
 
+            // check 3: validate that latency is at least 1
+            if (latency < 1) {
+              throw new InvalidInputException("Recipe latency must be at least 1, got " + latency + " for recipe '" + output + "'");
+            }
+            
             // get the ingredients
             JsonObject ingredientsObject = recipeObject.getAsJsonObject("ingredients");
             if (ingredientsObject == null) {
                 throw new InvalidInputException("Missing ingredients of recipe " + output + " in JSON");
-            }
+                } 
             Map<String, Integer> ingredients = new LinkedHashMap<>();
             for (String ingredientName : ingredientsObject.keySet()) {
                 ingredients.put(ingredientName, ingredientsObject.get(ingredientName).getAsInt());
             }
 
-            // add the ingredients to the temporary ingredients list
             ingredientsList.add(ingredients);
-
-            // create and add the new recipe
             Recipe recipe = new Recipe(output, latency);
             modelManager.addRecipe(recipe);
         }
