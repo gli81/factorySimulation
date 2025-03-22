@@ -13,14 +13,24 @@ public class ProductionController {
      * 2: report when (and how) a building select a new recipe to work on, and
      * how to select a source for ingredients
      */
-    public static int verbose = 0;
+    private static int verbose = 0;
 
-    public static int currTimeStep = 0;
+    private static int currTimeStep = 0;
 
+    private ModelManager modelManager;
     private ModelConstructor modelConstructor;
 
     public ProductionController() {
-        this.modelConstructor = new ModelConstructor();
+        this.modelManager = new ModelManager();
+        this.modelConstructor = new ModelConstructor(modelManager);
+    }
+
+    public static int getVerbose() {
+        return ProductionController.verbose;
+    }
+
+    public static int getCurrTimeStep() {
+        return ProductionController.currTimeStep;
     }
 
     public static int setVerbose(int verbose) {
@@ -29,6 +39,10 @@ public class ProductionController {
             ProductionController.verbose = verbose;
         }
         return oldVerbose;
+    }
+
+    public void addRequest(String recipeName, String sourceBuildingName) {
+        modelManager.addUserRequest(recipeName, sourceBuildingName);
     }
 
     public static void addTimeStep(int timeStep) {

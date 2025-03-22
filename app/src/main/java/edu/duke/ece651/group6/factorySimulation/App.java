@@ -8,11 +8,9 @@ import java.io.IOException;
 public class App {
     private final TextView view;
 
-
     public App() {
         this.view = new TextView();
     }
-
 
     public static void main(String[] args) throws IOException {
         App app = new App();
