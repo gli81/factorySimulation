@@ -79,7 +79,7 @@ public class ModelConstructor {
             }
             
             // check 2: validate recipe name is unique
-            if (recipesManager.getRecipe(output) != null) {
+            if (modelManager.getRecipe(output) != null) {
               throw new InvalidInputException("Recipe name '" + output + "' is not unique");
             }
             

@@ -5,3 +5,13 @@
 build
 
 .vscode
+
+# Compiled class files
+*.class
+
+# Build directory
+/app/bin/
+/bin/
+
+# Editor backup files
+*~
