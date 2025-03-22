@@ -4,12 +4,12 @@ import java.util.Map;
 import java.util.LinkedHashMap;
 
 public class Recipe {
-    private String outputItem;
-    private Map<Recipe, Integer> ingredients;
-    private int latency;
+    private final String name;
+    private final Map<Recipe, Integer> ingredients;
+    private final int latency;
 
-    public Recipe(String outputItem, int latency) {
-        this.outputItem = outputItem;
+    public Recipe(String name, int latency) {
+        this.name = name;
         this.ingredients = new LinkedHashMap<>();
         this.latency = latency;
     }
@@ -18,8 +18,8 @@ public class Recipe {
         this.ingredients.put(ingredient, quantity);
     }
 
-    public String getOutputItem() {
-        return this.outputItem;
+    public String getName() {
+        return this.name;
     }
 
     public Iterable<Map.Entry<Recipe, Integer>> getIngredientsIterable() {
@@ -34,13 +34,40 @@ public class Recipe {
     public String toString() {
         StringBuilder ingredientsString = new StringBuilder();
         this.ingredients.forEach((ingredient, quantity) -> {
-            ingredientsString.append(ingredient.getOutputItem()).append(": ").append(quantity).append(", ");
+            ingredientsString.append(ingredient.getName()).append(": ").append(quantity).append(", ");
         });
         // remove the last comma
         if (ingredientsString.length() > 0) {
             ingredientsString.deleteCharAt(ingredientsString.length() - 2);
         }
-        return "Recipe: { " + this.outputItem + ", " + this.latency + ", { " + ingredientsString.toString() + "} }\n";
+        return "Recipe: { " + this.name + ", " + this.latency + ", { " + ingredientsString.toString() + "} }\n";
+    }
+
+    /*
+     * two recipes are equal if they have the same output item and latency
+     * since output item string is unique for each recipe
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null || getClass() != obj.getClass())
+            return false;
+
+        Recipe other = (Recipe) obj;
+        boolean isLatencyEqual = this.latency == other.latency;
+        boolean isOutputItemEqual = this.name == null ? other.name == null
+                : this.name.equals(other.name);
+
+        return isLatencyEqual &&
+                isOutputItemEqual;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = name != null ? name.hashCode() : 0;
+        result = 31 * result + latency;
+        return result;
     }
 
 }

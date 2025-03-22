@@ -3,13 +3,23 @@ package edu.duke.ece651.group6.factorySimulation.DataModel;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import java.io.IOException;
+import org.junit.jupiter.api.BeforeEach;
 
 public class ModelConstructorTest {
 
+    private ModelManager modelManager;
+    private ModelConstructor constructor;
+
+    @BeforeEach
+    public void setUp() throws IOException {
+        modelManager = new ModelManager();
+        constructor = new ModelConstructor(modelManager);
+        constructor.constructFromJsonFile("src/resources/inputs/doors1.json");
+
+    }
+
     @Test
     public void testConstructor() throws IOException {
-        ModelConstructor constructor = new ModelConstructor();
-        constructor.constructFromJsonFile("src/resources/inputs/doors1.json");
         assertEquals(constructor.toString(),
                 "Types:\n" +
                         "Type: { door, { door } }\n" +
@@ -28,4 +38,5 @@ public class ModelConstructorTest {
                         "Mine: { W, wood }\n" +
                         "Mine: { M, metal }\n");
     }
+
 }
