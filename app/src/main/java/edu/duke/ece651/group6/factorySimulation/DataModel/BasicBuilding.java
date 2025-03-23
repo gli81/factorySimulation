@@ -34,8 +34,10 @@ abstract class BasicBuilding implements Building {
     public void addRequest(Recipe recipe, Building targetBuilding) {
         // print the ingredient assignment message if the target is not user-requested
         if (ProductionController.getVerbose() >= 1 && targetBuilding != null) {
+            int orderNumber = ProductionController.getAndIncrementCurrRequestIndex();
             if (ProductionController.getVerbose() >= 3) {
-                System.out.println("[Order Number: " + ProductionController.getAndIncrementCurrRequestIndex() + "]");
+                System.out
+                        .println("TEST:[Order Number: " + orderNumber + "]");
             }
             System.out.println(
                     "[ingredient assignment]: " + recipe.getName() + " assigned to " + this.name + " to deliver to "

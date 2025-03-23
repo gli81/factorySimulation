@@ -37,11 +37,11 @@ public class ModelManagerTest {
 
         modelManager = new ModelManager();
         constructor = new ModelConstructor(modelManager);
-        constructor.constructFromJsonFile("src/resources/inputs/doors1.json");
     }
 
     @Test
-    public void testAddUserRequest() {
+    public void testAddUserRequest1() throws IOException {
+        this.constructor.constructFromJsonFile("src/resources/inputs/doors1.json");
 
         Runnable runnable = () -> modelManager.addUserRequest("door", "D");
         String output = captureSystemOut(runnable);
@@ -94,4 +94,63 @@ public class ModelManagerTest {
 
     }
 
+    @Test
+    public void testAddUserRequest2() throws IOException {
+        this.constructor.constructFromJsonFile("src/resources/inputs/doors2.json");
+
+        Runnable runnable = () -> modelManager.addUserRequest("door", "D");
+        String output = captureSystemOut(runnable);
+
+        String expectedOutput = "[source selection]: D has request for door on 0\n" +
+                "[D:door:0] For ingredient wood\n" +
+                "    W:0\n" +
+                "    Selecting W\n" +
+                "[ingredient assignment]: wood assigned to W to deliver to D\n" +
+                "[D:door:1] For ingredient handle\n" +
+                "    Hw1:0\n" +
+                "    Hw2:0\n" +
+                "    Selecting Hw1\n" +
+                "[ingredient assignment]: handle assigned to Hw1 to deliver to D\n" +
+                "[source selection]: Hw1 has request for handle on 0\n" +
+                "[Hw1:handle:0] For ingredient metal\n" +
+                "    M1:0\n" +
+                "    M2:0\n" +
+                "    Selecting M1\n" +
+                "[ingredient assignment]: metal assigned to M1 to deliver to Hw1\n" +
+                "[D:door:2] For ingredient hinge\n" +
+                "    Hw1:1\n" +
+                "    Hw2:0\n" +
+                "    Selecting Hw2\n" +
+                "[ingredient assignment]: hinge assigned to Hw2 to deliver to D\n" +
+                "[source selection]: Hw2 has request for hinge on 0\n" +
+                "[Hw2:hinge:0] For ingredient metal\n" +
+                "    M1:1\n" +
+                "    M2:0\n" +
+                "    Selecting M2\n" +
+                "[ingredient assignment]: metal assigned to M2 to deliver to Hw2\n" +
+                "[D:door:3] For ingredient hinge\n" +
+                "    Hw1:1\n" +
+                "    Hw2:1\n" +
+                "    Selecting Hw1\n" +
+                "[ingredient assignment]: hinge assigned to Hw1 to deliver to D\n" +
+                "[source selection]: Hw1 has request for hinge on 0\n" +
+                "[Hw1:hinge:0] For ingredient metal\n" +
+                "    M1:1\n" +
+                "    M2:1\n" +
+                "    Selecting M1\n" +
+                "[ingredient assignment]: metal assigned to M1 to deliver to Hw1\n" +
+                "[D:door:4] For ingredient hinge\n" +
+                "    Hw1:2\n" +
+                "    Hw2:1\n" +
+                "    Selecting Hw2\n" +
+                "[ingredient assignment]: hinge assigned to Hw2 to deliver to D\n" +
+                "[source selection]: Hw2 has request for hinge on 0\n" +
+                "[Hw2:hinge:0] For ingredient metal\n" +
+                "    M1:2\n" +
+                "    M2:1\n" +
+                "    Selecting M2\n" +
+                "[ingredient assignment]: metal assigned to M2 to deliver to Hw2\n";
+
+        assertEquals(expectedOutput, output);
+    }
 }

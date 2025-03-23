@@ -35,57 +35,7 @@ public class ProductionControllerTest {
     }
 
     @Test
-    public void testDoors1AddRequest() {
-        setupForDoors1();
-        String output = captureSystemOut(() -> this.productionController.addRequest("door", "D"));
-
-        String expectedOutput = "[source selection]: D has request for door on 0\n" +
-                "[D:door:0] For ingredient wood\n" +
-                "    W:0\n" +
-                "    Selecting W\n" +
-                "[ingredient assignment]: wood assigned to W to deliver to D\n" +
-                "[D:door:1] For ingredient handle\n" +
-                "    Ha:0\n" +
-                "    Selecting Ha\n" +
-                "[ingredient assignment]: handle assigned to Ha to deliver to D\n" +
-                "[source selection]: Ha has request for handle on 0\n" +
-                "[Ha:handle:0] For ingredient metal\n" +
-                "    M:0\n" +
-                "    Selecting M\n" +
-                "[ingredient assignment]: metal assigned to M to deliver to Ha\n" +
-                "[D:door:2] For ingredient hinge\n" +
-                "    Hi:0\n" +
-                "    Selecting Hi\n" +
-                "[ingredient assignment]: hinge assigned to Hi to deliver to D\n" +
-                "[source selection]: Hi has request for hinge on 0\n" +
-                "[Hi:hinge:0] For ingredient metal\n" +
-                "    M:1\n" +
-                "    Selecting M\n" +
-                "[ingredient assignment]: metal assigned to M to deliver to Hi\n" +
-                "[D:door:3] For ingredient hinge\n" +
-                "    Hi:1\n" +
-                "    Selecting Hi\n" +
-                "[ingredient assignment]: hinge assigned to Hi to deliver to D\n" +
-                "[source selection]: Hi has request for hinge on 0\n" +
-                "[Hi:hinge:0] For ingredient metal\n" +
-                "    M:2\n" +
-                "    Selecting M\n" +
-                "[ingredient assignment]: metal assigned to M to deliver to Hi\n" +
-                "[D:door:4] For ingredient hinge\n" +
-                "    Hi:2\n" +
-                "    Selecting Hi\n" +
-                "[ingredient assignment]: hinge assigned to Hi to deliver to D\n" +
-                "[source selection]: Hi has request for hinge on 0\n" +
-                "[Hi:hinge:0] For ingredient metal\n" +
-                "    M:3\n" +
-                "    Selecting M\n" +
-                "[ingredient assignment]: metal assigned to M to deliver to Hi\n";
-
-        assertEquals(expectedOutput, output);
-    }
-
-    @Test
-    public void testDoors1AddTimeStep() {
+    public void testDoors1AddTimeStep1() {
         setupForDoors1();
 
         this.productionController.addRequest("door", "D");
@@ -172,4 +122,107 @@ public class ProductionControllerTest {
         assertEquals(expectedOutput, output);
     }
 
+    @Test
+    public void testDoors1AddTimeStep2() {
+        setupForDoors1();
+
+        this.productionController.addRequest("door", "D");
+        this.productionController.addRequest("door", "D");
+
+        String output = captureSystemOut(() -> this.productionController.addTimeStep(50));
+
+        // String expectedOutput = "haha";
+
+        // assertEquals(expectedOutput, output);
+    }
+
+    private void setupForDoors2() {
+        ProductionController.setVerbose(2);
+        ProductionController.resetTimeStep();
+        ProductionController.resetCurrRequestIndex();
+
+        this.productionController = new ProductionController();
+        assertDoesNotThrow(() -> productionController.constructFromFile("src/resources/inputs/doors2.json"));
+    }
+
+    @Test
+    public void testDoors2AddTimeStep1() {
+        setupForDoors2();
+
+        this.productionController.addRequest("door", "D");
+
+        String output = captureSystemOut(() -> this.productionController.addTimeStep(50));
+
+        String expectedOutput = "[recipe selection]: D has fifo on cycle 1\n" +
+                "    0: door is not ready, waiting on {wood, handle, 3x hinge}\n" +
+                "[recipe selection]: Hw1 has fifo on cycle 1\n" +
+                "    0: handle is not ready, waiting on {metal}\n" +
+                "    1: hinge is not ready, waiting on {metal}\n" +
+                "[recipe selection]: Hw2 has fifo on cycle 1\n" +
+                "    0: hinge is not ready, waiting on {metal}\n" +
+                "    1: hinge is not ready, waiting on {metal}\n" +
+                "[recipe selection]: W has fifo on cycle 1\n" +
+                "    0: wood is ready\n" +
+                "    Selecting 0\n" +
+                "[recipe selection]: M1 has fifo on cycle 1\n" +
+                "    0: metal is ready\n" +
+                "    1: metal is ready\n" +
+                "    Selecting 0\n" +
+                "[recipe selection]: M2 has fifo on cycle 1\n" +
+                "    0: metal is ready\n" +
+                "    1: metal is ready\n" +
+                "    Selecting 0\n" +
+                "[ingredient delivered]: wood to D from W on cycle 1\n" +
+                "[ingredient delivered]: metal to Hw1 from M1 on cycle 1\n" +
+                "    0: handle is ready\n" +
+                "[ingredient delivered]: metal to Hw2 from M2 on cycle 1\n" +
+                "    0: hinge is ready\n" +
+                "[recipe selection]: D has fifo on cycle 2\n" +
+                "    0: door is not ready, waiting on {handle, 3x hinge}\n" +
+                "[recipe selection]: Hw1 has fifo on cycle 2\n" +
+                "    0: handle is ready\n" +
+                "    1: hinge is not ready, waiting on {metal}\n" +
+                "    Selecting 0\n" +
+                "[recipe selection]: Hw2 has fifo on cycle 2\n" +
+                "    0: hinge is ready\n" +
+                "    1: hinge is not ready, waiting on {metal}\n" +
+                "    Selecting 0\n" +
+                "[recipe selection]: M1 has fifo on cycle 2\n" +
+                "    0: metal is ready\n" +
+                "    Selecting 0\n" +
+                "[recipe selection]: M2 has fifo on cycle 2\n" +
+                "    0: metal is ready\n" +
+                "    Selecting 0\n" +
+                "[ingredient delivered]: hinge to D from Hw2 on cycle 2\n" +
+                "[ingredient delivered]: metal to Hw1 from M1 on cycle 2\n" +
+                "    0: hinge is ready\n" +
+                "[ingredient delivered]: metal to Hw2 from M2 on cycle 2\n" +
+                "    0: hinge is ready\n" +
+                "[recipe selection]: D has fifo on cycle 3\n" +
+                "    0: door is not ready, waiting on {handle, 2x hinge}\n" +
+                "[recipe selection]: Hw2 has fifo on cycle 3\n" +
+                "    0: hinge is ready\n" +
+                "    Selecting 0\n" +
+                "[ingredient delivered]: hinge to D from Hw2 on cycle 3\n" +
+                "[recipe selection]: D has fifo on cycle 4\n" +
+                "    0: door is not ready, waiting on {handle, hinge}\n" +
+                "[recipe selection]: D has fifo on cycle 5\n" +
+                "    0: door is not ready, waiting on {handle, hinge}\n" +
+                "[recipe selection]: D has fifo on cycle 6\n" +
+                "    0: door is not ready, waiting on {handle, hinge}\n" +
+                "[ingredient delivered]: handle to D from Hw1 on cycle 6\n" +
+                "[recipe selection]: D has fifo on cycle 7\n" +
+                "    0: door is not ready, waiting on {hinge}\n" +
+                "[recipe selection]: Hw1 has fifo on cycle 7\n" +
+                "    0: hinge is ready\n" +
+                "    Selecting 0\n" +
+                "[ingredient delivered]: hinge to D from Hw1 on cycle 7\n" +
+                "    0: door is ready\n" +
+                "[recipe selection]: D has fifo on cycle 8\n" +
+                "    0: door is ready\n" +
+                "    Selecting 0\n" +
+                "[order complete] Order 0 completed (door) at time 19\n";
+
+        assertEquals(expectedOutput, output);
+    }
 }
