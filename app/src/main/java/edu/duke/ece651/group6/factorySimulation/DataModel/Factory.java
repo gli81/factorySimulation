@@ -13,22 +13,9 @@ public class Factory extends BasicBuilding {
      */
     private ArrayList<Building> sources;
 
-    /*
-     * the storage of the factory
-     * key: the ingredient
-     * value: the quantity of the ingredient
-     */
-    private Map<Recipe, Integer> storage;
-
     public Factory(String name, Type type) {
         super(name);
         this.type = type;
-        this.storage = new HashMap<>();
-        for (Recipe recipe : this.type.getRecipesIterable()) {
-            for (Map.Entry<Recipe, Integer> ingredient : recipe.getIngredientsIterable()) {
-                this.storage.put(ingredient.getKey(), 0);
-            }
-        }
         this.sources = new ArrayList<>();
     }
 
@@ -46,10 +33,6 @@ public class Factory extends BasicBuilding {
 
     public boolean isRecipeSupported(Recipe recipe) {
         return this.type.isRecipeSupported(recipe);
-    }
-
-    public Map<Recipe, Integer> getStorage() {
-        return new HashMap<>(this.storage);
     }
 
     /**
@@ -125,39 +108,43 @@ public class Factory extends BasicBuilding {
      * if so, delete the resource needed from the storage
      */
     public void addStorage(Recipe ingredientDelivered) {
-        // find the recipe in the storage and add 1 to the quantity
-        this.storage.put(ingredientDelivered, this.storage.get(ingredientDelivered) + 1);
 
-        // check all the requests if they are ready and print the message
+        boolean isDone = false;
         int readyCount = 0;
-        // traverse the request queue
+        // traverse the request queue and update the missing ingredients
         for (RequestItem requestItem : this.requestQueue) {
-            // if the request is ready, print the message
-            if (requestItem.getStatus() == RequestItem.Status.READY) {
-                System.out.println("    " + readyCount + ": " + requestItem.getRecipe().getName() + " is ready");
+            // for every ready request, print the message
+            if (requestItem.status == RequestItem.Status.READY) {
+                System.out.println("    " + readyCount + ": " + requestItem.recipe.getName() + " is ready");
                 readyCount++;
-                // find the first waiting request
-            } else if (requestItem.getStatus() == RequestItem.Status.WAITING) {
-                Recipe requestRecipe = requestItem.getRecipe();
-                // check if the recipe is ready
-                boolean isReady = true;
-                for (Map.Entry<Recipe, Integer> ingredient : requestRecipe.getIngredientsIterable()) {
-                    if (this.storage.get(ingredient.getKey()) < ingredient.getValue()) {
-                        isReady = false;
+            }
+
+            // for the waiting request, check the missing list
+            if (requestItem.status == RequestItem.Status.WAITING && !isDone) {
+                for (Map.Entry<Recipe, Integer> missingIngredient : requestItem.missingIngredients.entrySet()) {
+                    // if the ingredient fits the missing list, update
+                    if (missingIngredient.getKey().equals(ingredientDelivered)) {
+                        if (missingIngredient.getValue() == 1) {
+                            // if the ingredient is the last one, remove
+                            requestItem.missingIngredients.remove(missingIngredient.getKey());
+                            if (requestItem.missingIngredients.isEmpty()) {
+                                requestItem.status = RequestItem.Status.READY;
+                                System.out.println(
+                                        "    " + readyCount + ": " + requestItem.recipe.getName() + " is ready");
+                                readyCount++;
+                            }
+                        } else {
+                            // if not, decrease the quantity
+                            requestItem.missingIngredients.put(missingIngredient.getKey(),
+                                    missingIngredient.getValue() - 1);
+                        }
+                        isDone = true;
+                        break;
                     }
                 }
-                if (isReady) {
-                    requestItem.setStatus(RequestItem.Status.READY);
-                    System.out.println("    " + readyCount + ": " + requestItem.getRecipe().getName() + " is ready");
-                    // delete the resource needed from the storage
-                    for (Map.Entry<Recipe, Integer> ingredient : requestRecipe.getIngredientsIterable()) {
-                        this.storage.put(ingredient.getKey(),
-                                this.storage.get(ingredient.getKey()) - ingredient.getValue());
-                    }
-                }
-                break;
             }
         }
+
     }
 
     /*

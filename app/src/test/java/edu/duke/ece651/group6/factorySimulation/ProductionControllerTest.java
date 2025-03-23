@@ -1,9 +1,7 @@
 package edu.duke.ece651.group6.factorySimulation;
 
 import static org.junit.jupiter.api.Assertions.*;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import java.io.IOException;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 
@@ -89,11 +87,13 @@ public class ProductionControllerTest {
     @Test
     public void testDoors1AddTimeStep() {
         setupForDoors1();
+
         this.productionController.addRequest("door", "D");
+
         String output = captureSystemOut(() -> this.productionController.addTimeStep(50));
 
         String expectedOutput = "[recipe selection]: D has fifo on cycle 1\n" +
-                "    0: door is not ready, waiting on {wood, 1x handle, 3x hinge}\n" +
+                "    0: door is not ready, waiting on {wood, handle, 3x hinge}\n" +
                 "[recipe selection]: Ha has fifo on cycle 1\n" +
                 "    0: handle is not ready, waiting on {metal}\n" +
                 "[recipe selection]: Hi has fifo on cycle 1\n" +
@@ -155,7 +155,7 @@ public class ProductionControllerTest {
                 "[ingredient delivered]: metal to Hi from M on cycle 4\n" +
                 "    0: hinge is ready\n" +
                 "[recipe selection]: D has fifo on cycle 5\n" +
-                "    0: door is not ready, waiting on {handle, 1x hinge}\n" +
+                "    0: door is not ready, waiting on {handle, hinge}\n" +
                 "[recipe selection]: Hi has fifo on cycle 5\n" +
                 "    0: hinge is ready\n" +
                 "    Selecting 0\n" +

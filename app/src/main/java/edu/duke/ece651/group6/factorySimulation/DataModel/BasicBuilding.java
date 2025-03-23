@@ -15,13 +15,10 @@ abstract class BasicBuilding implements Building {
 
     protected int workingTimeStep;
 
-    private boolean isWorking;
-
     public BasicBuilding(String name) {
         this.name = name;
         this.workingTimeStep = 0;
         this.requestQueue = new ArrayList<>();
-        this.isWorking = false;
     }
 
     public String getName() {
@@ -60,37 +57,37 @@ abstract class BasicBuilding implements Building {
 
         int index = 0;
         for (RequestItem request : this.requestQueue) {
-            if (request.getStatus() == RequestItem.Status.READY) {
+            if (request.status == RequestItem.Status.READY) {
                 if (ProductionController.getVerbose() >= 2)
-                    System.out.println("    " + index + ": " + request.getRecipe().getName() + " is ready");
-            } else if (request.getStatus() == RequestItem.Status.WAITING) {
+                    System.out.println("    " + index + ": " + request.recipe.getName() + " is ready");
+            } else if (request.status == RequestItem.Status.WAITING) {
                 // if the building is waiting, must be a factory
                 Factory factory = (Factory) this;
 
                 // get the all the missing ingredients
                 StringBuilder waitingOn = new StringBuilder("{");
-                for (Map.Entry<Recipe, Integer> ingredient : request.getRecipe().getIngredientsIterable()) {
-                    int missingNumber = ingredient.getValue()
-                            - factory.getStorage().getOrDefault(ingredient.getKey(), 0);
-                    if (missingNumber > 0) {
-                        if (waitingOn.length() > 1) {
-                            waitingOn.append(missingNumber + "x ");
-                        }
-                        waitingOn.append(ingredient.getKey().getName() + ", ");
+
+                // traverse the ingredients and get the missing number
+                for (Map.Entry<Recipe, Integer> missingIngredient : request.missingIngredients.entrySet()) {
+                    int missingNumber = missingIngredient.getValue();
+                    if (missingNumber > 1) {
+                        waitingOn.append(missingNumber + "x ");
                     }
+                    waitingOn.append(missingIngredient.getKey().getName() + ", ");
                 }
+
                 waitingOn.delete(waitingOn.length() - 1, waitingOn.length());
                 waitingOn.delete(waitingOn.length() - 1, waitingOn.length());
                 waitingOn.append("}");
 
                 if (ProductionController.getVerbose() >= 2)
-                    System.out.println("    " + index + ": " + request.getRecipe().getName()
+                    System.out.println("    " + index + ": " + request.recipe.getName()
                             + " is not ready, waiting on " + waitingOn);
             }
             index++;
         }
 
-        if (this.requestQueue.get(0).getStatus() == RequestItem.Status.READY) {
+        if (this.requestQueue.get(0).status == RequestItem.Status.READY) {
             if (ProductionController.getVerbose() >= 2)
                 System.out.println("    Selecting " + 0);
             return 0;
@@ -106,25 +103,25 @@ abstract class BasicBuilding implements Building {
         }
 
         // if the first request is not working, select the recipe to work on
-        if (this.requestQueue.get(0).getStatus() != RequestItem.Status.WORKING) {
+        if (this.requestQueue.get(0).status != RequestItem.Status.WORKING) {
             if (this.recipeSelection() == -1) {
                 // if all the recipes are not ready, do nothing
                 return;
             } else {
                 // if there is a recipe to work on, set the status to working
-                this.requestQueue.get(0).setStatus(RequestItem.Status.WORKING);
+                this.requestQueue.get(0).status = RequestItem.Status.WORKING;
             }
         }
 
         // get the first request in the queue
         RequestItem request = this.requestQueue.get(0);
-        if (request.getStatus() == RequestItem.Status.WORKING) {
+        if (request.status == RequestItem.Status.WORKING) {
             this.workingTimeStep++;
 
             // check if the work is done
-            int latency = request.getRecipe().getLatency();
+            int latency = request.recipe.getLatency();
             if (this.workingTimeStep == latency) {
-                request.setStatus(RequestItem.Status.DONE);
+                request.status = RequestItem.Status.DONE;
                 this.workingTimeStep = 0;
             }
         }
@@ -140,13 +137,13 @@ abstract class BasicBuilding implements Building {
     public Recipe doDelivery() {
         // if the request queue is empty or the first request is not done, do nothing
         if (this.requestQueue.isEmpty() ||
-                this.requestQueue.get(0).getStatus() != RequestItem.Status.DONE) {
+                this.requestQueue.get(0).status != RequestItem.Status.DONE) {
             return null;
         }
 
         // get the target building and the ingredient
-        Building targetBuilding = this.requestQueue.get(0).getTargetBuilding();
-        Recipe ingredient = this.requestQueue.get(0).getRecipe();
+        Building targetBuilding = this.requestQueue.get(0).targetBuilding;
+        Recipe ingredient = this.requestQueue.get(0).recipe;
 
         // remove the first request from the queue since it is done
         this.requestQueue.remove(0);

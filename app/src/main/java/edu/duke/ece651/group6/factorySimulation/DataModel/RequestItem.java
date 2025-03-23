@@ -1,5 +1,8 @@
 package edu.duke.ece651.group6.factorySimulation.DataModel;
 
+import java.util.Map;
+import java.util.LinkedHashMap;
+
 class RequestItem {
     public static class Status {
         public static final int WAITING = 0;
@@ -8,36 +11,31 @@ class RequestItem {
         public static final int DONE = 3;
     }
 
-    private final Recipe recipe;
+    protected final Recipe recipe;
     /*
      * 0: waiting for resource
      * 1: ready to be processed
      * 2: working on it
      * 3: done
      */
-    private int status;
-    private final Building targetBuilding;
+    protected int status;
+    protected final Building targetBuilding;
+
+    /**
+     * the missing ingredients list
+     * key: the ingredient
+     * value: the quantity of the ingredient
+     */
+    protected final Map<Recipe, Integer> missingIngredients;
 
     public RequestItem(Recipe recipe, int status, Building targetBuilding) {
         this.recipe = recipe;
         this.status = status;
         this.targetBuilding = targetBuilding;
-    }
-
-    public Recipe getRecipe() {
-        return recipe;
-    }
-
-    public int getStatus() {
-        return status;
-    }
-
-    public void setStatus(int status) {
-        this.status = status;
-    }
-
-    public Building getTargetBuilding() {
-        return targetBuilding;
+        this.missingIngredients = new LinkedHashMap<>();
+        for (Map.Entry<Recipe, Integer> ingredient : recipe.getIngredientsIterable()) {
+            this.missingIngredients.put(ingredient.getKey(), ingredient.getValue());
+        }
     }
 
     @Override
