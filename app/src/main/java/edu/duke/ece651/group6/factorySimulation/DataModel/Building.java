@@ -10,11 +10,9 @@ public interface Building {
 
     public void addRequest(Recipe recipe, Building targetBuilding);
 
-    public void removeRequest(Recipe recipe, Building targetBuilding);
+    public void doWork();
 
-    public void processOneTimeStep();
-
-    public void passResource();
+    public Recipe doDelivery();
 
     @Override
     public String toString();

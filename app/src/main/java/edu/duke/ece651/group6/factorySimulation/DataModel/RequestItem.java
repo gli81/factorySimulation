@@ -1,13 +1,21 @@
 package edu.duke.ece651.group6.factorySimulation.DataModel;
 
 class RequestItem {
+    public static class Status {
+        public static final int WAITING = 0;
+        public static final int READY = 1;
+        public static final int WORKING = 2;
+        public static final int DONE = 3;
+    }
+
     private final Recipe recipe;
     /*
-     * 0: waiting
-     * 1: ready
-     * 2: working
+     * 0: waiting for resource
+     * 1: ready to be processed
+     * 2: working on it
+     * 3: done
      */
-    private final int status;
+    private int status;
     private final Building targetBuilding;
 
     public RequestItem(Recipe recipe, int status, Building targetBuilding) {
@@ -22,6 +30,10 @@ class RequestItem {
 
     public int getStatus() {
         return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
     }
 
     public Building getTargetBuilding() {

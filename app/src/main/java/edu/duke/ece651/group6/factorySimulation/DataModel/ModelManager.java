@@ -2,7 +2,7 @@ package edu.duke.ece651.group6.factorySimulation.DataModel;
 
 import java.util.ArrayList;
 import java.util.Map;
-import java.util.Map.Entry;
+import edu.duke.ece651.group6.factorySimulation.ProductionController;
 
 public class ModelManager {
     private ArrayList<Type> types;
@@ -13,10 +13,10 @@ public class ModelManager {
      * order of buildings to be processed
      * pair of recipe and building
      * 
-     * first: recipe to be processed
-     * second: building to process the recipe / responsible for the recipe
+     * first: index of the order in the user request queue
+     * second: recipe and which building is responsible for the recipe
      */
-    public ArrayList<Map.Entry<Recipe, Building>> userRequestQueue;
+    public ArrayList<Map.Entry<Integer, Map.Entry<Recipe, Building>>> userRequestQueue;
 
     public ModelManager() {
         this.types = new ArrayList<>();
@@ -103,10 +103,43 @@ public class ModelManager {
         }
 
         // add the request to the user request queue
-        userRequestQueue.add(Map.entry(recipe, sourceBuilding));
+        this.userRequestQueue.add(Map.entry(ProductionController.getAndIncrementCurrRequestIndex(),
+                Map.entry(recipe, sourceBuilding)));
 
         // the target building is null because target is the user
         sourceBuilding.addRequest(recipe, null);
+    }
+
+    public void processOneTimeStep() {
+        for (Building building : this.buildings) {
+            building.doWork();
+        }
+
+        for (Building building : this.buildings) {
+            Recipe recipe = building.doDelivery();
+
+            // if the returned recipe is not null,
+            // it means the recipe is delivered to the user
+            if (recipe != null) {
+                // remove the request from the user request queue
+                int index = -1;
+                for (int i = 0; i < userRequestQueue.size(); i++) {
+                    if (userRequestQueue.get(i).getValue().equals(Map.entry(recipe, building))) {
+                        index = i;
+                        break;
+                    }
+                }
+                if (index != -1) {
+                    int orderNumber = userRequestQueue.get(index).getKey();
+                    this.userRequestQueue.remove(index);
+                    System.out.println(
+                            "[order complete] Order " + orderNumber + " completed ("
+                                    + recipe.getName() + ") at time "
+                                    + ProductionController.getCurrTimeStep());
+                }
+            }
+        }
+
     }
 
     @Override
