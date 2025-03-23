@@ -10,8 +10,8 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Files;
 import com.google.gson.JsonParseException;
-
 import org.junit.jupiter.api.Test;
+import java.net.URL;
 
 public class ModelConstructorTest {
   private String getResourcePath(String resourcePath) {

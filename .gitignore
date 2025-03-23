@@ -15,3 +15,8 @@ build
 
 # Editor backup files
 *~
+
+## eclipse related
+.settings
+.project
+.classpath
