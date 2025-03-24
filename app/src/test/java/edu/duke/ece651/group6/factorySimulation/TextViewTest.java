@@ -29,4 +29,13 @@ public class TextViewTest {
         v1.displayOutput("ss");
         assertEquals("ss\n", bytes.toString());
     }
+
+    @Test
+    void testProcessCommand() {
+        String command1 = "request a from b";
+        String command2 = "request a  from b";
+        TextView v = new TextView();
+        v.processCommand(command1);
+        v.processCommand(command2);
+    }
 }
