@@ -1,0 +1,30 @@
+{
+    "recipes": [
+        {
+            "output": "wood",
+            "ingredients": {},
+            "latency": 1
+        },
+        {
+            "output": "door",
+            "ingredients": {
+                "wood": 1
+            },
+            "latency": 10
+        }
+    ],
+    "types": [
+        {
+            "name": "doorType",
+            "recipes": [
+                "door"
+            ]
+        }
+    ],
+    "buildings": [
+        {
+            "name": "doorNothing",
+            "sources": []
+        }
+    ]
+}

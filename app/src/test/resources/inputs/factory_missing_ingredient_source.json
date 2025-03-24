@@ -1,0 +1,41 @@
+{
+    "recipes": [
+        {
+            "output": "wood",
+            "ingredients": {},
+            "latency": 1
+        },
+        {
+            "output": "metal",
+            "ingredients": {},
+            "latency": 1
+        },
+        {
+            "output": "door",
+            "ingredients": {
+                "wood": 1,
+                "metal": 2
+            },
+            "latency": 10
+        }
+    ],
+    "types": [
+        {
+            "name": "doorType",
+            "recipes": [
+                "door"
+            ]
+        }
+    ],
+    "buildings": [
+        {
+            "name": "woodMine",
+            "mine": "wood"
+        },
+        {
+            "name": "doorFactory",
+            "type": "doorType",
+            "sources": ["woodMine"]
+        }
+    ]
+}
