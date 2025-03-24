@@ -63,8 +63,6 @@ abstract class BasicBuilding implements Building {
                 if (ProductionController.getVerbose() >= 2)
                     System.out.println("    " + index + ": " + request.recipe.getName() + " is ready");
             } else if (request.status == RequestItem.Status.WAITING) {
-                // if the building is waiting, must be a factory
-                Factory factory = (Factory) this;
 
                 // get the all the missing ingredients
                 StringBuilder waitingOn = new StringBuilder("{");

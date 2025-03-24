@@ -3,7 +3,6 @@ package edu.duke.ece651.group6.factorySimulation.DataModel;
 import edu.duke.ece651.group6.factorySimulation.ProductionController;
 import java.util.ArrayList;
 import java.util.Map;
-import java.util.HashMap;
 
 public class Factory extends BasicBuilding {
 
