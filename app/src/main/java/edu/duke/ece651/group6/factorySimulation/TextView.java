@@ -57,7 +57,10 @@ public class TextView {
                 String tmp = cleaned_cmd + "a";
                 String[] split_by_quote = tmp.split("'");
                 if ( // 4 ' so 5 parts
-                    split_by_quote.length != 5 || !split_by_quote[2].equals(" from ")
+                    !(
+                        // make sure the last element is just what is appended
+                        split_by_quote.length == 5 && split_by_quote[4].equals("a") 
+                    ) || !split_by_quote[2].equals(" from ")
                 ) {
                     return "Invalid command - Usage: request 'ITEM' from 'BUILDING'";
                 }
