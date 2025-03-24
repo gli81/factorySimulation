@@ -7,8 +7,11 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.io.StringReader;
 import org.junit.jupiter.api.Test;
+import org.w3c.dom.Text;
 
 public class TextViewTest {
+    TextView v = new TextView();
+
 
     @Test
     void testPromptUser() throws IOException {
@@ -33,9 +36,27 @@ public class TextViewTest {
     @Test
     void testProcessCommand() {
         String command1 = "request a from b";
-        String command2 = "request a  from b";
-        TextView v = new TextView();
+        String command2 = "request aa  from b";
         v.processCommand(command1);
         v.processCommand(command2);
+    }
+
+    @Test
+    void testCleanCommand() {
+        String expeceted = "request a from b";
+        String c1 = "request a from b";
+        assertEquals(expeceted, v.cleanCommand(c1));
+        String c2 = "   request a from b";
+        assertEquals(expeceted, v.cleanCommand(c2));
+        String c3 = "request  a  from b";
+        assertEquals(expeceted, v.cleanCommand(c3));
+        String c4 = "request a from b    ";
+        assertEquals(expeceted, v.cleanCommand(c4));
+    }
+
+    @Test
+    void testIsNonnegativeDigit() {
+        assertTrue(v.isNonnegativeDigit("123"));
+        assertFalse(v.isNonnegativeDigit("-123"));
     }
 }
