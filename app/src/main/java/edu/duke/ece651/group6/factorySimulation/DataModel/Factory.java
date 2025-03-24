@@ -13,14 +13,9 @@ public class Factory extends BasicBuilding {
      */
     private ArrayList<Building> sources;
 
-    private Map<Recipe, Integer> storage;
-    private int remainingTimeStep;
-
     public Factory(String name, Type type) {
         super(name);
         this.type = type;
-        this.storage = new HashMap<>();
-        this.remainingTimeStep = 0;
         this.sources = new ArrayList<>();
     }
 
@@ -76,21 +71,11 @@ public class Factory extends BasicBuilding {
         return selectedSource;
     }
 
-    // private boolean isIngredientReady(Recipe ingredient, int quantity) {
-    // if (this.storage.containsKey(ingredient)) {
-    // return this.storage.get(ingredient) >= quantity;
-    // }
-    // return false;
-    // }
-
     public void addRequest(Recipe recipe, Building targetBuilding) {
-        // print the ingredient assignment message if the target is not user-requested
-        if (ProductionController.getVerbose() >= 1 && targetBuilding != null) {
-            System.out.println("[ingredient assignment]: " + recipe.getName() + " assigned to " + this.name
-                    + " to deliver to " + targetBuilding.getName());
-        }
+        // print the request message
+        super.addRequest(recipe, targetBuilding);
 
-        this.requestQueue.add(new RequestItem(recipe, 0, targetBuilding));
+        this.requestQueue.add(new RequestItem(recipe, RequestItem.Status.WAITING, targetBuilding));
 
         // for each ingredient, add a request to the source building
         int ingredientCount = 0;
@@ -117,18 +102,49 @@ public class Factory extends BasicBuilding {
         }
     }
 
-    public void removeRequest(Recipe recipe, Building targetBuilding) {
+    /*
+     * add the recipe to the storage
+     * and then check is any recipe ready,
+     * if so, delete the resource needed from the storage
+     */
+    public void addStorage(Recipe ingredientDelivered) {
 
-    }
+        boolean isDone = false;
+        int readyCount = 0;
+        // traverse the request queue and update the missing ingredients
+        for (RequestItem requestItem : this.requestQueue) {
+            // for every ready request, print the message
+            if (requestItem.status == RequestItem.Status.READY) {
+                System.out.println("    " + readyCount + ": " + requestItem.recipe.getName() + " is ready");
+                readyCount++;
+            }
 
-    public void passResource() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'passResource'");
-    }
+            // for the waiting request, check the missing list
+            if (requestItem.status == RequestItem.Status.WAITING && !isDone) {
+                for (Map.Entry<Recipe, Integer> missingIngredient : requestItem.missingIngredients.entrySet()) {
+                    // if the ingredient fits the missing list, update
+                    if (missingIngredient.getKey().equals(ingredientDelivered)) {
+                        if (missingIngredient.getValue() == 1) {
+                            // if the ingredient is the last one, remove
+                            requestItem.missingIngredients.remove(missingIngredient.getKey());
+                            if (requestItem.missingIngredients.isEmpty()) {
+                                requestItem.status = RequestItem.Status.READY;
+                                System.out.println(
+                                        "    " + readyCount + ": " + requestItem.recipe.getName() + " is ready");
+                                readyCount++;
+                            }
+                        } else {
+                            // if not, decrease the quantity
+                            requestItem.missingIngredients.put(missingIngredient.getKey(),
+                                    missingIngredient.getValue() - 1);
+                        }
+                        isDone = true;
+                        break;
+                    }
+                }
+            }
+        }
 
-    public void processOneTimeStep() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'processOneTimeStep'");
     }
 
     /*
