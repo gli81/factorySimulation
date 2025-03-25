@@ -29,4 +29,18 @@ public class TextViewTest {
         v1.displayOutput("ss");
         assertEquals("ss\n", bytes.toString());
     }
+
+@Test
+public void testDefaultConstructor() {
+    // Simply verify the constructor doesn't throw exceptions
+    TextView view = new TextView();
+    assertNotNull(view);
+    
+    // Call a method to ensure the object is properly initialized
+    assertDoesNotThrow(() -> {
+        // We're not testing the actual output, just that the method runs
+        view.displayOutput("test message");
+    });
+}
+
 }
