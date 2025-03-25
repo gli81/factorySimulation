@@ -5,3 +5,21 @@
 build
 
 .vscode
+
+# Compiled class files
+*.class
+
+# Build directory
+# /app/bin/
+# /bin/
+bin
+
+# Editor backup files
+*~
+
+## eclipse related
+.settings
+.project
+.classpath
+
+.DS_Store
