@@ -1,0 +1,19 @@
+image: gradle:8.12-jdk21
+
+stages:
+  - build
+  - test
+
+build:
+  script:
+    - gradle --parallel --info build
+    # - echo "build stage"
+
+test:
+  script:
+    - gradle test
+    # - echo "test stage"
+
+# clean:
+  # script:
+  #   - gradle clean
