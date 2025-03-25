@@ -31,7 +31,8 @@ public class TextView {
      *  step N
      *  verbose N
      *  finish
-     * multiple spaces count as one, no space is invalid => ignore silently
+     * multiple spaces count as one
+     * no word or only space is invalid => ignore silently
      * 
      * @param command is the command that the user input
      * @return the output displayed to user
@@ -39,7 +40,7 @@ public class TextView {
     public String processCommand(String command) {
         String cleaned_cmd = cleanCommand(command);
         String[] cleaned_words = cleaned_cmd.split(" ");
-        if (cleaned_words.length == 0) {
+        if (cleaned_words.length == 1 && cleaned_words[0].equals("")) {
             // if null silently ignore
             return null;
         }
@@ -57,7 +58,10 @@ public class TextView {
                 String tmp = cleaned_cmd + "a";
                 String[] split_by_quote = tmp.split("'");
                 if ( // 4 ' so 5 parts
-                    split_by_quote.length != 5 || !split_by_quote[2].equals(" from ")
+                    !(
+                        // make sure the last element is just what is appended
+                        split_by_quote.length == 5 && split_by_quote[4].equals("a") 
+                    ) || !split_by_quote[2].equals(" from ")
                 ) {
                     return "Invalid command - Usage: request 'ITEM' from 'BUILDING'";
                 }
@@ -74,19 +78,19 @@ public class TextView {
                     return "Invalid command - Usage: verbose <int:verbose-level>";
                 }
                 // check within range
-                // what is the range?
-                return String.join(" ", cleaned_words); // echo the cmd for now
+                // what is the range? 0-2?
+                return cleaned_cmd; // echo the cmd for now
             case "finish":
                 // check only one word
                 return cleaned_words.length == 1 ?
-                    "finish" : // echo the cmd for now
+                    cleaned_cmd : // echo the cmd for now
                     "Invalid command - Usage: finish";
             case "step":
                 // check only two words, second word isdigit
                 if (cleaned_words.length != 2 || !isNonnegativeDigit(cleaned_words[1])) {
                     return "Invalid command - Usage: step <int:verbose-level>";
                 }
-                return "step";
+                return cleaned_cmd;
             default:
                 return "Invalid command - Please try again";
         }
@@ -105,7 +109,6 @@ public class TextView {
         for (String word : words) {
             if (!word.equals("")) word_ct += 1;
         }
-        // System.out.println(word_ct);
         String[] cleaned_words = new String[word_ct];
         int ct = 0;
         for (String word : words) {

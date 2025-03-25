@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.io.StringReader;
 import org.junit.jupiter.api.Test;
-import org.w3c.dom.Text;
 
 public class TextViewTest {
     TextView v = new TextView();
@@ -35,10 +34,15 @@ public class TextViewTest {
 
     @Test
     void testProcessCommand() {
-        String command1 = "request a from b";
-        String command2 = "request aa  from b";
-        v.processCommand(command1);
-        v.processCommand(command2);
+        // String c1 = "request a from b";
+        // String c2 = "request aa  from b";
+        String c3 = "";
+        String c4 = "   ";
+        v.processCommand(c3);
+        v.processCommand(c4);
+        String c5 = "finish";
+        v.processCommand(c5);
+        
     }
 
     @Test
