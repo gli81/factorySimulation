@@ -225,4 +225,20 @@ public class ProductionControllerTest {
 
         assertEquals(expectedOutput, output);
     }
+
+  @Test
+public void test_setVerbose_negative_value() {
+    // First set verbose to a known value
+    ProductionController.setVerbose(2);
+    assertEquals(2, ProductionController.getVerbose());
+    
+    // Now try setting it to a negative value
+    int oldValue = ProductionController.setVerbose(-1);
+    
+    // The old value should be 2
+    assertEquals(2, oldValue);
+    
+    // The verbose level should still be 2 (unchanged)
+    assertEquals(2, ProductionController.getVerbose());
+}
 }
