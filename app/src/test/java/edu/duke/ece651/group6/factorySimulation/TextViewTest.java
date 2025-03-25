@@ -33,16 +33,23 @@ public class TextViewTest {
     }
 
     @Test
+    public void testDefaultConstructor() {
+        TextView view = new TextView();
+        assertNotNull(view);
+        
+        assertDoesNotThrow(() -> {
+            view.displayOutput("test message");
+        });
+    }
+
+    @Test
     void testProcessCommand() {
-        // String c1 = "request a from b";
-        // String c2 = "request aa  from b";
         String c3 = "";
         String c4 = "   ";
         v.processCommand(c3);
         v.processCommand(c4);
         String c5 = "finish";
         v.processCommand(c5);
-        
     }
 
     @Test

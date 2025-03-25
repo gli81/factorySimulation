@@ -2,24 +2,41 @@ package edu.duke.ece651.group6.factorySimulation.DataModel;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import java.net.URL;
-import java.util.ArrayList;
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Files;
-import com.google.gson.JsonParseException;
-import org.junit.jupiter.api.Test;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+
+import com.google.gson.JsonParseException;
+
+import org.junit.jupiter.api.Test;
 
 public class ModelConstructorTest {
 
   private String getResourcePath(String resourcePath) {
     URL url = getClass().getClassLoader().getResource(resourcePath);
     System.out.println("Finding file: " + resourcePath);
-    System.out.println("URL wasn't found: " + url);
+
+    if (url == null) {
+      System.out.println("URL wasn't found for: " + resourcePath);
+      throw new RuntimeException("Resource not found: " + resourcePath);
+    }
+
+    System.out.println("URL found: " + url);
     return url.getPath();
+  }
+
+  @Test
+  public void testResourceNotFound() {
+    try {
+      getResourcePath("inputs/non_existent_file.json");
+    } catch (RuntimeException e) {
+      assertTrue(e.getMessage().contains("Resource not found"));
+    }
   }
 
   @Test
