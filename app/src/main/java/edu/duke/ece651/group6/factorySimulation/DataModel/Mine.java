@@ -1,17 +1,12 @@
 package edu.duke.ece651.group6.factorySimulation.DataModel;
 
-import edu.duke.ece651.group6.factorySimulation.ProductionController;
-import java.util.ArrayList;
-
 public class Mine extends BasicBuilding {
 
     private final Recipe outputItem;
-    private boolean isMining;
 
     public Mine(String name, Recipe outputItem) {
         super(name);
         this.outputItem = outputItem;
-        this.isMining = false;
     }
 
     public Recipe getOutputItem() {
@@ -23,29 +18,10 @@ public class Mine extends BasicBuilding {
     }
 
     public void addRequest(Recipe recipe, Building targetBuilding) {
-        // print the ingredient assignment message if the target is not user-requested
-        if (ProductionController.getVerbose() >= 1 && targetBuilding != null) {
-            System.out.println("[ingredient assignment]: " + recipe.getName() + " assigned to " + this.name
-                    + " to deliver to " + targetBuilding.getName());
-        }
-
-        // if the request queue is empty, set the status to working
-        // otherwise, set the status to ready, since no ingredient is needed
-        int status = this.requestQueue.isEmpty() ? 2 : 1;
+        // print the request message
+        super.addRequest(recipe, targetBuilding);
+        int status = RequestItem.Status.READY;
         this.requestQueue.add(new RequestItem(recipe, status, targetBuilding));
-    }
-
-    public void removeRequest(Recipe recipe, Building targetBuilding) {
-    }
-
-    public void passResource() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'passResource'");
-    }
-
-    public void processOneTimeStep() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'processOneTimeStep'");
     }
 
     /*

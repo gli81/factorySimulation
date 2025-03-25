@@ -3,15 +3,16 @@ package edu.duke.ece651.group6.factorySimulation.DataModel;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.LinkedHashMap;
-import java.util.Iterator;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
 
 public class ModelConstructor {
     private ModelManager modelManager;
@@ -62,23 +63,34 @@ public class ModelConstructor {
             throw new InvalidInputException("Missing recipes array in JSON");
         }
 
-        // temporary list to store ingredients strings of each recipe
         ArrayList<Map<String, Integer>> ingredientsList = new ArrayList<>();
-
-        // iterate over the recipes JSON array
         for (JsonElement recipeElement : recipesArray) {
             JsonObject recipeObject = recipeElement.getAsJsonObject();
 
-            // get the output and latency
             String output = recipeObject.get("output").getAsString();
             if (output == null) {
                 throw new InvalidInputException("Missing output of recipe in JSON");
             }
+
+            // check 1: check if recipe name contains apostrophes
+            validateName(output, "Recipe");
+
+            // check 11: validate recipe name is unique
+            if (modelManager.getRecipe(output) != null) {
+                throw new InvalidInputException("Recipe name '" + output + "' is not unique");
+            }
+
             JsonElement latencyElement = recipeObject.get("latency");
             if (latencyElement == null) {
                 throw new InvalidInputException("Missing latency of recipe " + output + " in JSON");
             }
             int latency = latencyElement.getAsInt();
+
+            // check 10: validate that latency is at least 1
+            if (latency < 1) {
+                throw new InvalidInputException(
+                        "Recipe latency must be at least 1, got " + latency + " for recipe '" + output + "'");
+            }
 
             // get the ingredients
             JsonObject ingredientsObject = recipeObject.getAsJsonObject("ingredients");
@@ -90,10 +102,7 @@ public class ModelConstructor {
                 ingredients.put(ingredientName, ingredientsObject.get(ingredientName).getAsInt());
             }
 
-            // add the ingredients to the temporary ingredients list
             ingredientsList.add(ingredients);
-
-            // create and add the new recipe
             Recipe recipe = new Recipe(output, latency);
             modelManager.addRecipe(recipe);
         }
@@ -139,6 +148,14 @@ public class ModelConstructor {
                 throw new InvalidInputException("Missing name of type in JSON");
             }
 
+            // check 1: check if type name contains apostrophes
+            validateName(typeName, "Type");
+
+            // check 12: validate type name is unique
+            if (modelManager.getType(typeName) != null) {
+                throw new InvalidInputException("Type name '" + typeName + "' is not unique");
+            }
+
             // get the recipes
             ArrayList<Recipe> recipes = new ArrayList<>();
             JsonArray recipesArray = typeObject.getAsJsonArray("recipes");
@@ -155,6 +172,19 @@ public class ModelConstructor {
                     throw new InvalidInputException("Recipe of type " + typeName + " not found: "
                             + recipeName.getAsString());
                 }
+                // check 7: all recipes used in the types section must be recipes appropriate
+                // for factories
+                // (each recipe must have at least one input ingredient)
+                boolean hasIngredients = false;
+                for (Map.Entry<Recipe, Integer> ingredient : recipe.getIngredientsIterable()) {
+                    hasIngredients = true;
+                    break;
+                }
+                if (!hasIngredients) {
+                    throw new InvalidInputException("Recipe '" + recipe.getName() +
+                            "' used in type '" + typeName + "' must have at least one ingredient for factories");
+                }
+
                 recipes.add(recipe);
             }
 
@@ -188,6 +218,14 @@ public class ModelConstructor {
                 throw new InvalidInputException("Missing name of building in JSON");
             }
 
+            // check 1: check if building name contains apostrophes
+            validateName(name, "Building");
+
+            // check 13: validate building name is unique
+            if (modelManager.getBuilding(name) != null) {
+                throw new InvalidInputException("Building name '" + name + "' is not unique");
+            }
+
             // get the source buildings
             ArrayList<String> sources = new ArrayList<>();
             JsonArray sourcesArray = buildingObject.getAsJsonArray("sources");
@@ -213,6 +251,18 @@ public class ModelConstructor {
                 if (mineItem == null) {
                     throw new InvalidInputException("Mine item of building " + name + " not found: " + mineType);
                 }
+
+                // check 8: mine recipes must have no ingredients
+                boolean hasIngredients = false;
+                for (Map.Entry<Recipe, Integer> ingredient : mineItem.getIngredientsIterable()) {
+                    hasIngredients = true;
+                    break;
+                }
+                if (hasIngredients) {
+                    throw new InvalidInputException("Mine recipe '" + mineItem.getName() +
+                            "' for building '" + name + "' must have no ingredients");
+                }
+
                 Mine mine = new Mine(name, mineItem);
                 modelManager.addBuilding(mine);
             } else if (!buildingObject.has("mine") && buildingObject.has("type")) {
@@ -251,7 +301,54 @@ public class ModelConstructor {
                                 "Source building " + sourceName + " not found: " + sourceName);
                     }
                     factory.addSource(sourceBuilding);
+
                 }
+                // check 9: For each factory, all ingredients it might need must be available
+                checkFactoryIngredientsAvailability(factory);
+            }
+        }
+    }
+
+    /**
+     * Check if all ingredients needed by a factory are available from at least one
+     * of its source buildings
+     * 
+     * @param factory the factory to check
+     * @throws InvalidInputException if an ingredient is not available
+     */
+    private void checkFactoryIngredientsAvailability(Factory factory) {
+        Type factoryType = factory.getType();
+
+        // Collect all unique ingredients needed by this factory's recipes
+        Map<String, Boolean> requiredIngredients = new LinkedHashMap<>();
+
+        for (Recipe recipe : factoryType.getRecipesIterable()) {
+            for (Map.Entry<Recipe, Integer> ingredient : recipe.getIngredientsIterable()) {
+                requiredIngredients.put(ingredient.getKey().getName(), false);
+            }
+        }
+
+        // No ingredients required? Nothing to check
+        if (requiredIngredients.isEmpty()) {
+            return;
+        }
+
+        // Check if each required ingredient can be provided by at least one source
+        for (Building source : factory.getSourcesIterable()) {
+            for (String ingredientName : requiredIngredients.keySet()) {
+                Recipe ingredientRecipe = modelManager.getRecipe(ingredientName);
+                if (source.isRecipeSupported(ingredientRecipe)) {
+                    requiredIngredients.put(ingredientName, true);
+                }
+            }
+        }
+
+        // Check if any ingredient is still not available
+        for (Map.Entry<String, Boolean> entry : requiredIngredients.entrySet()) {
+            if (!entry.getValue()) {
+                throw new InvalidInputException("Factory '" + factory.getName() +
+                        "' cannot get ingredient '" + entry.getKey() +
+                        "' from any of its sources");
             }
         }
     }
@@ -273,4 +370,18 @@ public class ModelConstructor {
         constructBuildings(jsonObject);
     }
 
+    /**
+     * Validate a name for both recipes and types
+     * 
+     * @param name       the name to validate
+     * @param entityType the type of entity (e.g., "Recipe", "Type")
+     * @throws InvalidInputException if the name is invalid
+     */
+    private void validateName(String name, String Category) {
+        // check 1: check if name contains apostrophes
+        if (name.contains("'")) {
+            throw new InvalidInputException(
+                    Category + " name '" + name + "' contains an apostrophe which is not allowed");
+        }
+    }
 }
