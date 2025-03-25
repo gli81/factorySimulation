@@ -9,6 +9,8 @@ import java.io.StringReader;
 import org.junit.jupiter.api.Test;
 
 public class TextViewTest {
+    TextView v = new TextView();
+
 
     @Test
     void testPromptUser() throws IOException {
@@ -30,17 +32,42 @@ public class TextViewTest {
         assertEquals("ss\n", bytes.toString());
     }
 
-@Test
-public void testDefaultConstructor() {
-    // Simply verify the constructor doesn't throw exceptions
-    TextView view = new TextView();
-    assertNotNull(view);
-    
-    // Call a method to ensure the object is properly initialized
-    assertDoesNotThrow(() -> {
-        // We're not testing the actual output, just that the method runs
-        view.displayOutput("test message");
-    });
-}
+    @Test
+    public void testDefaultConstructor() {
+        TextView view = new TextView();
+        assertNotNull(view);
+        
+        assertDoesNotThrow(() -> {
+            view.displayOutput("test message");
+        });
+    }
 
+    @Test
+    void testProcessCommand() {
+        String c3 = "";
+        String c4 = "   ";
+        v.processCommand(c3);
+        v.processCommand(c4);
+        String c5 = "finish";
+        v.processCommand(c5);
+    }
+
+    @Test
+    void testCleanCommand() {
+        String expeceted = "request a from b";
+        String c1 = "request a from b";
+        assertEquals(expeceted, v.cleanCommand(c1));
+        String c2 = "   request a from b";
+        assertEquals(expeceted, v.cleanCommand(c2));
+        String c3 = "request  a  from b";
+        assertEquals(expeceted, v.cleanCommand(c3));
+        String c4 = "request a from b    ";
+        assertEquals(expeceted, v.cleanCommand(c4));
+    }
+
+    @Test
+    void testIsNonnegativeDigit() {
+        assertTrue(v.isNonnegativeDigit("123"));
+        assertFalse(v.isNonnegativeDigit("-123"));
+    }
 }
