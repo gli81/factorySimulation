@@ -262,4 +262,55 @@ public class ProductionControllerTest {
         assertTrue(productionController.isNonnegativeDigit("123"));
         assertFalse(productionController.isNonnegativeDigit("-123"));
     }
+
+    @Test
+    void testProcessCommand() {
+        ProductionController pc = new ProductionController();
+        assertEquals(
+            "Invalid command - Usage: request 'ITEM' from 'BUILDING'",
+            pc.processCommand("request 'a' from 'b")
+        );
+        assertEquals(
+            "Invalid command - Usage: request 'ITEM' from 'BUILDING'",
+            pc.processCommand("request 'a'from 'b'")
+        );
+        assertEquals(
+            "Invalid command - Usage: request 'ITEM' from 'BUILDING'",
+            pc.processCommand("request 'a'from 'b'")
+        );
+        assertEquals(
+            "Invalid command - Usage: request 'ITEM' from 'BUILDING'",
+            pc.processCommand("request 'a from 'b'")
+        );
+        assertEquals(
+            "Invalid command - Usage: request 'ITEM' from 'BUILDING'",
+            pc.processCommand("request a' from 'b'")
+        );
+        assertEquals(
+            "Invalid command - Usage: request 'ITEM' from 'BUILDING'",
+            pc.processCommand("request 'a' from b'")
+        );
+        assertEquals(
+            "Invalid command - Usage: request 'ITEM' from 'BUILDING'",
+            pc.processCommand("request 'a' from 'b'c")
+        );
+        assertNull(pc.processCommand(""));
+        assertNull(pc.processCommand("      "));
+        assertEquals(
+            "Invalid command - Invalid verbose level",
+            pc.processCommand("verbose 3")
+        );
+        assertEquals(
+            "Invalid command - Usage: verbose <int:verbose-level>",
+            pc.processCommand("verbose -1")
+        );
+        assertEquals(
+            "Invalid command - Usage: finish",
+            pc.processCommand("finish lol")
+        );
+        assertEquals(
+            "Invalid command - Usage: step <int:step>",
+            pc.processCommand("step 2 2")
+        );
+    }
 }

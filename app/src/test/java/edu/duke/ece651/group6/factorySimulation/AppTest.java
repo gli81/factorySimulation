@@ -5,6 +5,71 @@ package edu.duke.ece651.group6.factorySimulation;
 
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintStream;
+import java.net.URISyntaxException;
+import java.nio.file.Paths;
+import java.util.Objects;
 
 class AppTest {
+    @Test
+    void testMain() throws IOException  {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        PrintStream out = new PrintStream(bytes, true);
+        // InputStream oldIn = System.in;
+        PrintStream oldOut = System.out;
+        try {
+            // System.setIn(input);
+            System.setOut(out);
+            App.main(new String[0]);
+        } finally {
+            // System.setIn(oldIn);
+            System.setOut(oldOut);
+        }
+        String expected = "Invalid Config File - Usage: app <json-file>\n";
+        String actual = bytes.toString();
+        assertEquals(expected, actual);
+
+        bytes.reset();
+        try {
+            System.setOut(out);
+            // not exist file
+            App.main(new String[]{"./invalidjson.json"});
+        } finally {
+            System.setOut(oldOut);
+        }
+        expected = "Invalid Config File - File doesn't exist\n";
+        assertEquals(expected, bytes.toString());
+    }
+
+    @Test
+    void testFromFile() throws IOException, URISyntaxException {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        PrintStream out = new PrintStream(bytes, true);
+        InputStream input = this.getClass()
+            .getClassLoader().getResourceAsStream("./integration-test/input.txt");
+        assertNotNull(input);
+        InputStream expectedStream = this.getClass()
+            .getClassLoader().getResourceAsStream("./integration-test/output.txt");
+        assertNotNull(expectedStream);
+        InputStream oldIn = System.in;
+        PrintStream oldOut = System.out;
+        String path = Paths.get(
+            Objects.requireNonNull(
+                    // getClass().getClassLoader().getResource("../../../../../resources/inputs/doors1.json")
+                    getClass().getClassLoader().getResource("doors1.json")
+            ).toURI()
+        ).toString();
+        try {
+            System.setIn(input);
+            System.setOut(out);
+            App.main(new String[]{path});
+        } finally {
+            System.setIn(oldIn);
+            System.setOut(oldOut);
+        }
+        assertEquals(new String(expectedStream.readAllBytes()), bytes.toString());
+    }
 }

@@ -202,7 +202,7 @@ public class ProductionController {
             case "step":
                 // check only two words, second word isdigit
                 if (cleaned_words.length != 2 || !isNonnegativeDigit(cleaned_words[1])) {
-                    return "Invalid command - Usage: step <int:verbose-level>";
+                    return "Invalid command - Usage: step <int:step>";
                 }
                 addTimeStep(Integer.valueOf(cleaned_words[1]));
                 return null;
