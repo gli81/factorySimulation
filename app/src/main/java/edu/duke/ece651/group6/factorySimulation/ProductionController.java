@@ -153,9 +153,12 @@ public class ProductionController {
                 String tmp = cleaned_cmd + "a";
                 String[] split_by_quote = tmp.split("'");
                 if ( // 4 ' so 5 parts
-                !(
-                // make sure the last element is just what is appended
-                split_by_quote.length == 5 && split_by_quote[4].equals("a")) || !split_by_quote[2].equals(" from ")) {
+                    !(
+                        // make sure the last element is just what is appended
+                        split_by_quote.length == 5 && split_by_quote[4].equals("a")
+                    ) ||
+                    !split_by_quote[2].equals(" from ")
+                ) {
                     return "Invalid command - Usage: request 'ITEM' from 'BUILDING'";
                 }
                 /*
@@ -163,8 +166,12 @@ public class ProductionController {
                  */
                 // make sure item in recipe, building in factory
                 // make sure factory can make recipe
-                // need interface
-                return cleaned_cmd;
+                try {
+                    this.modelManager.addUserRequest(split_by_quote[1], split_by_quote[3]);
+                    return null;
+                } catch (InvalidInputException e) {
+                    return "Invalid request - " + e.getMessage();
+                }
             // break;
             case "verbose":
                 // check only two words,second word isdigit
@@ -183,8 +190,15 @@ public class ProductionController {
                 return null; // output from Evan's part
             case "finish":
                 // check only one word
-                return cleaned_words.length == 1 ? cleaned_cmd : // echo the cmd for now
-                        "Invalid command - Usage: finish";
+                if (cleaned_words.length == 1) {
+                    finishAllRequests();
+                    String rslt = "Simulation completed at time-step " + currTimeStep;
+                    this.view.displayOutput(rslt);
+                    System.exit(0);
+                    return rslt;
+                } else {
+                    return "Invalid command - Usage: finish";
+                }
             case "step":
                 // check only two words, second word isdigit
                 if (cleaned_words.length != 2 || !isNonnegativeDigit(cleaned_words[1])) {
