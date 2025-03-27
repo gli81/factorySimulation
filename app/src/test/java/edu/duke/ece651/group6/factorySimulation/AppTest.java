@@ -9,6 +9,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.net.URISyntaxException;
+import java.nio.file.Paths;
+import java.util.Objects;
 
 class AppTest {
     @Test
@@ -42,7 +45,7 @@ class AppTest {
     }
 
     @Test
-    void testFromFile() {
+    void testFromFile() throws IOException, URISyntaxException {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         PrintStream out = new PrintStream(bytes, true);
         InputStream input = this.getClass()
@@ -53,10 +56,20 @@ class AppTest {
         assertNotNull(expectedStream);
         InputStream oldIn = System.in;
         PrintStream oldOut = System.out;
+        String path = Paths.get(
+            Objects.requireNonNull(
+                    // getClass().getClassLoader().getResource("../../../../../resources/inputs/doors1.json")
+                    getClass().getClassLoader().getResource("doors1.json")
+            ).toURI()
+        ).toString();
         try {
-            System.SetIn(input);
-            System.SetOut(out);
-            App.main("./");
-        }        
+            System.setIn(input);
+            System.setOut(out);
+            App.main(new String[]{path});
+        } finally {
+            System.setIn(oldIn);
+            System.setOut(oldOut);
+        }
+        assertEquals(new String(expectedStream.readAllBytes()), bytes.toString());
     }
 }
