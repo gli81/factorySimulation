@@ -244,6 +244,7 @@ public class ProductionControllerTest {
 
     @Test
     void testCleanCommand() {
+        this.productionController = new ProductionController();
         String expeceted = "request a from b";
         String c1 = "request a from b";
         assertEquals(expeceted, productionController.cleanCommand(c1));
@@ -257,6 +258,7 @@ public class ProductionControllerTest {
 
     @Test
     void testIsNonnegativeDigit() {
+        this.productionController = new ProductionController();
         assertTrue(productionController.isNonnegativeDigit("123"));
         assertFalse(productionController.isNonnegativeDigit("-123"));
     }
