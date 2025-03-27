@@ -21,17 +21,17 @@ public class App {
                 throw new Exception("Invalid Config File - Usage: app <json-file>");
             }
             app.readJson(args[0]);
+            while (true) {
+                app.ctrl.displayOutput();
+            }
         } catch (JsonParseException jpe) {
-            System.err.println(
+            System.out.println(
                 "Invalid Config File - Invalid format"
             );
-            System.exit(0); // exit?
+            // System.exit(0); // exit?
         } catch (Exception e) {
-            System.err.println(e.getMessage());
-            System.exit(0); // exit?
-        }
-        while (true) {
-            app.ctrl.displayOutput();
+            System.out.println(e.getMessage());
+            // System.exit(0); // exit?
         }
     }
 
