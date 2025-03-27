@@ -3,15 +3,13 @@ package edu.duke.ece651.group6.factorySimulation;
 import java.io.File;
 import java.io.IOException;
 import com.google.gson.JsonParseException;
-import edu.duke.ece651.group6.factorySimulation.DataModel.ModelConstructor;
-import edu.duke.ece651.group6.factorySimulation.DataModel.ModelManager;
 
 public class App {
-    private final TextView view;
+    private final ProductionController ctrl;
 
 
     public App() {
-        this.view = new TextView();
+        this.ctrl = new ProductionController();
     }
 
     
@@ -33,7 +31,7 @@ public class App {
             System.exit(0); // exit?
         }
         while (true) {
-            app.view.displayOutput(app.view.processCommand(app.view.promptUser()));
+            app.ctrl.displayOutput();
         }
     }
 
@@ -46,7 +44,6 @@ public class App {
             throw new Exception("Invalid Config File - File doesn't exist");
         }
         // read json
-        ModelConstructor mc = new ModelConstructor(new ModelManager());
-        mc.constructFromJsonFile(configPath);
+        this.ctrl.constructFromFile(configPath);
     }
 }

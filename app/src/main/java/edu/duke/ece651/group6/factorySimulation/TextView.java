@@ -20,8 +20,8 @@ public class TextView {
     }
 
     
-    public String promptUser() throws IOException{
-        this.out.print("0> ");
+    public String promptUser(int step) throws IOException{
+        this.out.print("" + step + "> ");
         return this.input.readLine();
     }
 

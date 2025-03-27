@@ -17,11 +17,12 @@ public class ProductionController {
     private static int verbose = 0;
     private static int currTimeStep = 0;
     private static int currRequestIndex = 0;
-
+    private TextView view;
     private ModelManager modelManager;
     private ModelConstructor modelConstructor;
 
     public ProductionController() {
+        this.view = new TextView();
         this.modelManager = new ModelManager();
         this.modelConstructor = new ModelConstructor(modelManager);
     }
@@ -75,4 +76,9 @@ public class ProductionController {
         modelManager.addUserRequest(recipeName, sourceBuildingName);
     }
 
+    public void displayOutput() throws IOException {
+        this.view.displayOutput(
+            this.view.processCommand(this.view.promptUser(currTimeStep))
+        );
+    }
 }
