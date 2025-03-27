@@ -72,14 +72,19 @@ public class ProductionController {
         }
     }
 
+    public void finishAllRequests() {
+        while (modelManager.getUserRequestQueueSize() > 0) {
+            this.incrementTimeStep();
+        }
+    }
+
     public void addRequest(String recipeName, String sourceBuildingName) {
         modelManager.addUserRequest(recipeName, sourceBuildingName);
     }
 
     public void displayOutput() throws IOException {
         this.view.displayOutput(
-            this.processCommand(this.view.promptUser(currTimeStep))
-        );
+                this.processCommand(this.view.promptUser(currTimeStep)));
     }
 
     public String promptUser() throws IOException {
@@ -92,21 +97,25 @@ public class ProductionController {
         // multiple spaces would result in empty element, remove
         int word_ct = 0;
         for (String word : words) {
-            if (!word.equals("")) word_ct += 1;
+            if (!word.equals(""))
+                word_ct += 1;
         }
         String[] cleaned_words = new String[word_ct];
         int ct = 0;
         for (String word : words) {
-            if (!word.equals("")) cleaned_words[ct++] = word;
+            if (!word.equals(""))
+                cleaned_words[ct++] = word;
         }
         return String.join(" ", cleaned_words);
     }
 
     protected boolean isNonnegativeDigit(String str) {
         int len = str.length();
-        if (null == str || len == 0) return false;
+        if (null == str || len == 0)
+            return false;
         for (int i = 0; i < len; ++i) {
-            if (!Character.isDigit(str.charAt(i))) return false;
+            if (!Character.isDigit(str.charAt(i)))
+                return false;
         }
         return true;
     }
@@ -114,9 +123,9 @@ public class ProductionController {
     /**
      * processes the command input by user
      * request 'ITEM' from 'BUILDING'
-     *  step N
-     *  verbose N
-     *  finish
+     * step N
+     * verbose N
+     * finish
      * multiple spaces count as one
      * no word or only space is invalid => ignore silently
      * 
@@ -136,9 +145,9 @@ public class ProductionController {
                 /*
                  * if nothing after last ', then 4 parts (space previously removed)
                  * can't tell between
-                 *      request 'a' from 'b'
+                 * request 'a' from 'b'
                  * and
-                 *      request 'a' from 'b
+                 * request 'a' from 'b
                  * append a letter to make sure 5 parts
                  */
                 String tmp = cleaned_cmd + "a";
@@ -146,25 +155,30 @@ public class ProductionController {
                 if ( // 4 ' so 5 parts
                     !(
                         // make sure the last element is just what is appended
-                        split_by_quote.length == 5 && split_by_quote[4].equals("a") 
-                    ) || !split_by_quote[2].equals(" from ")
+                        split_by_quote.length == 5 && split_by_quote[4].equals("a")
+                    ) ||
+                    !split_by_quote[2].equals(" from ")
                 ) {
                     return "Invalid command - Usage: request 'ITEM' from 'BUILDING'";
                 }
                 /*
-                 * what if request '   a' from 'b'
+                 * what if request ' a' from 'b'
                  */
                 // make sure item in recipe, building in factory
                 // make sure factory can make recipe
-                // need interface
-                return cleaned_cmd;
-                // break;
+                try {
+                    this.modelManager.addUserRequest(split_by_quote[1], split_by_quote[3]);
+                    return null;
+                } catch (InvalidInputException e) {
+                    return "Invalid request - " + e.getMessage();
+                }
+            // break;
             case "verbose":
                 // check only two words,second word isdigit
                 if (cleaned_words.length != 2 || !isNonnegativeDigit(cleaned_words[1])) {
                     return "Invalid command - Usage: verbose <int:verbose-level>";
                 }
-                /* 
+                /*
                  * assume range is 0 - 2
                  */
                 int level = Integer.valueOf(cleaned_words[1]);
@@ -176,9 +190,15 @@ public class ProductionController {
                 return null; // output from Evan's part
             case "finish":
                 // check only one word
-                return cleaned_words.length == 1 ?
-                    cleaned_cmd : // echo the cmd for now
-                    "Invalid command - Usage: finish";
+                if (cleaned_words.length == 1) {
+                    finishAllRequests();
+                    String rslt = "Simulation completed at time-step " + currTimeStep;
+                    this.view.displayOutput(rslt);
+                    System.exit(0);
+                    return rslt;
+                } else {
+                    return "Invalid command - Usage: finish";
+                }
             case "step":
                 // check only two words, second word isdigit
                 if (cleaned_words.length != 2 || !isNonnegativeDigit(cleaned_words[1])) {
