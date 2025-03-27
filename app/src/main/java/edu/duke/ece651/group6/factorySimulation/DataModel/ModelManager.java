@@ -16,7 +16,7 @@ public class ModelManager {
      * first: index of the order in the user request queue
      * second: recipe and which building is responsible for the recipe
      */
-    public ArrayList<Map.Entry<Integer, Map.Entry<Recipe, Building>>> userRequestQueue;
+    private ArrayList<Map.Entry<Integer, Map.Entry<Recipe, Building>>> userRequestQueue;
 
     public ModelManager() {
         this.types = new ArrayList<>();
