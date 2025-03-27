@@ -5,6 +5,8 @@
 build
 
 .vscode
+# emacs backup file
+\#*
 
 # Compiled class files
 *.class

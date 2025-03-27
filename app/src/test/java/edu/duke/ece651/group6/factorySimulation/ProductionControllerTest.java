@@ -227,18 +227,39 @@ public class ProductionControllerTest {
     }
 
   @Test
-public void test_setVerbose_negative_value() {
-    // First set verbose to a known value
-    ProductionController.setVerbose(2);
-    assertEquals(2, ProductionController.getVerbose());
-    
-    // Now try setting it to a negative value
-    int oldValue = ProductionController.setVerbose(-1);
-    
-    // The old value should be 2
-    assertEquals(2, oldValue);
-    
-    // The verbose level should still be 2 (unchanged)
-    assertEquals(2, ProductionController.getVerbose());
-}
+    public void test_setVerbose_negative_value() {
+        // First set verbose to a known value
+        ProductionController.setVerbose(2);
+        assertEquals(2, ProductionController.getVerbose());
+        
+        // Now try setting it to a negative value
+        int oldValue = ProductionController.setVerbose(-1);
+        
+        // The old value should be 2
+        assertEquals(2, oldValue);
+        
+        // The verbose level should still be 2 (unchanged)
+        assertEquals(2, ProductionController.getVerbose());
+    }
+
+    @Test
+    void testCleanCommand() {
+        this.productionController = new ProductionController();
+        String expeceted = "request a from b";
+        String c1 = "request a from b";
+        assertEquals(expeceted, productionController.cleanCommand(c1));
+        String c2 = "   request a from b";
+        assertEquals(expeceted, productionController.cleanCommand(c2));
+        String c3 = "request  a  from b";
+        assertEquals(expeceted, productionController.cleanCommand(c3));
+        String c4 = "request a from b    ";
+        assertEquals(expeceted, productionController.cleanCommand(c4));
+    }
+
+    @Test
+    void testIsNonnegativeDigit() {
+        this.productionController = new ProductionController();
+        assertTrue(productionController.isNonnegativeDigit("123"));
+        assertFalse(productionController.isNonnegativeDigit("-123"));
+    }
 }
