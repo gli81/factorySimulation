@@ -1,0 +1,9 @@
+verbose 0
+request'door' from 'D'
+request 'door' from 'D
+request 'door' from 'D'
+step 50
+verbose 1
+request  'door' from 'D'
+step   50
+finish

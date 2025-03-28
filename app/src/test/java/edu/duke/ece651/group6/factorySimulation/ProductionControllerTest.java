@@ -266,7 +266,7 @@ public class ProductionControllerTest {
     }
 
     @Test
-    void testProcessCommand() {
+    void testProcessCommand() throws EndOfProductionException {
         ProductionController pc = new ProductionController();
         assertEquals(
             "Invalid command - Usage: request 'ITEM' from 'BUILDING'",
@@ -309,6 +309,10 @@ public class ProductionControllerTest {
         assertEquals(
             "Invalid command - Usage: finish",
             pc.processCommand("finish lol")
+        );
+        assertThrows(
+            EndOfProductionException.class,
+            () -> pc.processCommand("finish")    
         );
         assertEquals(
             "Invalid command - Usage: step <int:step>",
