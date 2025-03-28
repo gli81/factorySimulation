@@ -1,0 +1,28 @@
+0> 0> Invalid command - Please try again
+0> Invalid command - Usage: request 'ITEM' from 'BUILDING'
+0> 0> [order complete] Order 0 completed (door) at time 18
+50> 50> [ingredient assignment]: wood assigned to W to deliver to D
+[ingredient assignment]: handle assigned to Ha to deliver to D
+[ingredient assignment]: metal assigned to M to deliver to Ha
+[ingredient assignment]: hinge assigned to Hi to deliver to D
+[ingredient assignment]: metal assigned to M to deliver to Hi
+[ingredient assignment]: hinge assigned to Hi to deliver to D
+[ingredient assignment]: metal assigned to M to deliver to Hi
+[ingredient assignment]: hinge assigned to Hi to deliver to D
+[ingredient assignment]: metal assigned to M to deliver to Hi
+50> [ingredient delivered]: wood to D from W on cycle 51
+[ingredient delivered]: metal to Ha from M on cycle 51
+    0: handle is ready
+[ingredient delivered]: metal to Hi from M on cycle 52
+    0: hinge is ready
+[ingredient delivered]: hinge to D from Hi on cycle 53
+[ingredient delivered]: metal to Hi from M on cycle 53
+    0: hinge is ready
+[ingredient delivered]: hinge to D from Hi on cycle 54
+[ingredient delivered]: metal to Hi from M on cycle 54
+    0: hinge is ready
+[ingredient delivered]: hinge to D from Hi on cycle 55
+[ingredient delivered]: handle to D from Ha on cycle 56
+    0: door is ready
+[order complete] Order 1 completed (door) at time 68
+100> Simulation completed at time-step 100

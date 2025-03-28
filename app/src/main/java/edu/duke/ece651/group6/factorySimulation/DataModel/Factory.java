@@ -114,7 +114,9 @@ public class Factory extends BasicBuilding {
         for (RequestItem requestItem : this.requestQueue) {
             // for every ready request, print the message
             if (requestItem.status == RequestItem.Status.READY) {
-                System.out.println("    " + readyCount + ": " + requestItem.recipe.getName() + " is ready");
+                if (ProductionController.getVerbose() > 0) {
+                    System.out.println("    " + readyCount + ": " + requestItem.recipe.getName() + " is ready");
+                }
                 readyCount++;
             }
 
@@ -128,8 +130,12 @@ public class Factory extends BasicBuilding {
                             requestItem.missingIngredients.remove(missingIngredient.getKey());
                             if (requestItem.missingIngredients.isEmpty()) {
                                 requestItem.status = RequestItem.Status.READY;
-                                System.out.println(
-                                        "    " + readyCount + ": " + requestItem.recipe.getName() + " is ready");
+                                if (ProductionController.getVerbose() > 0) {
+
+                                    System.out.println(
+                                            "    " + readyCount + ": " + requestItem.recipe.getName() + " is ready"
+                                    );
+                                }
                                 readyCount++;
                             }
                         } else {

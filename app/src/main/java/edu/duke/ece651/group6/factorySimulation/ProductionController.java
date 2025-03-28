@@ -82,7 +82,7 @@ public class ProductionController {
         modelManager.addUserRequest(recipeName, sourceBuildingName);
     }
 
-    public void displayOutput() throws IOException {
+    public void displayOutput() throws IOException, EndOfProductionException {
         this.view.displayOutput(
                 this.processCommand(this.view.promptUser(currTimeStep)));
     }
@@ -110,9 +110,14 @@ public class ProductionController {
     }
 
     protected boolean isNonnegativeDigit(String str) {
-        int len = str.length();
-        if (null == str || len == 0)
+
+        if (null == str){
             return false;
+        }
+        int len = str.length();
+        if (len == 0) {
+            return false;
+        }
         for (int i = 0; i < len; ++i) {
             if (!Character.isDigit(str.charAt(i)))
                 return false;
@@ -132,7 +137,7 @@ public class ProductionController {
      * @param command is the command that the user input
      * @return the output displayed to user
      */
-    protected String processCommand(String command) {
+    protected String processCommand(String command) throws EndOfProductionException{
         String cleaned_cmd = cleanCommand(command);
         String[] cleaned_words = cleaned_cmd.split(" ");
         if (cleaned_words.length == 1 && cleaned_words[0].equals("")) {
@@ -194,15 +199,14 @@ public class ProductionController {
                     finishAllRequests();
                     String rslt = "Simulation completed at time-step " + currTimeStep;
                     this.view.displayOutput(rslt);
-                    System.exit(0);
-                    return rslt;
+                    throw new EndOfProductionException();
                 } else {
                     return "Invalid command - Usage: finish";
                 }
             case "step":
                 // check only two words, second word isdigit
                 if (cleaned_words.length != 2 || !isNonnegativeDigit(cleaned_words[1])) {
-                    return "Invalid command - Usage: step <int:verbose-level>";
+                    return "Invalid command - Usage: step <int:step>";
                 }
                 addTimeStep(Integer.valueOf(cleaned_words[1]));
                 return null;

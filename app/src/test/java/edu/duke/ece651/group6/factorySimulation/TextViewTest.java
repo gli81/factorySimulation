@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.io.StringReader;
 import org.junit.jupiter.api.Test;
@@ -30,6 +31,13 @@ public class TextViewTest {
                 new BufferedReader(new StringReader("ss")), out);
         v1.displayOutput("ss");
         assertEquals("ss\n", bytes.toString());
+        bytes.reset();
+        TextView v2 = new TextView(
+            new BufferedReader(new InputStreamReader(System.in)), out
+        );
+        v2.displayOutput(null);
+        assertEquals("", bytes.toString());
+
     }
 
     @Test
@@ -41,14 +49,4 @@ public class TextViewTest {
             view.displayOutput("test message");
         });
     }
-
-    // @Test
-    // void testProcessCommand() {
-    //     String c3 = "";
-    //     String c4 = "   ";
-    //     v.processCommand(c3);
-    //     v.processCommand(c4);
-    //     String c5 = "finish";
-    //     v.processCommand(c5);
-    // }
 }
