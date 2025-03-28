@@ -110,9 +110,14 @@ public class ProductionController {
     }
 
     protected boolean isNonnegativeDigit(String str) {
-        int len = str.length();
-        if (null == str || len == 0)
+
+        if (null == str){
             return false;
+        }
+        int len = str.length();
+        if (len == 0) {
+            return false;
+        }
         for (int i = 0; i < len; ++i) {
             if (!Character.isDigit(str.charAt(i)))
                 return false;
