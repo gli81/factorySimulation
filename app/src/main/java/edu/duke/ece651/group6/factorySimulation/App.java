@@ -29,6 +29,8 @@ public class App {
                 "Invalid Config File - Invalid format"
             );
             // System.exit(0); // exit?
+        } catch (EndOfProductionException epe) {
+            // get out of loop do nothing
         } catch (Exception e) {
             System.out.println(e.getMessage());
             // System.exit(0); // exit?

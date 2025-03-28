@@ -82,7 +82,7 @@ public class ProductionController {
         modelManager.addUserRequest(recipeName, sourceBuildingName);
     }
 
-    public void displayOutput() throws IOException {
+    public void displayOutput() throws IOException, EndOfProductionException {
         this.view.displayOutput(
                 this.processCommand(this.view.promptUser(currTimeStep)));
     }
@@ -137,7 +137,7 @@ public class ProductionController {
      * @param command is the command that the user input
      * @return the output displayed to user
      */
-    protected String processCommand(String command) {
+    protected String processCommand(String command) throws EndOfProductionException{
         String cleaned_cmd = cleanCommand(command);
         String[] cleaned_words = cleaned_cmd.split(" ");
         if (cleaned_words.length == 1 && cleaned_words[0].equals("")) {
@@ -199,8 +199,7 @@ public class ProductionController {
                     finishAllRequests();
                     String rslt = "Simulation completed at time-step " + currTimeStep;
                     this.view.displayOutput(rslt);
-                    System.exit(0);
-                    return rslt;
+                    throw new EndOfProductionException();
                 } else {
                     return "Invalid command - Usage: finish";
                 }
