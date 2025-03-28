@@ -261,6 +261,8 @@ public class ProductionControllerTest {
         this.productionController = new ProductionController();
         assertTrue(productionController.isNonnegativeDigit("123"));
         assertFalse(productionController.isNonnegativeDigit("-123"));
+        assertFalse(productionController.isNonnegativeDigit(""));
+        assertFalse(productionController.isNonnegativeDigit(null));
     }
 
     @Test
@@ -311,6 +313,18 @@ public class ProductionControllerTest {
         assertEquals(
             "Invalid command - Usage: step <int:step>",
             pc.processCommand("step 2 2")
+        );
+        assertEquals(
+            "Invalid command - Usage: step <int:step>",
+            pc.processCommand("step -2")
+        );
+        assertEquals(
+            "Invalid command - Please try again",
+            pc.processCommand("hhihi")
+        );
+        assertEquals(
+            "Invalid request - Recipe not found: door",
+            pc.processCommand("request 'door' from 'F'")
         );
     }
 }
