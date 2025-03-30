@@ -32,7 +32,7 @@ dependencies {
     clover 'org.openclover:clover:4.5.2'
     // Add Gson dependency
     implementation 'com.google.code.gson:gson:2.10.1'
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.17.0'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.18.0'
 }
 
 // Apply a specific Java toolchain to ease working on different environments.

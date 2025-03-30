@@ -2,8 +2,6 @@ package edu.duke.ece651.group6.factorySimulation;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,42 +10,55 @@ import java.util.List;
 import java.util.Map;
 import java.io.Reader;
 
+import edu.duke.ece651.group6.factorySimulation.RuleChecker.HasFieldRuleChecker;
+import edu.duke.ece651.group6.factorySimulation.RuleChecker.RuleChecker;
+
 /**
  * This handles parsing JSON input to the simulation
  */
 public class InputParser {
     private final ObjectMapper mapper;
-  
+    private final RuleChecker checker;
+
+
     public InputParser() {
         this.mapper = new ObjectMapper();
+        this.checker = new HasFieldRuleChecker(null);
     }
-  
-    /**
-     * Parse JSON file into the JsonNode
-     * @param reader path to JSON input file
-     * @return a parsed Json node
-     */
 
-    public JsonNode parseFile(Reader reader) throws IOException {
-        return mapper.readTree(reader);
+    public InputParser(RuleChecker checker) {
+        this.mapper = new ObjectMapper();
+        this.checker = checker;
     }
-    
-    
+
+    // /**
+    //  * Parse JSON file into the JsonNode
+    //  * 
+    //  * @param reader path to JSON input file
+    //  * @return a parsed Json node
+    //  */
+    // public JsonNode parseFile(Reader reader) throws IOException {
+    //     return mapper.readTree(reader);
+    // }
+
+
     /**
-     * Extract recipes from a JSON file TODO: only recipes for now, later add types and buildings 
+     * Extract recipes from a JSON file
+     * TODO: only recipes for now, later add types and buildings
+     * 
      * @param rootNode root of a JSON parsed node
-     * @return list of Recipes 
+     * @return list of Recipes
      */
-    public List<Recipe> recipesInputParser(JsonNode root) {
+    public List<Recipe> parseRecipes(JsonNode recipeRoot) {
         List<Recipe> recipes = new ArrayList<>();
-        JsonNode recipNode = root.path("recipes");
+        JsonNode recipNode = recipeRoot.path("recipes");
         if ((recipNode.isMissingNode()) || (!recipNode.isArray())) {
-        return recipes;
+            return recipes;
         }
         for (JsonNode node : recipNode) {
             String output = node.path("output").asText();
             int lat = node.path("latency").asInt();
-            
+
             Map<String, Integer> ingredient = new HashMap<>();
             JsonNode ingredientsNode = node.path("ingredients");
 
@@ -58,10 +69,41 @@ public class InputParser {
                 ingredient.put(entry.getKey(), entry.getValue().asInt());
                 }
             }
-            
+
             Recipe recipe = new BasicRecipe(output, ingredient, lat);
             recipes.add(recipe);
         }
         return recipes;
+    }
+
+    public List<Building> parseBuildings(JsonNode root) {
+        return null;
+    }
+
+    public List<Type> parseTypes(JsonNode root) {
+        return null;
+    }
+
+    public Map<String, List<Object>> parseJsonFile(
+        Reader reader
+    ) throws Exception {
+        // readFile
+        JsonNode root = this.mapper.readTree(reader);
+        // root checker
+        String rslt = checker.checkJson(root);
+        if (null != rslt) {
+            // rslt indicating which node is missing
+            throw new Exception(rslt);
+        }
+        // parse Recipe
+        JsonNode recipeRoot = root.get("recipes");
+        parseRecipes(recipeRoot);
+        // parse Type
+        JsonNode typeRoot = root.get("types");
+        parseTypes(typeRoot);
+        // parse Building
+        JsonNode bldgRoot = root.get("buildings");
+        parseBuildings(bldgRoot);
+        return null;
     }
 }
