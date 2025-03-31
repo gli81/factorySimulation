@@ -28,10 +28,10 @@ public class InputParser {
 
     public InputParser() {
         this.mapper = new ObjectMapper();
-        this.checker = new HasFieldsRuleChecker(null);
-        this.recipeChecker = new HasFieldsRuleChecker(null);
-        this.typeChecker = new HasFieldsRuleChecker(null);
-        this.buildingChecker = new HasFieldsRuleChecker(null);
+        this.checker = new HasFieldsRuleChecker(null, null);
+        this.recipeChecker = new HasFieldsRuleChecker(null, null);
+        this.typeChecker = new HasFieldsRuleChecker(null, null);
+        this.buildingChecker = new HasFieldsRuleChecker(null, null);
     }
 
     public InputParser(

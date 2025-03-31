@@ -15,8 +15,28 @@ public class App {
     public App() {
         RuleChecker rootChecker = new HasFieldsRuleChecker( // check root has these fields
             new HasFieldsRuleChecker( // check each recipe has these fields
-                new HasFieldsRuleChecker(
-                    null,
+                new HasFieldsRuleChecker( // check each type has these fields
+                    new HasFieldsRuleChecker( // check each building has these fields
+                        new NoApostropheRuleChecker( // check recipes' output has no apostrophe
+                            new NoApostropheRuleChecker(
+                                new NoApostropheRuleChecker(
+                                    null,
+                                    new String[]{"buildings"},
+                                    "name",
+                                    true    
+                                ),
+                                new String[] {"types"},
+                                "name",
+                                true
+                            ),
+                            new String[]{"recipes"},
+                            "output",
+                            true    
+                        ),
+                        new String[]{"buildings"},
+                        new HashSet<>(Arrays.asList("name", "sources")),
+                        true
+                    ),
                     new String[]{"types"},
                     new HashSet<>(Arrays.asList("name", "recipes")),
                     true
@@ -65,12 +85,10 @@ public class App {
             System.out.println(
                 "Invalid Config File - Invalid format"
             );
-            // System.exit(0); // exit?
         } catch (EndOfProductionException epe) {
             // get out of loop do nothing
         } catch (Exception e) {
             System.out.println(e.getMessage());
-            // System.exit(0); // exit?
         }
     }
 

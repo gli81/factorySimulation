@@ -13,12 +13,14 @@ public class HasFieldsRuleCheckerTest {
     private final ObjectMapper mapper = new ObjectMapper();
     private InputStream j;
 
+
     {
         j = this.getClass().getResourceAsStream("/inputs/doors1.json");
         assertNotNull(j);
         // new String(j.readAllBytes());
     }
 
+    
     @Test
     void testCheckRule() throws IOException {
         // InputStream j = this.getClass().getResourceAsStream("/inputs/doors1.json");
@@ -37,7 +39,7 @@ public class HasFieldsRuleCheckerTest {
             false
         );
         assertEquals(
-            "Invalid json file - bad feild is missing",
+            "bad feild is missing",
             checker2.checkJson(node));
     }
     
@@ -62,7 +64,7 @@ public class HasFieldsRuleCheckerTest {
             true
         );
         assertEquals(
-            "Invalid json file - bad feild is missing from recipes",
+            "bad feild is missing from recipes",
             checker2.checkJson(node));
     }
 
@@ -76,7 +78,7 @@ public class HasFieldsRuleCheckerTest {
             true
         );
         assertEquals(
-            "Invalid json file - recipe is missing",
+            "recipe is missing",
             checker.checkRule(node)
         );
     }

@@ -5,31 +5,47 @@ import com.fasterxml.jackson.databind.JsonNode;
 public class NoApostropheRuleChecker extends RuleChecker {
     private final String[] parent;
     private final String field;
+    private final boolean isArray;
 
-
-    public NoApostropheRuleChecker(RuleChecker next) {
-        super(next);
-        this.parent = null;
-        this.field = null;
-    }
 
     public NoApostropheRuleChecker(RuleChecker next, String field) {
         super(next);
         this.parent = new String[]{};
         this.field = field;
+        this.isArray = false;
+    }
+
+    public NoApostropheRuleChecker(
+        RuleChecker next, String[] parent,
+        String field, boolean isArray
+    ) {
+        super(next);
+        this.parent = parent;
+        this.field = field;
+        this.isArray = isArray;
     }
 
 
     @Override
     protected String checkRule(JsonNode root) {
-        JsonNode cur = root;
-        for (int i = 0; i < parent.length; ++i) {
-            cur = cur.get(parent[i]); // e.g., recipes
+        StringBuilder ans = new StringBuilder();
+        JsonNode cur = getNodeAt(root, this.parent, ans);
+        if (null == cur) {
+            return ans.toString();
         }
-        for (JsonNode node : cur) {
+        return applyElementCheck(
+            cur, this.isArray, this::checkElementForApostrophe
+        );
+    }
 
+    protected String checkElementForApostrophe(JsonNode node) {
+        if (!node.has(field)) {
+            return "Invalid json file - " + field + " is missing";
+        }
+        if (node.get(field).asText().contains("'")) {
+            return "Invalid json file - " + field +
+                " field contains apostrophe";
         }
         return null;
     }
-    
 }

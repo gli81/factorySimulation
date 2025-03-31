@@ -1,5 +1,7 @@
 package edu.duke.ece651.group6.factorySimulation.RuleChecker;
 
+import java.util.function.Function;
+
 import com.fasterxml.jackson.databind.JsonNode;
 
 public abstract class RuleChecker {
@@ -37,9 +39,43 @@ public abstract class RuleChecker {
         return null;
     }
 
-    protected String noApostrophe(JsonNode root, String field) {
-        if (root.get(field).asText().contains("'")) {
-            return "Invalid json file - name contains apostrophe";
+    // protected String noApostrophe(JsonNode root, String field) {
+    //     if (root.get(field).asText().contains("'")) {
+    //         return "Invalid json file - name contains apostrophe";
+    //     }
+    //     return null;
+    // }
+
+    protected JsonNode getNodeAt(
+        JsonNode root, String[] path, StringBuilder err
+    ) {
+        if (null == path || path.length == 0) return root;
+        JsonNode cur = root;
+        for (int i = 0; i < path.length; ++i) {
+            if (!cur.has(path[i])) {
+                err.append(path[i]).append(" is missing");
+                if (i > 0) {
+                    err.append(" from ").append(path[i - 1]);
+                }
+                return null;
+            }
+            cur = cur.get(path[i]);
+        }
+        return cur;
+    }
+
+    protected String applyElementCheck(
+        JsonNode node, boolean isArray, Function<JsonNode, String> check
+    ) {
+        String ans;
+        if (isArray) {
+            for (JsonNode n : node) {
+                if (null != (ans = check.apply(n))) {
+                    return ans;
+                }
+            }
+        } else {
+            return check.apply(node);
         }
         return null;
     }
