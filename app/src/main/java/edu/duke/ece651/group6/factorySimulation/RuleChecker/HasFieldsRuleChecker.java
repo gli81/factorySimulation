@@ -10,10 +10,7 @@ public class HasFieldsRuleChecker extends RuleChecker {
 
 
     public HasFieldsRuleChecker(RuleChecker next, Set<String> fields) {
-        super(next);
-        this.parent = new String[]{};
-        this.fields = fields;
-        this.isArray = false;
+        this(next, new String[]{}, fields, false);
     }
 
     public HasFieldsRuleChecker(

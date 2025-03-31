@@ -9,10 +9,7 @@ public class NoApostropheRuleChecker extends RuleChecker {
 
 
     public NoApostropheRuleChecker(RuleChecker next, String field) {
-        super(next);
-        this.parent = new String[]{};
-        this.field = field;
-        this.isArray = false;
+        this(next, new String[]{}, field, false);
     }
 
     public NoApostropheRuleChecker(

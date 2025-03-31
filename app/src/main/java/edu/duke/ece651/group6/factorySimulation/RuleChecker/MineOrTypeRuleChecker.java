@@ -8,9 +8,7 @@ public class MineOrTypeRuleChecker extends RuleChecker {
 
 
     public MineOrTypeRuleChecker(RuleChecker next) {
-        super(next);
-        this.parent = new String[]{};
-        this.isArray = false;
+        this(next, new String[]{}, false);
     }
 
     public MineOrTypeRuleChecker(
