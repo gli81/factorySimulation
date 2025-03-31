@@ -4,7 +4,7 @@ import edu.duke.ece651.group6.factorySimulation.RuleChecker.RuleChecker;
 
 // singleton pattern
 public class SimController {
-    private SimController instance = null;
+    private static SimController instance = null;
     // private final RuleChecker checker;
     private final InputParser parser;
     private int verbose;
@@ -21,11 +21,13 @@ public class SimController {
     }
 
 
-    public SimController getController(RuleChecker checker, InputParser parser) {
-        if (null == this.instance) {
-            this.instance = new SimController(parser);
+    public static SimController getController(
+        RuleChecker checker, InputParser parser
+    ) {
+        if (null == instance) {
+            instance = new SimController(parser);
         }
-        return this.instance;
+        return instance;
     }
 
     // public void loadJsonFile() {

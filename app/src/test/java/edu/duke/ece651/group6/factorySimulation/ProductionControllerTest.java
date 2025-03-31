@@ -2,6 +2,9 @@ package edu.duke.ece651.group6.factorySimulation;
 
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
+
+import edu.duke.ece651.group6.factorySimulation.Exception.EndOfProductionException;
+
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 

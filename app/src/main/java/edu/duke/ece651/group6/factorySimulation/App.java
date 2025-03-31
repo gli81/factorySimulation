@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
 import com.google.gson.JsonParseException;
+import edu.duke.ece651.group6.factorySimulation.Exception.EndOfProductionException;
 import edu.duke.ece651.group6.factorySimulation.RuleChecker.*;
 
 public class App {
@@ -12,28 +13,39 @@ public class App {
 
 
     public App() {
-        RuleChecker rootChecker = new HasFieldsRuleChecker(
-            null,
+        RuleChecker rootChecker = new HasFieldsRuleChecker( // check root has these fields
+            new HasFieldsRuleChecker( // check each recipe has these fields
+                new HasFieldsRuleChecker(
+                    null,
+                    new String[]{"types"},
+                    new HashSet<>(Arrays.asList("name", "recipes")),
+                    true
+                ),
+                new String[]{"recipes"},
+                new HashSet<>(Arrays.asList("output", "ingredients", "latency")),
+                true
+            ),
             new HashSet<>(Arrays.asList("recipes", "types", "buildings"))
         );
-        RuleChecker recipeChecker = new ListRuleChecker(
-            new HasFieldsRuleChecker(
-                null,
-                new HashSet<>(Arrays.asList("output", "ingredients", "latency"))
-            )
-        );
-        RuleChecker typeChecker = new ListRuleChecker(
-            new HasFieldsRuleChecker(
-                null,
-                new HashSet<>(Arrays.asList("name", "recipes"))
-            )
-        );
-        RuleChecker bldgChecker = new ListRuleChecker(
-            new HasFieldsRuleChecker(
-                null,
-                new HashSet<>(Arrays.asList("name", "sources"))
-            )
-        );
+        // RuleChecker recipeChecker = new ListRuleChecker(
+        //     new HasFieldsRuleChecker(
+        //         null,
+        //         new HashSet<>(Arrays.asList("output", "ingredients", "latency"))
+        //     )
+        // );
+        // RuleChecker typeChecker = new ListRuleChecker(
+        //     new HasFieldsRuleChecker(
+        //         null,
+        //         new HashSet<>(Arrays.asList("name", "recipes"))
+        //     )
+        // );
+        // RuleChecker bldgChecker = new ListRuleChecker(
+        //     new HasFieldsRuleChecker(
+        //         null,
+        //         new HashSet<>(Arrays.asList("name", "sources"))
+        //     )
+        // );
+        SimController.getController(rootChecker, null);
         this.ctrl = new ProductionController();
     }
 

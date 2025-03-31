@@ -11,12 +11,19 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class HasFieldsRuleCheckerTest {
     private final ObjectMapper mapper = new ObjectMapper();
+    private InputStream j;
+
+    {
+        j = this.getClass().getResourceAsStream("/inputs/doors1.json");
+        assertNotNull(j);
+        // new String(j.readAllBytes());
+    }
 
     @Test
     void testCheckRule() throws IOException {
-        InputStream j = this.getClass().getResourceAsStream("/inputs/doors1.json");
-        assertNotNull(j);
-        // new String(j.readAllBytes());
+        // InputStream j = this.getClass().getResourceAsStream("/inputs/doors1.json");
+        // assertNotNull(j);
+        // // new String(j.readAllBytes());
         JsonNode node = mapper.readTree(j);
         HasFieldsRuleChecker checker = new HasFieldsRuleChecker(
             null,
@@ -25,11 +32,52 @@ public class HasFieldsRuleCheckerTest {
         assertNull(checker.checkRule(node));
         assertNull(checker.checkJson(node));
         HasFieldsRuleChecker checker2 = new HasFieldsRuleChecker(
-            null,
-            new HashSet<>(Arrays.asList("buildings", "bad", "recipes"))
+            null, null,
+            new HashSet<>(Arrays.asList("buildings", "bad", "recipes")),
+            false
         );
         assertEquals(
             "Invalid json file - bad feild is missing",
             checker2.checkJson(node));
+    }
+    
+    @Test
+    void testCheckRecipeRule() throws IOException {
+        // InputStream j = this.getClass().getResourceAsStream("/inputs/doors1.json");
+        // assertNotNull(j);
+        // // new String(j.readAllBytes());
+        JsonNode node = mapper.readTree(j);
+        HasFieldsRuleChecker checker = new HasFieldsRuleChecker(
+            null,
+            new String[]{"recipes"},
+            new HashSet<>(Arrays.asList("output", "ingredients", "latency")),
+            true
+        );
+        assertNull(checker.checkRule(node));
+        assertNull(checker.checkJson(node));
+        HasFieldsRuleChecker checker2 = new HasFieldsRuleChecker(
+            null,
+            new String[]{"recipes"},
+            new HashSet<>(Arrays.asList("output", "bad", "latency")),
+            true
+        );
+        assertEquals(
+            "Invalid json file - bad feild is missing from recipes",
+            checker2.checkJson(node));
+    }
+
+    @Test
+    void testSkipRoot() throws IOException {
+        JsonNode node = mapper.readTree(j);
+        HasFieldsRuleChecker checker = new HasFieldsRuleChecker(
+            null,
+            new String[]{"recipe"},
+            new HashSet<>(Arrays.asList("aaa")),
+            true
+        );
+        assertEquals(
+            "Invalid json file - recipe is missing",
+            checker.checkRule(node)
+        );
     }
 }
