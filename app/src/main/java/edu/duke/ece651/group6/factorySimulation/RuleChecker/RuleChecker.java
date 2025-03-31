@@ -3,7 +3,7 @@ package edu.duke.ece651.group6.factorySimulation.RuleChecker;
 import com.fasterxml.jackson.databind.JsonNode;
 
 public abstract class RuleChecker {
-    private final RuleChecker next;
+    protected final RuleChecker next;
 
     
     public RuleChecker(RuleChecker next) {
@@ -32,7 +32,14 @@ public abstract class RuleChecker {
         }
         if (null != next) {
             // check next rule
-            return next.checkRule(root);
+            return next.checkJson(root);
+        }
+        return null;
+    }
+
+    protected String noApostrophe(JsonNode root, String field) {
+        if (root.get(field).asText().contains("'")) {
+            return "Invalid json file - name contains apostrophe";
         }
         return null;
     }

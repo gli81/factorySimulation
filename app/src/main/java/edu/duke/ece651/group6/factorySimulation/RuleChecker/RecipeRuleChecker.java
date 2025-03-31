@@ -1,4 +1,6 @@
-package edu.duke.ece651.group6.factorySimulation;
+package edu.duke.ece651.group6.factorySimulation.RuleChecker;
+
+import edu.duke.ece651.group6.factorySimulation.Recipe;
 
 /**
  * Class that checks recipe validation rules.

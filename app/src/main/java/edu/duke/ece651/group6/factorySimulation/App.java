@@ -2,13 +2,38 @@ package edu.duke.ece651.group6.factorySimulation;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashSet;
 import com.google.gson.JsonParseException;
+import edu.duke.ece651.group6.factorySimulation.RuleChecker.*;
 
 public class App {
     private final ProductionController ctrl;
 
 
     public App() {
+        RuleChecker rootChecker = new HasFieldsRuleChecker(
+            null,
+            new HashSet<>(Arrays.asList("recipes", "types", "buildings"))
+        );
+        RuleChecker recipeChecker = new ListRuleChecker(
+            new HasFieldsRuleChecker(
+                null,
+                new HashSet<>(Arrays.asList("output", "ingredients", "latency"))
+            )
+        );
+        RuleChecker typeChecker = new ListRuleChecker(
+            new HasFieldsRuleChecker(
+                null,
+                new HashSet<>(Arrays.asList("name", "recipes"))
+            )
+        );
+        RuleChecker bldgChecker = new ListRuleChecker(
+            new HasFieldsRuleChecker(
+                null,
+                new HashSet<>(Arrays.asList("name", "sources"))
+            )
+        );
         this.ctrl = new ProductionController();
     }
 
@@ -18,7 +43,7 @@ public class App {
         try {
             // check number of args
             if (args.length != 1) {
-                throw new Exception("Invalid Config File - Usage: app <json-file>");
+                throw new Exception("Invalid Config File - Usage: app [-nw] <json-file>");
             }
             app.readJson(args[0]);
             while (true) {
