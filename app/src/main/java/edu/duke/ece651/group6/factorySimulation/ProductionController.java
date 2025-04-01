@@ -2,7 +2,6 @@ package edu.duke.ece651.group6.factorySimulation;
 
 import edu.duke.ece651.group6.factorySimulation.DataModel.*;
 import edu.duke.ece651.group6.factorySimulation.Exception.EndOfProductionException;
-
 import java.io.IOException;
 
 public class ProductionController {

@@ -37,11 +37,10 @@ public class NoApostropheRuleChecker extends RuleChecker {
 
     protected String checkElementForApostrophe(JsonNode node) {
         if (!node.has(field)) {
-            return "Invalid json file - " + field + " is missing";
+            return "" + field + " field is missing";
         }
         if (node.get(field).asText().contains("'")) {
-            return "Invalid json file - " + field +
-                " field contains apostrophe";
+            return field + " field contains apostrophe";
         }
         return null;
     }

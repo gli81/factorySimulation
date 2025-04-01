@@ -9,7 +9,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.io.Reader;
-
 import edu.duke.ece651.group6.factorySimulation.Models.Building;
 import edu.duke.ece651.group6.factorySimulation.Models.Recipe;
 import edu.duke.ece651.group6.factorySimulation.Models.Type;
@@ -28,10 +27,10 @@ public class InputParser {
 
     public InputParser() {
         this.mapper = new ObjectMapper();
-        this.checker = new HasFieldsRuleChecker(null, null);
-        this.recipeChecker = new HasFieldsRuleChecker(null, null);
-        this.typeChecker = new HasFieldsRuleChecker(null, null);
-        this.buildingChecker = new HasFieldsRuleChecker(null, null);
+        this.checker = new HasFieldsAndTypeRuleChecker(null, null);
+        this.recipeChecker = new HasFieldsAndTypeRuleChecker(null, null);
+        this.typeChecker = new HasFieldsAndTypeRuleChecker(null, null);
+        this.buildingChecker = new HasFieldsAndTypeRuleChecker(null, null);
     }
 
     public InputParser(

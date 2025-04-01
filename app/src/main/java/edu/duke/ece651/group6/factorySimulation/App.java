@@ -2,8 +2,8 @@ package edu.duke.ece651.group6.factorySimulation;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashSet;
+import java.util.Map;
+import com.fasterxml.jackson.databind.node.JsonNodeType;
 import com.google.gson.JsonParseException;
 import edu.duke.ece651.group6.factorySimulation.Exception.EndOfProductionException;
 import edu.duke.ece651.group6.factorySimulation.RuleChecker.*;
@@ -13,10 +13,10 @@ public class App {
 
 
     public App() {
-        RuleChecker rootChecker = new HasFieldsRuleChecker( // check root has these fields
-            new HasFieldsRuleChecker( // check each recipe has these fields
-                new HasFieldsRuleChecker( // check each type has these fields
-                    new HasFieldsRuleChecker( // check each building has these fields
+        RuleChecker rootChecker = new HasFieldsAndTypeRuleChecker( // check root has these fields
+            new HasFieldsAndTypeRuleChecker( // check each recipe has these fields
+                new HasFieldsAndTypeRuleChecker( // check each type has these fields
+                    new HasFieldsAndTypeRuleChecker( // check each building has these fields
                         new NoApostropheRuleChecker( // check recipes' output has no apostrophe
                             new NoApostropheRuleChecker(
                                 new NoApostropheRuleChecker(
@@ -34,18 +34,32 @@ public class App {
                             true    
                         ),
                         new String[]{"buildings"},
-                        new HashSet<>(Arrays.asList("name", "sources")),
+                        Map.of(
+                            "name", JsonNodeType.STRING,
+                            "sources", JsonNodeType.ARRAY
+                        ),
                         true
                     ),
                     new String[]{"types"},
-                    new HashSet<>(Arrays.asList("name", "recipes")),
+                    Map.of(
+                        "name", JsonNodeType.STRING,
+                        "recipes", JsonNodeType.ARRAY
+                    ),
                     true
                 ),
                 new String[]{"recipes"},
-                new HashSet<>(Arrays.asList("output", "ingredients", "latency")),
+                Map.of(
+                    "output", JsonNodeType.STRING,
+                    "ingredients", JsonNodeType.OBJECT,
+                    "latency", JsonNodeType.NUMBER
+                ),
                 true
             ),
-            new HashSet<>(Arrays.asList("recipes", "types", "buildings"))
+            Map.of(
+                "recipes", JsonNodeType.ARRAY,
+                "types", JsonNodeType.ARRAY,
+                "buildings", JsonNodeType.ARRAY
+            )
         );
         // RuleChecker recipeChecker = new ListRuleChecker(
         //     new HasFieldsRuleChecker(

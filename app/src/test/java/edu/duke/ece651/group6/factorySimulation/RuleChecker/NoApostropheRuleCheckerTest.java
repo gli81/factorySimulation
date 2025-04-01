@@ -33,7 +33,7 @@ public class NoApostropheRuleCheckerTest {
         assertNotNull(apostropheRecipeOutput);
         node = mapper.readTree(apostropheRecipeOutput);
         assertEquals(
-            "Invalid json file - output field contains apostrophe",
+            "output field contains apostrophe",
             checker.checkRule(node)
         );
     }

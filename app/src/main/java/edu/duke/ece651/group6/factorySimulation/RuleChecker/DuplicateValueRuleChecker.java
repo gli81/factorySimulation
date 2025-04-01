@@ -28,8 +28,14 @@ public class DuplicateValueRuleChecker extends RuleChecker {
         StringBuilder ans = new StringBuilder();
         JsonNode cur = getNodeAt(root, this.parent, ans);
         if (null == cur) return ans.toString();
+        if (!cur.isArray()) {
+            return "" + field + " is not an array";
+        }
         Set<String> set = new HashSet<>();
         for (JsonNode node : cur) {
+            if (!node.has(this.field)) {
+                return field + " field is missing";
+            }
             String value = node.get(this.field).asText();
             if (set.contains(value)) {
                 return "contains duplicate " + field;

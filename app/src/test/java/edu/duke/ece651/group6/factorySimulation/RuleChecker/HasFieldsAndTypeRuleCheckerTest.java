@@ -4,12 +4,16 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
+
 import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.JsonNodeType;
 
-public class HasFieldsRuleCheckerTest {
+public class HasFieldsAndTypeRuleCheckerTest {
     private final ObjectMapper mapper = new ObjectMapper();
     private InputStream j;
 
@@ -23,19 +27,24 @@ public class HasFieldsRuleCheckerTest {
     
     @Test
     void testCheckRule() throws IOException {
-        // InputStream j = this.getClass().getResourceAsStream("/inputs/doors1.json");
-        // assertNotNull(j);
-        // // new String(j.readAllBytes());
         JsonNode node = mapper.readTree(j);
-        HasFieldsRuleChecker checker = new HasFieldsRuleChecker(
+        HasFieldsAndTypeRuleChecker checker = new HasFieldsAndTypeRuleChecker(
             null,
-            new HashSet<>(Arrays.asList("buildings", "types", "recipes"))
+            Map.of(
+                "buildings", JsonNodeType.ARRAY,
+                "recipes", JsonNodeType.ARRAY,
+                "types", JsonNodeType.ARRAY
+            )
         );
         assertNull(checker.checkRule(node));
         assertNull(checker.checkJson(node));
-        HasFieldsRuleChecker checker2 = new HasFieldsRuleChecker(
+        HasFieldsAndTypeRuleChecker checker2 = new HasFieldsAndTypeRuleChecker(
             null, null,
-            new HashSet<>(Arrays.asList("buildings", "bad", "recipes")),
+            Map.of(
+                "buildings", JsonNodeType.ARRAY,
+                "bad", JsonNodeType.ARRAY,
+                "types", JsonNodeType.ARRAY
+            ),
             false
         );
         assertEquals(
@@ -45,22 +54,27 @@ public class HasFieldsRuleCheckerTest {
     
     @Test
     void testCheckRecipeRule() throws IOException {
-        // InputStream j = this.getClass().getResourceAsStream("/inputs/doors1.json");
-        // assertNotNull(j);
-        // // new String(j.readAllBytes());
         JsonNode node = mapper.readTree(j);
-        HasFieldsRuleChecker checker = new HasFieldsRuleChecker(
+        HasFieldsAndTypeRuleChecker checker = new HasFieldsAndTypeRuleChecker(
             null,
             new String[]{"recipes"},
-            new HashSet<>(Arrays.asList("output", "ingredients", "latency")),
+            Map.of(
+                "output", JsonNodeType.STRING,
+                "ingredients", JsonNodeType.OBJECT,
+                "latency", JsonNodeType.NUMBER
+            ),
             true
         );
         assertNull(checker.checkRule(node));
         assertNull(checker.checkJson(node));
-        HasFieldsRuleChecker checker2 = new HasFieldsRuleChecker(
+        HasFieldsAndTypeRuleChecker checker2 = new HasFieldsAndTypeRuleChecker(
             null,
             new String[]{"recipes"},
-            new HashSet<>(Arrays.asList("output", "bad", "latency")),
+            Map.of(
+                "output", JsonNodeType.STRING,
+                "bad", JsonNodeType.NUMBER,
+                "latency", JsonNodeType.NUMBER
+            ),
             true
         );
         assertEquals(
@@ -71,14 +85,16 @@ public class HasFieldsRuleCheckerTest {
     @Test
     void testSkipRoot() throws IOException {
         JsonNode node = mapper.readTree(j);
-        HasFieldsRuleChecker checker = new HasFieldsRuleChecker(
+        HasFieldsAndTypeRuleChecker checker = new HasFieldsAndTypeRuleChecker(
             null,
             new String[]{"recipe"},
-            new HashSet<>(Arrays.asList("aaa")),
+            Map.of(
+                "ingredients", JsonNodeType.OBJECT
+            ),
             true
         );
         assertEquals(
-            "recipe is missing",
+            "recipe field is missing",
             checker.checkRule(node)
         );
     }
