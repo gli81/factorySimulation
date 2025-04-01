@@ -2,8 +2,6 @@ package edu.duke.ece651.group6.factorySimulation;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Map;
-import com.fasterxml.jackson.databind.node.JsonNodeType;
 import com.google.gson.JsonParseException;
 import edu.duke.ece651.group6.factorySimulation.Exception.EndOfProductionException;
 import edu.duke.ece651.group6.factorySimulation.RuleChecker.*;
@@ -13,73 +11,9 @@ public class App {
 
 
     public App() {
-        RuleChecker rootChecker = new HasFieldsAndTypeRuleChecker( // check root has these fields
-            new HasFieldsAndTypeRuleChecker( // check each recipe has these fields
-                new HasFieldsAndTypeRuleChecker( // check each type has these fields
-                    new HasFieldsAndTypeRuleChecker( // check each building has these fields
-                        new NoApostropheRuleChecker( // check recipes' output has no apostrophe
-                            new NoApostropheRuleChecker(
-                                new NoApostropheRuleChecker(
-                                    null,
-                                    new String[]{"buildings"},
-                                    "name",
-                                    true    
-                                ),
-                                new String[] {"types"},
-                                "name",
-                                true
-                            ),
-                            new String[]{"recipes"},
-                            "output",
-                            true    
-                        ),
-                        new String[]{"buildings"},
-                        Map.of(
-                            "name", JsonNodeType.STRING,
-                            "sources", JsonNodeType.ARRAY
-                        ),
-                        true
-                    ),
-                    new String[]{"types"},
-                    Map.of(
-                        "name", JsonNodeType.STRING,
-                        "recipes", JsonNodeType.ARRAY
-                    ),
-                    true
-                ),
-                new String[]{"recipes"},
-                Map.of(
-                    "output", JsonNodeType.STRING,
-                    "ingredients", JsonNodeType.OBJECT,
-                    "latency", JsonNodeType.NUMBER
-                ),
-                true
-            ),
-            Map.of(
-                "recipes", JsonNodeType.ARRAY,
-                "types", JsonNodeType.ARRAY,
-                "buildings", JsonNodeType.ARRAY
-            )
-        );
-        // RuleChecker recipeChecker = new ListRuleChecker(
-        //     new HasFieldsRuleChecker(
-        //         null,
-        //         new HashSet<>(Arrays.asList("output", "ingredients", "latency"))
-        //     )
-        // );
-        // RuleChecker typeChecker = new ListRuleChecker(
-        //     new HasFieldsRuleChecker(
-        //         null,
-        //         new HashSet<>(Arrays.asList("name", "recipes"))
-        //     )
-        // );
-        // RuleChecker bldgChecker = new ListRuleChecker(
-        //     new HasFieldsRuleChecker(
-        //         null,
-        //         new HashSet<>(Arrays.asList("name", "sources"))
-        //     )
-        // );
-        SimController.getController(rootChecker, null);
+        RuleCheckerFactory f = new RuleCheckerFactory();
+        RuleChecker checker = f.getRuleChecker();
+        SimController.getController(checker, null);
         this.ctrl = new ProductionController();
     }
 

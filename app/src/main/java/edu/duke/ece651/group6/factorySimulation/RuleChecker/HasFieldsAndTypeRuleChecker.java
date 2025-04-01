@@ -36,12 +36,10 @@ public class HasFieldsAndTypeRuleChecker extends RuleChecker {
         StringBuilder ans = new StringBuilder();
         JsonNode cur = getNodeAt(root, this.parent, ans);
         if (null == cur) return ans.toString();
-        return applyElementCheck(
-            cur, this.isArray, this::checkElementForFieldsAndTypes
-        );
+        return applyElementCheck(cur, this.isArray, this::checkFieldsAndTypes);
     }
 
-    protected String checkElementForFieldsAndTypes(JsonNode node) {
+    protected String checkFieldsAndTypes(JsonNode node) {
         StringBuilder ans = new StringBuilder();
         for (String field : this.fieldsTypesMap.keySet()) {
             if (!node.has(field)) {
@@ -53,7 +51,9 @@ public class HasFieldsAndTypeRuleChecker extends RuleChecker {
                  }
                  return ans.toString();
             }
-            if (node.get(field).getNodeType() != this.fieldsTypesMap.get(field)) {
+            if (
+                node.get(field).getNodeType() != this.fieldsTypesMap.get(field)
+            ) {
                 return "" + field + " field is not the expected type";
             }
         }

@@ -3,11 +3,7 @@ package edu.duke.ece651.group6.factorySimulation.RuleChecker;
 import static org.junit.jupiter.api.Assertions.*;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-
 import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -98,4 +94,26 @@ public class HasFieldsAndTypeRuleCheckerTest {
             checker.checkRule(node)
         );
     }
+
+    @Test
+    void testWrongType() throws IOException {
+        j = this.getClass().getResourceAsStream("/inputs/invalid_latency.json");
+        JsonNode node = mapper.readTree(j);
+        HasFieldsAndTypeRuleChecker checker = new HasFieldsAndTypeRuleChecker(
+            null,
+            new String[]{"recipes"},
+            Map.of(
+                "output", JsonNodeType.STRING,
+                "ingredients", JsonNodeType.OBJECT,
+                "latency", JsonNodeType.NUMBER
+            ),
+            true
+        );
+        assertEquals(
+            "latency field is not the expected type",
+            checker.checkRule(node)
+        );
+    }
+
+    
 }

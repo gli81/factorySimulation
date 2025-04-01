@@ -30,12 +30,10 @@ public class NoApostropheRuleChecker extends RuleChecker {
         if (null == cur) {
             return ans.toString();
         }
-        return applyElementCheck(
-            cur, this.isArray, this::checkElementForApostrophe
-        );
+        return applyElementCheck(cur, this.isArray, this::checkApostrophe);
     }
 
-    protected String checkElementForApostrophe(JsonNode node) {
+    protected String checkApostrophe(JsonNode node) {
         if (!node.has(field)) {
             return "" + field + " field is missing";
         }

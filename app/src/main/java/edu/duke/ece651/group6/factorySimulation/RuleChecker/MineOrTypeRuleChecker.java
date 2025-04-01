@@ -1,6 +1,7 @@
 package edu.duke.ece651.group6.factorySimulation.RuleChecker;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.JsonNodeType;
 
 public class MineOrTypeRuleChecker extends RuleChecker {
     private final String[] parent;
@@ -25,21 +26,30 @@ public class MineOrTypeRuleChecker extends RuleChecker {
         StringBuilder ans = new StringBuilder();
         JsonNode cur = getNodeAt(root, parent, ans);
         if (null == cur) return ans.toString();
-        return applyElementCheck(
-            cur, this.isArray, this::checkElementForMineOrType
-        );
+        return applyElementCheck(cur, this.isArray, this::checkMineOrType);
     }
 
-    protected String checkElementForMineOrType(JsonNode node) {
+    protected String checkMineOrType(JsonNode node) {
         boolean hasMine = node.has("mine");
         boolean hasType = node.has("type");
         if (hasMine && hasType) {
-            return "" + parent[parent.length - 1] +
-                " has both mine and type";
+            return "" + parent[parent.length - 1] + " has both mine and type";
         }
         if (!hasMine && !hasType) {
-            return "" + parent[parent.length - 1] +
-                " doesn't have mine or type";
+            return "" + parent[parent.length - 1] + " doesn't have mine or type";
+        }
+        // also checks the type
+        if (
+            hasMine &&
+            node.get("mine").getNodeType() != JsonNodeType.STRING
+        ) {
+            return "mine field is not the expected type";
+        }
+        if (
+            hasType &&
+            node.get("type").getNodeType() != JsonNodeType.STRING
+        ) {
+            return "type field is not the expected type";
         }
         return null;
     }    

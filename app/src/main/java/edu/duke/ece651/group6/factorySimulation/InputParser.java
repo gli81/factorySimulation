@@ -20,17 +20,11 @@ import edu.duke.ece651.group6.factorySimulation.RuleChecker.*;
 public class InputParser {
     private final ObjectMapper mapper;
     private final RuleChecker checker;
-    private final RuleChecker recipeChecker;
-    private final RuleChecker typeChecker;
-    private final RuleChecker buildingChecker;
 
 
     public InputParser() {
         this.mapper = new ObjectMapper();
         this.checker = new HasFieldsAndTypeRuleChecker(null, null);
-        this.recipeChecker = new HasFieldsAndTypeRuleChecker(null, null);
-        this.typeChecker = new HasFieldsAndTypeRuleChecker(null, null);
-        this.buildingChecker = new HasFieldsAndTypeRuleChecker(null, null);
     }
 
     public InputParser(
@@ -41,9 +35,6 @@ public class InputParser {
     ) {
         this.mapper = new ObjectMapper();
         this.checker = checker;
-        this.recipeChecker = recipeChecker;
-        this.typeChecker = typeChecker;
-        this.buildingChecker = buildingChecker;
     }
 
 
@@ -109,15 +100,12 @@ public class InputParser {
         }
         // parse Recipe
         JsonNode recipeRoot = root.get("recipes");
-        this.recipeChecker.checkJson(recipeRoot);
         parseRecipes(recipeRoot);
         // parse Type
         JsonNode typeRoot = root.get("types");
-        this.typeChecker.checkJson(typeRoot);
         parseTypes(typeRoot);
         // parse Building
         JsonNode bldgRoot = root.get("buildings");
-        this.buildingChecker.checkJson(bldgRoot);
         parseBuildings(bldgRoot);
         return null;
     }

@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 public abstract class RuleChecker {
     protected final RuleChecker next;
 
-    
+
     public RuleChecker(RuleChecker next) {
         this.next = next;
     }
