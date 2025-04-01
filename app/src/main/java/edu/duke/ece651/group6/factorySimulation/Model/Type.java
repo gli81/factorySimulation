@@ -1,4 +1,4 @@
-package edu.duke.ece651.group6.factorySimulation.Models;
+package edu.duke.ece651.group6.factorySimulation.Model;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -9,9 +9,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.io.Reader;
-import edu.duke.ece651.group6.factorySimulation.Models.Building;
-import edu.duke.ece651.group6.factorySimulation.Models.Recipe;
-import edu.duke.ece651.group6.factorySimulation.Models.Type;
+import edu.duke.ece651.group6.factorySimulation.Model.Building;
+import edu.duke.ece651.group6.factorySimulation.Model.Recipe;
+import edu.duke.ece651.group6.factorySimulation.Model.Type;
 import edu.duke.ece651.group6.factorySimulation.RuleChecker.*;
 
 /**
