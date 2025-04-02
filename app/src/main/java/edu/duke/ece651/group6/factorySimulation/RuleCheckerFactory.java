@@ -2,10 +2,7 @@ package edu.duke.ece651.group6.factorySimulation;
 
 import java.util.Map;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
-import edu.duke.ece651.group6.factorySimulation.RuleChecker.DuplicateValueRuleChecker;
-import edu.duke.ece651.group6.factorySimulation.RuleChecker.HasFieldsAndTypeRuleChecker;
-import edu.duke.ece651.group6.factorySimulation.RuleChecker.NoApostropheRuleChecker;
-import edu.duke.ece651.group6.factorySimulation.RuleChecker.RuleChecker;
+import edu.duke.ece651.group6.factorySimulation.RuleChecker.*;
 
 public class RuleCheckerFactory {
     public RuleCheckerFactory() {
@@ -17,13 +14,16 @@ public class RuleCheckerFactory {
         new HasFieldsAndTypeRuleChecker(
         new HasFieldsAndTypeRuleChecker(
         new HasFieldsAndTypeRuleChecker(
+        new MineOrTypeRuleChecker(
         new NoApostropheRuleChecker(
         new NoApostropheRuleChecker(
         new NoApostropheRuleChecker(
         new DuplicateValueRuleChecker(
         new DuplicateValueRuleChecker(
         new DuplicateValueRuleChecker(
-            null,
+        new RecipeIngredientsExistRuleChecker(
+            null
+        ),
             // check buildings' name has no duplicate
             new String[]{"buildings"}, "name"
         ),
@@ -41,6 +41,8 @@ public class RuleCheckerFactory {
         ),
             // check recipes' output has no apostrophe
             new String[]{"recipes"}, "output", true    
+        ),
+            new String[]{"buildings"}, true
         ),
             // check buildings has name and sources
             new String[]{"buildings"},

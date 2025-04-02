@@ -1,7 +1,10 @@
 package edu.duke.ece651.group6.factorySimulation.RuleChecker;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.function.Function;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.JsonNodeType;
 
 public abstract class RuleChecker {
     protected final RuleChecker next;
@@ -77,5 +80,21 @@ public abstract class RuleChecker {
             return check.apply(node);
         }
         return null;
+    }
+
+    protected Set<String> getAllRecipes(JsonNode root) throws Exception {
+        if (!root.has("recipes")) {
+            throw new Exception("recipes field is missing");
+        }
+        JsonNode recipes = root.get("recipes");
+        if (recipes.getNodeType() != JsonNodeType.ARRAY) {
+            throw new Exception("recipes field is not the expected type");
+        }
+        // create set of all outputs
+        Set<String> allRecipes = new HashSet<>();
+        for (JsonNode r : recipes) {
+            allRecipes.add(r.get("output").asText());
+        }
+        return allRecipes;
     }
 }
