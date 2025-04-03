@@ -22,7 +22,11 @@ public class RuleCheckerFactory {
         new DuplicateValueRuleChecker(
         new DuplicateValueRuleChecker(
         new RecipeIngredientsExistRuleChecker(
+        new TypesRecipesExistRuleChecker(
+        new BuildingsTypesExistRuleChecker(
             null
+        )
+        )
         ),
             // check buildings' name has no duplicate
             new String[]{"buildings"}, "name"

@@ -9,6 +9,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.io.Reader;
+
+import edu.duke.ece651.group6.factorySimulation.Exception.InvalidJsonFileException;
 import edu.duke.ece651.group6.factorySimulation.Model.Building;
 import edu.duke.ece651.group6.factorySimulation.Model.Recipe;
 import edu.duke.ece651.group6.factorySimulation.Model.Type;
@@ -18,24 +20,11 @@ import edu.duke.ece651.group6.factorySimulation.RuleChecker.*;
  * This handles parsing JSON input to the simulation
  */
 public class InputParser {
-    private final ObjectMapper mapper;
-    private final RuleChecker checker;
+    private final ObjectMapper mapper = new ObjectMapper();
+    private final RuleCheckerFactory f = new RuleCheckerFactory();
 
 
-    public InputParser() {
-        this.mapper = new ObjectMapper();
-        this.checker = new HasFieldsAndTypeRuleChecker(null, null);
-    }
-
-    public InputParser(
-        RuleChecker checker,
-        RuleChecker recipeChecker,
-        RuleChecker typeChecker,
-        RuleChecker buildingChecker
-    ) {
-        this.mapper = new ObjectMapper();
-        this.checker = checker;
-    }
+    public InputParser() {}
 
 
     // /**
@@ -50,63 +39,64 @@ public class InputParser {
 
     /**
      * Extract recipes from a JSON file
-     * TODO: only recipes for now, later add types and buildings
      * 
      * @param rootNode root of a JSON parsed node
      * @return list of Recipes
      */
-    public List<Recipe> parseRecipes(JsonNode recipeRoot) {
+    protected List<Recipe> parseRecipes(JsonNode recipeRoot) {
+        // every rule checked
         List<Recipe> recipes = new ArrayList<>();
-        JsonNode recipNode = recipeRoot.path("recipes");
-        if ((recipNode.isMissingNode()) || (!recipNode.isArray())) {
-            return recipes;
-        }
-        for (JsonNode node : recipNode) {
-            String output = node.path("output").asText();
+        for (JsonNode node : recipeRoot) {
+            String output = node.get("output").asText();
             int lat = node.path("latency").asInt();
             Map<String, Integer> ingredient = new HashMap<>();
-            JsonNode ingredientsNode = node.path("ingredients");
-            if ((!ingredientsNode.isMissingNode()) && (ingredientsNode.isObject())) {
-                Iterator<Map.Entry<String, JsonNode>> items = ingredientsNode.fields();
-                while (items.hasNext()) {
-                Map.Entry<String, JsonNode> entry = items.next();
-                ingredient.put(entry.getKey(), entry.getValue().asInt());
-                }
+            JsonNode ingredientsNode = node.get("ingredients");
+            Iterator<Map.Entry<String, JsonNode>> items = ingredientsNode.fields();
+            while (items.hasNext()) {
+            Map.Entry<String, JsonNode> entry = items.next();
+            ingredient.put(entry.getKey(), entry.getValue().asInt());
             }
-            // Recipe recipe = new BasicRecipe(output, ingredient, lat);
-            // recipes.add(recipe);
+            Recipe recipe = new Recipe(output, ingredient, lat);
+            recipes.add(recipe);
+        }
+        // convert Map<String, Integer> to Map<Recipe, Integer>
+        for (Recipe r : recipes) {
+            r.setIngredientWithRecipe(recipes);
         }
         return recipes;
     }
 
-    public List<Building> parseBuildings(JsonNode root) {
+    protected List<Building> parseBuildings(JsonNode root) {
         return null;
     }
 
-    public List<Type> parseTypes(JsonNode root) {
+    protected List<Type> parseTypes(JsonNode root) {
         return null;
     }
 
-    public Map<String, List<Object>> parseJsonFile(
-        Reader reader
+    public void parseJsonFile(
+        Reader reader, List<Recipe> recipeLst,
+        List<Type> typeLst, List<Building> bldgLst
     ) throws Exception {
         // readFile
         JsonNode root = this.mapper.readTree(reader);
         // root checker
+        RuleChecker checker = this.f.getRuleChecker();
         String rslt = checker.checkJson(root);
         if (null != rslt) {
             // rslt indicating which node is missing
-            throw new Exception(rslt);
+            throw new InvalidJsonFileException(
+                "Invalid json file - " + rslt
+            );
         }
         // parse Recipe
         JsonNode recipeRoot = root.get("recipes");
-        parseRecipes(recipeRoot);
+        recipeLst.addAll(parseRecipes(recipeRoot));
         // parse Type
         JsonNode typeRoot = root.get("types");
-        parseTypes(typeRoot);
+        typeLst.addAll(parseTypes(typeRoot));
         // parse Building
         JsonNode bldgRoot = root.get("buildings");
-        parseBuildings(bldgRoot);
-        return null;
+        bldgLst.addAll(parseBuildings(bldgRoot));
     }
 }

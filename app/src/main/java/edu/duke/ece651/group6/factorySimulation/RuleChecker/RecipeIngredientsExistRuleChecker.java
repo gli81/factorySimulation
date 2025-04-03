@@ -5,6 +5,8 @@ import java.util.Set;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
 
+import edu.duke.ece651.group6.factorySimulation.Exception.InvalidJsonFileException;
+
 public class RecipeIngredientsExistRuleChecker extends RuleChecker {
     public RecipeIngredientsExistRuleChecker(RuleChecker next) {
         super(next);
@@ -15,7 +17,7 @@ public class RecipeIngredientsExistRuleChecker extends RuleChecker {
         Set<String> allRecipes;
         try {
             allRecipes = this.getAllRecipes(root);
-        } catch (Exception e) {
+        } catch (InvalidJsonFileException e) {
             return e.getMessage();
         }
         JsonNode recipes = root.get("recipes");

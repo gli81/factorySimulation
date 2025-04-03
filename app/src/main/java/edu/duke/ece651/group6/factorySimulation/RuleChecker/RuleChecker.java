@@ -5,6 +5,7 @@ import java.util.Set;
 import java.util.function.Function;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
+import edu.duke.ece651.group6.factorySimulation.Exception.InvalidJsonFileException;
 
 public abstract class RuleChecker {
     protected final RuleChecker next;
@@ -82,13 +83,17 @@ public abstract class RuleChecker {
         return null;
     }
 
-    protected Set<String> getAllRecipes(JsonNode root) throws Exception {
+    protected Set<String> getAllRecipes(
+        JsonNode root
+    ) throws InvalidJsonFileException {
         if (!root.has("recipes")) {
-            throw new Exception("recipes field is missing");
+            throw new InvalidJsonFileException("recipes field is missing");
         }
         JsonNode recipes = root.get("recipes");
         if (recipes.getNodeType() != JsonNodeType.ARRAY) {
-            throw new Exception("recipes field is not the expected type");
+            throw new InvalidJsonFileException(
+                "recipes field is not the expected type"
+            );
         }
         // create set of all outputs
         Set<String> allRecipes = new HashSet<>();
@@ -96,5 +101,25 @@ public abstract class RuleChecker {
             allRecipes.add(r.get("output").asText());
         }
         return allRecipes;
+    }
+
+    protected Set<String> getAllTypes(
+        JsonNode root
+    ) throws InvalidJsonFileException {
+        if (!root.has("types")) {
+            throw new InvalidJsonFileException("types field is missing");
+        }
+        JsonNode types = root.get("types");
+        if (types.getNodeType() != JsonNodeType.ARRAY) {
+            throw new InvalidJsonFileException(
+                "types field is not the expected type"
+            );
+        }
+        // create set of all outputs
+        Set<String> allTypes = new HashSet<>();
+        for (JsonNode r : types) {
+            allTypes.add(r.get("name").asText());
+        }
+        return allTypes;
     }
 }
