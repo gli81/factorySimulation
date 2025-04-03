@@ -1,6 +1,6 @@
 package edu.duke.ece651.group6.factorySimulation.DataModel;
 
-public class Mine extends BasicBuilding {
+public class Mine extends Building {
 
     private final Recipe outputItem;
 

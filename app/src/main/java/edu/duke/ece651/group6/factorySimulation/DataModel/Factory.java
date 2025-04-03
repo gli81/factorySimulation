@@ -4,7 +4,7 @@ import edu.duke.ece651.group6.factorySimulation.ProductionController;
 import java.util.ArrayList;
 import java.util.Map;
 
-public class Factory extends BasicBuilding {
+public class Factory extends Building {
 
     private final Type type;
     /*
@@ -133,8 +133,7 @@ public class Factory extends BasicBuilding {
                                 if (ProductionController.getVerbose() > 0) {
 
                                     System.out.println(
-                                            "    " + readyCount + ": " + requestItem.recipe.getName() + " is ready"
-                                    );
+                                            "    " + readyCount + ": " + requestItem.recipe.getName() + " is ready");
                                 }
                                 readyCount++;
                             }
