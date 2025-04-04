@@ -26,7 +26,7 @@
             "y" : 1,
             "stores" : "metal",
             "capacity" : 100,
-            "priority" : 1.2,
+            "priority" : 2.0,
             "sources" : [
                 "M"
             ]
@@ -48,7 +48,7 @@
             "y" : 3,
             "type" : "handle",
             "sources" : [
-                "M"
+                "Metal Storage"
             ]
         },
         {
@@ -57,7 +57,7 @@
             "y" : 4,
             "type" : "hinge",
             "sources" : [
-                "M"
+                "Metal Storage"
             ]
         },
         {

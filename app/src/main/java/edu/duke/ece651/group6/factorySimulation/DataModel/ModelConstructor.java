@@ -378,6 +378,13 @@ public class ModelConstructor {
                 modelManager.addBuilding(factory);
 
             } else if (isStorage && !isMine && !isFactory) {
+                // storage item
+                // check: recipe of storage must be defined in the recipes section
+                String recipeString = buildingObject.get("stores").getAsString();
+                Recipe recipe = modelManager.getRecipe(recipeString);
+                if (recipe == null) {
+                    throw new InvalidInputException("Recipe of storage " + name + " not found: " + recipeString);
+                }
 
                 // capacity
                 int capacity = buildingObject.get("capacity").getAsInt();
@@ -391,7 +398,7 @@ public class ModelConstructor {
                     throw new InvalidInputException("Priority of building " + name + " must be positive");
                 }
 
-                Storage storage = new Storage(name, capacity, priority, x, y);
+                Storage storage = new Storage(name, recipe, capacity, priority, x, y);
                 modelManager.addBuilding(storage);
 
             } else {
@@ -430,7 +437,40 @@ public class ModelConstructor {
                                 "Source building " + sourceName + " not found: " + sourceName);
                     }
                     storage.addSource(sourceBuilding);
+                    // check 9: For each storage, all recipes it might need must be available
+                    checkStorageRecipesAvailability(storage);
                 }
+            }
+        }
+    }
+
+    /**
+     * Check if all recipes needed by a building are available from at least one
+     * of its source buildings
+     * 
+     * @param BuildingName    the name of the building to check
+     * @param requiredRecipes the recipes to check
+     * @param sources         the sources to check
+     */
+    private void checkAvailability(String BuildingName, Map<String, Boolean> requiredRecipes,
+            Iterable<Building> sources) {
+
+        // Mark if each required ingredient can be provided by at least one source
+        for (Building source : sources) {
+            for (String recipeName : requiredRecipes.keySet()) {
+                Recipe recipe = modelManager.getRecipe(recipeName);
+                if (source.isRecipeSupported(recipe)) {
+                    requiredRecipes.put(recipeName, true);
+                }
+            }
+        }
+
+        // Check if any ingredient is still not available
+        for (Map.Entry<String, Boolean> entry : requiredRecipes.entrySet()) {
+            if (!entry.getValue()) {
+                throw new InvalidInputException("Building '" + BuildingName +
+                        "' cannot get recipe '" + entry.getKey() +
+                        "' from any of its sources");
             }
         }
     }
@@ -454,29 +494,22 @@ public class ModelConstructor {
             }
         }
 
-        // No ingredients required? Nothing to check
-        if (requiredIngredients.isEmpty()) {
-            return;
-        }
+        checkAvailability(factory.getName(), requiredIngredients, factory.getSourcesIterable());
+    }
 
-        // Check if each required ingredient can be provided by at least one source
-        for (Building source : factory.getSourcesIterable()) {
-            for (String ingredientName : requiredIngredients.keySet()) {
-                Recipe ingredientRecipe = modelManager.getRecipe(ingredientName);
-                if (source.isRecipeSupported(ingredientRecipe)) {
-                    requiredIngredients.put(ingredientName, true);
-                }
-            }
-        }
+    /**
+     * Check if the recipe needed by a storage is available from at least one of
+     * its source buildings
+     * 
+     * @param storage the storage to check
+     * @throws InvalidInputException if a recipe is not available
+     */
+    private void checkStorageRecipesAvailability(Storage storage) {
+        Map<String, Boolean> requiredRecipes = new LinkedHashMap<>();
 
-        // Check if any ingredient is still not available
-        for (Map.Entry<String, Boolean> entry : requiredIngredients.entrySet()) {
-            if (!entry.getValue()) {
-                throw new InvalidInputException("Factory '" + factory.getName() +
-                        "' cannot get ingredient '" + entry.getKey() +
-                        "' from any of its sources");
-            }
-        }
+        requiredRecipes.put(storage.getStoredRecipe().getName(), false);
+
+        checkAvailability(storage.getName(), requiredRecipes, storage.getSourcesIterable());
     }
 
     /**
