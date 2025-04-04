@@ -22,13 +22,6 @@ public class Mine extends Building {
         return this.outputItem.equals(recipe);
     }
 
-    public void addRequest(Recipe recipe, Building targetBuilding) {
-        // print the request message
-        super.addRequest(recipe, targetBuilding);
-        int status = RequestItem.Status.READY;
-        this.requestQueue.add(new RequestItem(recipe, status, targetBuilding, 0));
-    }
-
     /*
      * two mines are equal if they have the same name and output item
      * since name is unique for each mine

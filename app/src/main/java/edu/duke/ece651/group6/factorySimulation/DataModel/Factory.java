@@ -46,7 +46,7 @@ public class Factory extends Building {
      * @param sourceRecipe the recipe that the factory lacks
      * @return the source building that can produce the recipe
      */
-    private Building sourceSelect(Recipe sourceRecipe) {
+    public Building sourceSelect(Recipe sourceRecipe) {
 
         ArrayList<Building> availableSources = new ArrayList<>();
 
@@ -74,37 +74,6 @@ public class Factory extends Building {
             System.out.println("    Selecting " + selectedSource.getName());
         }
         return selectedSource;
-    }
-
-    public void addRequest(Recipe recipe, Building targetBuilding) {
-        // print the request message
-        super.addRequest(recipe, targetBuilding);
-
-        this.requestQueue.add(new RequestItem(recipe, RequestItem.Status.WAITING, targetBuilding, 0));
-
-        // for each ingredient, add a request to the source building
-        int ingredientCount = 0;
-        // if the recipe has ingredients, print the source selection message
-        if (recipe.getIngredientsIterable().iterator().hasNext()) {
-            // print the source selection message
-            if (ProductionController.getVerbose() >= 2) {
-                System.out.println("[source selection]: " + this.name + " has request for " + recipe.getName()
-                        + " on " + ProductionController.getCurrTimeStep());
-            }
-        }
-        for (Map.Entry<Recipe, Integer> ingredient : recipe.getIngredientsIterable()) {
-            for (int i = 0; i < ingredient.getValue(); i++) {
-                // print the ingredient selection message
-                if (ProductionController.getVerbose() >= 2) {
-                    System.out.println(
-                            "[" + this.name + ":" + recipe.getName() + ":" + ingredientCount + "] For ingredient "
-                                    + ingredient.getKey().getName());
-                }
-                Building sourceBuilding = sourceSelect(ingredient.getKey());
-                sourceBuilding.addRequest(ingredient.getKey(), this);
-                ingredientCount++;
-            }
-        }
     }
 
     /*
