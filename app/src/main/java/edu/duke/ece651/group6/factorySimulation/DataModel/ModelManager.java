@@ -3,11 +3,15 @@ package edu.duke.ece651.group6.factorySimulation.DataModel;
 import java.util.ArrayList;
 import java.util.Map;
 import edu.duke.ece651.group6.factorySimulation.ProductionController;
+import java.util.Stack;
+import java.util.Set;
+import java.util.HashSet;
 
 public class ModelManager {
     private ArrayList<Type> types;
     private ArrayList<Recipe> recipes;
     private ArrayList<Building> buildings;
+    private MapGrid mapGrid;
 
     /**
      * order of buildings to be processed
@@ -18,11 +22,16 @@ public class ModelManager {
      */
     private ArrayList<Map.Entry<Integer, Map.Entry<Recipe, Building>>> userRequestQueue;
 
-    public ModelManager() {
+    public ModelManager(MapGrid mapGrid) {
         this.types = new ArrayList<>();
         this.recipes = new ArrayList<>();
         this.buildings = new ArrayList<>();
         this.userRequestQueue = new ArrayList<>();
+        this.mapGrid = mapGrid;
+    }
+
+    public MapGrid getMapGrid() {
+        return this.mapGrid;
     }
 
     public void addType(Type type) {
@@ -108,6 +117,44 @@ public class ModelManager {
 
         // the target building is null because target is the user
         sourceBuilding.addRequest(recipe, null);
+    }
+
+    private void DFSTaskDistribution(Building sourceBuilding, Recipe recipe) {
+        class Task {
+            Building sourceBuilding;
+            Recipe recipe;
+            Building targetBuilding;
+
+            Task(Building sourceBuilding, Recipe recipe, Building targetBuilding) {
+                this.sourceBuilding = sourceBuilding;
+                this.recipe = recipe;
+                this.targetBuilding = targetBuilding;
+            }
+
+            void DFSVisit(Task currentTask) {
+                // print the ingredient assignment message if the target is not user-requested
+                if (ProductionController.getVerbose() >= 1 && targetBuilding != null) {
+                    int orderNumber = ProductionController.getAndIncrementCurrRequestIndex();
+                    if (ProductionController.getVerbose() >= 3) {
+                        System.out
+                                .println("TEST:[Order Number: " + orderNumber + "]");
+                    }
+                    System.out.println(
+                            "[ingredient assignment]: " + recipe.getName() + " assigned to " + sourceBuilding.getName()
+                                    + " to deliver to "
+                                    + targetBuilding.getName());
+                }
+
+            }
+
+        }
+
+        Stack<Task> stack = new Stack<>();
+        stack.push(new Task(sourceBuilding, recipe, null));
+        while (!stack.isEmpty()) {
+            Task currentTask = stack.pop();
+            currentTask.DFSVisit(currentTask);
+        }
     }
 
     public void processOneTimeStep() {

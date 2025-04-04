@@ -4,7 +4,7 @@ import edu.duke.ece651.group6.factorySimulation.ProductionController;
 import java.util.ArrayList;
 import java.util.Map;
 
-abstract class Building {
+abstract class Building extends MapObject {
 
     /*
      * the name of the building
@@ -15,7 +15,8 @@ abstract class Building {
 
     protected int workingTimeStep;
 
-    public Building(String name) {
+    public Building(String name, int x, int y) {
+        super(x, y);
         this.name = name;
         this.workingTimeStep = 0;
         this.requestQueue = new ArrayList<>();

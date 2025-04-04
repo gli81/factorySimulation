@@ -5,7 +5,12 @@ public class Mine extends Building {
     private final Recipe outputItem;
 
     public Mine(String name, Recipe outputItem) {
-        super(name);
+        super(name, -1, -1);
+        this.outputItem = outputItem;
+    }
+
+    public Mine(String name, Recipe outputItem, int x, int y) {
+        super(name, x, y);
         this.outputItem = outputItem;
     }
 
@@ -21,7 +26,7 @@ public class Mine extends Building {
         // print the request message
         super.addRequest(recipe, targetBuilding);
         int status = RequestItem.Status.READY;
-        this.requestQueue.add(new RequestItem(recipe, status, targetBuilding));
+        this.requestQueue.add(new RequestItem(recipe, status, targetBuilding, 0));
     }
 
     /*

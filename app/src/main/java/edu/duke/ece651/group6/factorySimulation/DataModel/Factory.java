@@ -13,7 +13,13 @@ public class Factory extends Building {
     private ArrayList<Building> sources;
 
     public Factory(String name, Type type) {
-        super(name);
+        super(name, -1, -1);
+        this.type = type;
+        this.sources = new ArrayList<>();
+    }
+
+    public Factory(String name, Type type, int x, int y) {
+        super(name, x, y);
         this.type = type;
         this.sources = new ArrayList<>();
     }
@@ -74,7 +80,7 @@ public class Factory extends Building {
         // print the request message
         super.addRequest(recipe, targetBuilding);
 
-        this.requestQueue.add(new RequestItem(recipe, RequestItem.Status.WAITING, targetBuilding));
+        this.requestQueue.add(new RequestItem(recipe, RequestItem.Status.WAITING, targetBuilding, 0));
 
         // for each ingredient, add a request to the source building
         int ingredientCount = 0;

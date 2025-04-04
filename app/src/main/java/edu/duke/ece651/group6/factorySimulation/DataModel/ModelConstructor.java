@@ -16,9 +16,67 @@ import com.google.gson.JsonParseException;
 
 public class ModelConstructor {
     private ModelManager modelManager;
+    private MapGrid mapGrid;
 
-    public ModelConstructor(ModelManager modelManager) {
+    public ModelConstructor(ModelManager modelManager, MapGrid mapGrid) {
         this.modelManager = modelManager;
+        this.mapGrid = mapGrid;
+    }
+
+    /**
+     * Construct the Model from the json file
+     * 
+     * @param filePath
+     * @throws IOException
+     * @throws JsonParseException
+     */
+    public void constructFromJsonFile(String filePath) throws IOException, JsonParseException {
+        String jsonContent = readJsonFile(filePath);
+        JsonObject jsonObject = parseJsonToObject(jsonContent);
+
+        // must be called in this order
+        constructRecipes(jsonObject);
+        constructTypes(jsonObject);
+        constructBuildings(jsonObject);
+        constructMapGrid();
+    }
+
+    /**
+     * Construct the MapGrid from the model
+     */
+    private void constructMapGrid() {
+        for (Building building : modelManager.getAllBuildingsIterable()) {
+            // add all buildings with specified coordinates to the map grid
+            if (building.getX() != -1 && building.getY() != -1) {
+
+                if (!mapGrid.addMapObject(building, building.getX(), building.getY())) {
+                    throw new InvalidInputException("Failed to add building " + building.getName()
+                            + " to map grid at coordinates (" + building.getX() + ", " + building.getY() + ")");
+                }
+            }
+
+        }
+
+        for (Building building : modelManager.getAllBuildingsIterable()) {
+            // add all buildings with no specified coordinates to the map grid
+            if (building.getX() == -1 && building.getY() == -1) {
+                // choose an available coordinate
+                Map.Entry<Integer, Integer> availableCoordinate = mapGrid.chooseAvailableCoordinate();
+                if (availableCoordinate == null) {
+                    throw new InvalidInputException("Failed to find available coordinates for building "
+                            + building.getName());
+                }
+                // set the building's coordinates
+                building.setCoordinates(availableCoordinate.getKey(), availableCoordinate.getValue());
+            }
+
+            if (!mapGrid.addMapObject(building, building.getX(), building.getY())) {
+                throw new InvalidInputException("Failed to add building " + building.getName()
+                        + " to map grid at coordinates (" + building.getX() + ", " + building.getY() + ")");
+            }
+
+        }
+
     }
 
     @Override
@@ -67,10 +125,10 @@ public class ModelConstructor {
         for (JsonElement recipeElement : recipesArray) {
             JsonObject recipeObject = recipeElement.getAsJsonObject();
 
-            String output = recipeObject.get("output").getAsString();
-            if (output == null) {
+            if (!recipeObject.has("output")) {
                 throw new InvalidInputException("Missing output of recipe in JSON");
             }
+            String output = recipeObject.get("output").getAsString();
 
             // check 1: check if recipe name contains apostrophes
             validateName(output, "Recipe");
@@ -143,10 +201,11 @@ public class ModelConstructor {
             JsonObject typeObject = typeElement.getAsJsonObject();
 
             // get the type name
-            String typeName = typeObject.get("name").getAsString();
-            if (typeName == null) {
+
+            if (!typeObject.has("name")) {
                 throw new InvalidInputException("Missing name of type in JSON");
             }
+            String typeName = typeObject.get("name").getAsString();
 
             // check 1: check if type name contains apostrophes
             validateName(typeName, "Type");
@@ -213,10 +272,10 @@ public class ModelConstructor {
             JsonObject buildingObject = buildingElement.getAsJsonObject();
 
             // get the building name
-            String name = buildingObject.get("name").getAsString();
-            if (name == null) {
+            if (!buildingObject.has("name")) {
                 throw new InvalidInputException("Missing name of building in JSON");
             }
+            String name = buildingObject.get("name").getAsString();
 
             // check 1: check if building name contains apostrophes
             validateName(name, "Building");
@@ -237,8 +296,27 @@ public class ModelConstructor {
             // add the sources to the temporary sources list
             sourcesList.add(sources);
 
-            // determine the building type: factory or mine
-            if (buildingObject.has("mine") && !buildingObject.has("type")) {
+            // get the coordinates
+            int x, y;
+            if (buildingObject.has("x") && buildingObject.has("y")) {
+                x = buildingObject.get("x").getAsInt();
+                y = buildingObject.get("y").getAsInt();
+                if (x < 0 || y < 0) {
+                    throw new InvalidInputException("Building " + name + " has negative coordinates");
+                }
+            } else if (!buildingObject.has("x") && !buildingObject.has("y")) {
+                x = -1;
+                y = -1;
+            } else {
+                throw new InvalidInputException("Building " + name + " must have both or neither x and y coordinates");
+            }
+
+            // determine the building type
+            boolean isMine = buildingObject.has("mine");
+            boolean isFactory = buildingObject.has("type");
+            boolean isStorage = buildingObject.has("stores");
+
+            if (isMine && !isFactory && !isStorage) {
                 // mine type
 
                 // check 4: either the sources field must not be present, or it must be empty
@@ -263,9 +341,9 @@ public class ModelConstructor {
                             "' for building '" + name + "' must have no ingredients");
                 }
 
-                Mine mine = new Mine(name, mineItem);
+                Mine mine = new Mine(name, mineItem, x, y);
                 modelManager.addBuilding(mine);
-            } else if (!buildingObject.has("mine") && buildingObject.has("type")) {
+            } else if (isFactory && !isMine && !isStorage) {
                 // factory type
                 String type = buildingObject.get("type").getAsString();
 
@@ -274,13 +352,15 @@ public class ModelConstructor {
                 if (buildingType == null) {
                     throw new InvalidInputException("Type of building " + name + " not found: " + type);
                 }
-                Factory factory = new Factory(name, buildingType);
+                Factory factory = new Factory(name, buildingType, x, y);
                 modelManager.addBuilding(factory);
 
-            } else if (buildingObject.has("mine") && buildingObject.has("type")) {
-                throw new InvalidInputException("Building " + name + " cannot be both a factory and a mine");
+            } else if (isStorage && !isMine && !isFactory) {
+                // storage type
+                Storage storage = new Storage(name, x, y);
+                modelManager.addBuilding(storage);
             } else {
-                throw new InvalidInputException("Building " + name + " must be either a factory or a mine");
+                throw new InvalidInputException("Building " + name + " must be either a factory, mine, or storage");
             }
         }
 
@@ -354,23 +434,6 @@ public class ModelConstructor {
     }
 
     /**
-     * Construct the Model from the json file
-     * 
-     * @param filePath
-     * @throws IOException
-     * @throws JsonParseException
-     */
-    public void constructFromJsonFile(String filePath) throws IOException, JsonParseException {
-        String jsonContent = readJsonFile(filePath);
-        JsonObject jsonObject = parseJsonToObject(jsonContent);
-
-        // must be called in this order
-        constructRecipes(jsonObject);
-        constructTypes(jsonObject);
-        constructBuildings(jsonObject);
-    }
-
-    /**
      * Validate a name for both recipes and types
      * 
      * @param name       the name to validate
@@ -384,4 +447,5 @@ public class ModelConstructor {
                     Category + " name '" + name + "' contains an apostrophe which is not allowed");
         }
     }
+
 }
