@@ -27,7 +27,7 @@ public class TypesRecipesExistRuleChecker extends RuleChecker {
             JsonNode recipesNode = type.get("recipes");
             for (JsonNode recipe : recipesNode) {
                 if (!allRecipes.contains(recipe.asText())) {
-                    return "type recipe " + recipe.asText() +
+                    return "type's recipe " + recipe.asText() +
                         " is not an output from recipes";
                 }
             }

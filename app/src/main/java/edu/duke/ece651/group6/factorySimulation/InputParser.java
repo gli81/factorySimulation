@@ -2,14 +2,12 @@ package edu.duke.ece651.group6.factorySimulation;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.io.Reader;
-
 import edu.duke.ece651.group6.factorySimulation.Exception.InvalidJsonFileException;
 import edu.duke.ece651.group6.factorySimulation.Model.Building;
 import edu.duke.ece651.group6.factorySimulation.Model.Recipe;
@@ -100,7 +98,7 @@ public class InputParser {
         typeLst.addAll(parseTypes(typeRoot));
         // parse Building
         // check Building
-        RuleChecker bldgChecker = this.f.getBuildingChecker();
+        RuleChecker bldgChecker = this.f.getBuildingChecker(recipeLst, typeLst);
         JsonNode bldgRoot = root.get("buildings");
         bldgChecker.checkJson(bldgRoot);
         bldgLst.addAll(parseBuildings(bldgRoot));

@@ -19,7 +19,7 @@ public class TypesRecipesHaveIngredientsRuleChecker extends RuleChecker {
     protected String checkRule(JsonNode typesNode) {
         // typesNode is ARRAY
         for (JsonNode type : typesNode) {
-            // every node has recipes node and is ARRAY
+            // assume every node has recipes node and is ARRAY
             JsonNode recipesNode = type.get("recipes");
             for (JsonNode recipeNode : recipesNode) {
                 // guaranteed can find

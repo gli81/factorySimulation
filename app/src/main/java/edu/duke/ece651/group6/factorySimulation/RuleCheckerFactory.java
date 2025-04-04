@@ -2,11 +2,9 @@ package edu.duke.ece651.group6.factorySimulation;
 
 import java.util.List;
 import java.util.Map;
-
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
-
 import edu.duke.ece651.group6.factorySimulation.Model.Recipe;
+import edu.duke.ece651.group6.factorySimulation.Model.Type;
 import edu.duke.ece651.group6.factorySimulation.RuleChecker.*;
 
 public class RuleCheckerFactory {
@@ -78,7 +76,9 @@ public class RuleCheckerFactory {
      * 
      * @return
      */
-    public RuleChecker getBuildingChecker() {
+    public RuleChecker getBuildingChecker(
+        List<Recipe> recipeList, List<Type> typeList
+    ) {
         return new HasFieldsAndTypeRuleChecker(
             null, new String[]{}, Map.of(), false
         );
