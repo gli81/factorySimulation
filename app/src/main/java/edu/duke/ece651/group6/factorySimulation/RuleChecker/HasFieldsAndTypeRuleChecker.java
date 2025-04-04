@@ -26,7 +26,7 @@ public class HasFieldsAndTypeRuleChecker extends RuleChecker {
         this.isArray = isArray;
     }
 
-    
+
     @Override
     protected String checkRule(JsonNode root) {
         if (null == this.fieldsTypesMap || this.fieldsTypesMap.isEmpty()) {
@@ -41,6 +41,7 @@ public class HasFieldsAndTypeRuleChecker extends RuleChecker {
 
     protected String checkFieldsAndTypes(JsonNode node) {
         StringBuilder ans = new StringBuilder();
+        // this.fieldsTypesMap is not null or empty
         for (String field : this.fieldsTypesMap.keySet()) {
             if (!node.has(field)) {
                  ans.append(field).append(" feild is missing");

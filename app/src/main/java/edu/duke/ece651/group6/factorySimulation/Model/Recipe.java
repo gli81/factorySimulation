@@ -78,17 +78,19 @@ public class Recipe {
         }
     }
 
-    // public String getOutput() {return this.output;}
+    public String getOutput() {return this.output;}
 
     /**
      * get Recipe instance from a list of Recipe instances by output name
+     * should not return null in a real simulation, because input is verified to
+     * have all possible name
      * 
      * @param lst a list of Recipe instance to be searched from
      * @param name is the output name being searched
      * @return the Recipe instance which has the specified output,
      * null if no Recipe instance matches
      */
-    public Recipe getRecipeFromListByOutput(List<Recipe> lst, String name) {
+    public static Recipe getRecipeFromListByOutput(List<Recipe> lst, String name) {
         for (Recipe r : lst) {
             // System.out.println(r.ingredients.toString());
             if (r.output.equals(name)) {
@@ -97,5 +99,9 @@ public class Recipe {
         }
         // System.out.println(name + " not found");
         return null;
+    }
+
+    public boolean hasIngredients() {
+        return this.ingredients.size() > 0;
     }
 }

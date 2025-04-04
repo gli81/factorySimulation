@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class MineOrTypeRuleCheckerTest {
+public class MineOrTypeAndSourcesRuleCheckerTest {
     private final ObjectMapper mapper = new ObjectMapper();
     private InputStream j;
 
@@ -22,10 +22,9 @@ public class MineOrTypeRuleCheckerTest {
     @Test
     void testCheckRule() throws IOException {
         JsonNode node = mapper.readTree(j);
-        MineOrTypeRuleChecker checker = new MineOrTypeRuleChecker(
-            null,
-            new String[]{"buildings"},
-            true
+        MineOrTypeAndSourcesRuleChecker checker =
+            new MineOrTypeAndSourcesRuleChecker(
+                null, new String[]{"buildings"}, true
         );
         assertNull(checker.checkRule(node));
         j = this.getClass().getResourceAsStream(

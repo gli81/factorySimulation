@@ -37,5 +37,4 @@ public class BuildingsTypesExistRuleChecker extends RuleChecker {
         }
         return null;
     }
-    
 }

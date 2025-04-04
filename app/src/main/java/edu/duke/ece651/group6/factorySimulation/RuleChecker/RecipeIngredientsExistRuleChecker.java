@@ -4,7 +4,6 @@ import java.util.Iterator;
 import java.util.Set;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
-
 import edu.duke.ece651.group6.factorySimulation.Exception.InvalidJsonFileException;
 
 public class RecipeIngredientsExistRuleChecker extends RuleChecker {
@@ -23,8 +22,8 @@ public class RecipeIngredientsExistRuleChecker extends RuleChecker {
         JsonNode recipes = root.get("recipes");
         for (JsonNode r : recipes) {
             JsonNode ingredientsNode = r.get("ingredients");
-            // TODO check ingredients is ARRAY
-            // TODO check ingredients key are STRING
+            // TODO check ingredients is OBJECT
+            // json file guarantees that each key is STRING
             Iterator<String> ingredients = ingredientsNode.fieldNames();
             while (ingredients.hasNext()) {
                 String ingredient = ingredients.next();
@@ -39,7 +38,7 @@ public class RecipeIngredientsExistRuleChecker extends RuleChecker {
                 ) {
                     return "recipe ingredient " + ingredient +
                         " has non-integer amount";
-                }
+                } // TODO check amount non negative
             }
         }
         return null;

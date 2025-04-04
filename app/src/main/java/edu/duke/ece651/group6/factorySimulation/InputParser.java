@@ -43,7 +43,7 @@ public class InputParser {
      * @param rootNode root of a JSON parsed node
      * @return list of Recipes
      */
-    protected List<Recipe> parseRecipes(JsonNode recipeRoot) {
+    public List<Recipe> parseRecipes(JsonNode recipeRoot) {
         // every rule checked
         List<Recipe> recipes = new ArrayList<>();
         for (JsonNode node : recipeRoot) {
@@ -81,8 +81,8 @@ public class InputParser {
         // readFile
         JsonNode root = this.mapper.readTree(reader);
         // root checker
-        RuleChecker checker = this.f.getRuleChecker();
-        String rslt = checker.checkJson(root);
+        RuleChecker rootChecker = this.f.getRuleChecker();
+        String rslt = rootChecker.checkJson(root);
         if (null != rslt) {
             // rslt indicating which node is missing
             throw new InvalidJsonFileException(
@@ -92,11 +92,17 @@ public class InputParser {
         // parse Recipe
         JsonNode recipeRoot = root.get("recipes");
         recipeLst.addAll(parseRecipes(recipeRoot));
+        // check Type
         // parse Type
+        RuleChecker typeChecker = this.f.getTypeChecker(recipeLst);
         JsonNode typeRoot = root.get("types");
+        typeChecker.checkJson(typeRoot);
         typeLst.addAll(parseTypes(typeRoot));
         // parse Building
+        // check Building
+        RuleChecker bldgChecker = this.f.getBuildingChecker();
         JsonNode bldgRoot = root.get("buildings");
+        bldgChecker.checkJson(bldgRoot);
         bldgLst.addAll(parseBuildings(bldgRoot));
     }
 }

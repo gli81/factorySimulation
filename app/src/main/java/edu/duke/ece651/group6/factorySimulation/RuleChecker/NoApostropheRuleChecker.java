@@ -34,12 +34,20 @@ public class NoApostropheRuleChecker extends RuleChecker {
     }
 
     protected String checkApostrophe(JsonNode node) {
-        if (!node.has(field)) {
-            return "" + field + " field is missing";
-        }
         if (node.get(field).asText().contains("'")) {
             return field + " field contains apostrophe";
         }
         return null;
     }
+    
+    // protected String checkApostrophe2(JsonNode node) {
+    //     // not necessary
+    //     if (!node.has(field)) {
+    //         return "" + field + " field is missing";
+    //     }
+    //     if (node.get(field).asText().contains("'")) {
+    //         return field + " field contains apostrophe";
+    //     }
+    //     return null;
+    // }
 }

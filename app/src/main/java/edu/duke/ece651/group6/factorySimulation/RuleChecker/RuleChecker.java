@@ -67,6 +67,28 @@ public abstract class RuleChecker {
         return cur;
     }
 
+    // protected String applyElementCheck2(
+    //     JsonNode node, boolean isArray, Function<JsonNode, String> check
+    // ) {
+    //     String ans;
+    //     if (isArray) {
+    //         // TODO not necessary, ARRAY checked before get here
+    //         // ============================================================
+    //         if (node.getNodeType() == JsonNodeType.ARRAY) {
+    //             return node.textValue() + " is not the expected type";
+    //         }
+    //         // ============================================================
+    //         for (JsonNode n : node) {
+    //             if (null != (ans = check.apply(n))) {
+    //                 return ans;
+    //             }
+    //         }
+    //     } else {
+    //         return check.apply(node);
+    //     }
+    //     return null;
+    // }
+    
     protected String applyElementCheck(
         JsonNode node, boolean isArray, Function<JsonNode, String> check
     ) {

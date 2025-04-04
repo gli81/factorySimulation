@@ -3,16 +3,16 @@ package edu.duke.ece651.group6.factorySimulation.RuleChecker;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
 
-public class MineOrTypeRuleChecker extends RuleChecker {
+public class MineOrTypeAndSourcesRuleChecker extends RuleChecker {
     private final String[] parent;
     private final boolean isArray;
 
 
-    public MineOrTypeRuleChecker(RuleChecker next) {
+    public MineOrTypeAndSourcesRuleChecker(RuleChecker next) {
         this(next, new String[]{}, false);
     }
 
-    public MineOrTypeRuleChecker(
+    public MineOrTypeAndSourcesRuleChecker(
         RuleChecker next, String[] parent, boolean isArray
     ) {
         super(next);
@@ -39,17 +39,30 @@ public class MineOrTypeRuleChecker extends RuleChecker {
             return "" + parent[parent.length - 1] + " doesn't have mine or type";
         }
         // also checks the type
-        if (
-            hasMine &&
-            node.get("mine").getNodeType() != JsonNodeType.STRING
-        ) {
-            return "mine field is not the expected type";
+        if (hasMine) {
+            if (node.get("mine").getNodeType() != JsonNodeType.STRING) {
+                return "mine field is not the expected type";
+            }
+            // check mine has no sources or 
+            if (
+                node.has("sources") &&
+                node.get("sources").getNodeType() == JsonNodeType.ARRAY &&
+                node.get("sources").size() > 0
+            ) {
+                return "mine building has sources field";
+            }
         }
-        if (
-            hasType &&
-            node.get("type").getNodeType() != JsonNodeType.STRING
-        ) {
-            return "type field is not the expected type";
+        if (hasType) {
+            if (node.get("type").getNodeType() != JsonNodeType.STRING) {
+                return "type field is not the expected type";
+            }
+            if (
+                !node.has("sources") ||
+                node.get("sources").getNodeType() == JsonNodeType.ARRAY &&
+                node.get("sources").size() == 0
+            ) {
+                return "factory building doesn't have sources field";
+            }
         }
         return null;
     }    
