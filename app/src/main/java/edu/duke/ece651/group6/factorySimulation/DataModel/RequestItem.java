@@ -20,6 +20,7 @@ class RequestItem {
      */
     protected int status;
     protected final Building targetBuilding;
+    protected int deliveryTime;
 
     /**
      * the missing ingredients list
@@ -28,13 +29,20 @@ class RequestItem {
      */
     protected final Map<Recipe, Integer> missingIngredients;
 
-    public RequestItem(Recipe recipe, int status, Building targetBuilding) {
+    public RequestItem(Recipe recipe, int status, Building targetBuilding, int deliveryTime) {
         this.recipe = recipe;
         this.status = status;
         this.targetBuilding = targetBuilding;
+        this.deliveryTime = deliveryTime;
         this.missingIngredients = new LinkedHashMap<>();
         for (Map.Entry<Recipe, Integer> ingredient : recipe.getIngredientsIterable()) {
             this.missingIngredients.put(ingredient.getKey(), ingredient.getValue());
+        }
+    }
+
+    public void reduceDeliveryTime() {
+        if (this.deliveryTime > 0) {
+            this.deliveryTime--;
         }
     }
 

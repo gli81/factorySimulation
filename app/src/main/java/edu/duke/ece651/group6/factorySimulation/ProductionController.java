@@ -19,12 +19,14 @@ public class ProductionController {
     private static int currRequestIndex = 0;
     private TextView view;
     private ModelManager modelManager;
+    private MapGrid mapGrid;
     private ModelConstructor modelConstructor;
 
     public ProductionController() {
         this.view = new TextView();
-        this.modelManager = new ModelManager();
-        this.modelConstructor = new ModelConstructor(modelManager);
+        this.mapGrid = new MapGrid();
+        this.modelManager = new ModelManager(mapGrid);
+        this.modelConstructor = new ModelConstructor(modelManager, mapGrid);
     }
 
     public void constructFromFile(String filePath) throws IOException {
@@ -111,7 +113,7 @@ public class ProductionController {
 
     protected boolean isNonnegativeDigit(String str) {
 
-        if (null == str){
+        if (null == str) {
             return false;
         }
         int len = str.length();
@@ -137,7 +139,7 @@ public class ProductionController {
      * @param command is the command that the user input
      * @return the output displayed to user
      */
-    protected String processCommand(String command) throws EndOfProductionException{
+    protected String processCommand(String command) throws EndOfProductionException {
         String cleaned_cmd = cleanCommand(command);
         String[] cleaned_words = cleaned_cmd.split(" ");
         if (cleaned_words.length == 1 && cleaned_words[0].equals("")) {
@@ -158,12 +160,10 @@ public class ProductionController {
                 String tmp = cleaned_cmd + "a";
                 String[] split_by_quote = tmp.split("'");
                 if ( // 4 ' so 5 parts
-                    !(
-                        // make sure the last element is just what is appended
-                        split_by_quote.length == 5 && split_by_quote[4].equals("a")
-                    ) ||
-                    !split_by_quote[2].equals(" from ")
-                ) {
+                !(
+                // make sure the last element is just what is appended
+                split_by_quote.length == 5 && split_by_quote[4].equals("a")) ||
+                        !split_by_quote[2].equals(" from ")) {
                     return "Invalid command - Usage: request 'ITEM' from 'BUILDING'";
                 }
                 /*
@@ -177,7 +177,7 @@ public class ProductionController {
                 } catch (InvalidInputException e) {
                     return "Invalid request - " + e.getMessage();
                 }
-            // break;
+                // break;
             case "verbose":
                 // check only two words,second word isdigit
                 if (cleaned_words.length != 2 || !isNonnegativeDigit(cleaned_words[1])) {

@@ -37,8 +37,9 @@ public class ModelManagerTest {
     ProductionController.resetTimeStep();
     ProductionController.resetCurrRequestIndex();
 
-    modelManager = new ModelManager();
-    c = new ModelConstructor(modelManager);
+    MapGrid mapGrid = new MapGrid();
+    modelManager = new ModelManager(mapGrid);
+    c = new ModelConstructor(modelManager, mapGrid);
   }
 
   @Test

@@ -3,7 +3,6 @@ package edu.duke.ece651.group6.factorySimulation.DataModel;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
 import java.net.URL;
@@ -41,8 +40,9 @@ public class ModelConstructorTest {
 
   @Test
   public void testConstructor1() throws IOException {
-    ModelManager modelManager = new ModelManager();
-    ModelConstructor constructor = new ModelConstructor(modelManager);
+    MapGrid mapGrid = new MapGrid(30, 30);
+    ModelManager modelManager = new ModelManager(mapGrid);
+    ModelConstructor constructor = new ModelConstructor(modelManager, mapGrid);
     constructor.constructFromJsonFile("src/resources/inputs/doors1.json");
 
     assertEquals(constructor.toString(),
@@ -62,12 +62,47 @@ public class ModelConstructorTest {
             "Factory: { Hi, hinge, { M } }\n" +
             "Mine: { W, wood }\n" +
             "Mine: { M, metal }\n");
+
+    assertEquals(mapGrid.toString(),
+        "MapGrid:\n" +
+            " 0|1|2|3|4|5|6|7|8|9|0|1|2|3|4|5|6|7|8|9|0|1|2|3|4|5|6|7|8|9|\n" +
+            "0F| | | | | | | | | | | | | | | | | | | | | | | | | | | | | |\n" +
+            "1 | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |\n" +
+            "2 | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |\n" +
+            "3 | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |\n" +
+            "4 | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |\n" +
+            "5 | | | | |F| | | | | | | | | | | | | | | | | | | | | | | | |\n" +
+            "6 | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |\n" +
+            "7 | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |\n" +
+            "8 | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |\n" +
+            "9 | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |\n" +
+            "0 | | | | | | | | | |F| | | | | | | | | | | | | | | | | | | |\n" +
+            "1 | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |\n" +
+            "2 | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |\n" +
+            "3 | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |\n" +
+            "4 | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |\n" +
+            "5 | | | | | | | | | | | | | | |M| | | | | | | | | | | | | | |\n" +
+            "6 | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |\n" +
+            "7 | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |\n" +
+            "8 | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |\n" +
+            "9 | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |\n" +
+            "0 | | | | | | | | | | | | | | | | | | | |M| | | | | | | | | |\n" +
+            "1 | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |\n" +
+            "2 | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |\n" +
+            "3 | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |\n" +
+            "4 | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |\n" +
+            "5 | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |\n" +
+            "6 | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |\n" +
+            "7 | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |\n" +
+            "8 | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |\n" +
+            "9 | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |\n");
   }
 
   @Test
   public void testConstructor2() throws IOException {
-    ModelManager modelManager = new ModelManager();
-    ModelConstructor constructor = new ModelConstructor(modelManager);
+    MapGrid mapGrid = new MapGrid(30, 30);
+    ModelManager modelManager = new ModelManager(mapGrid);
+    ModelConstructor constructor = new ModelConstructor(modelManager, mapGrid);
     constructor.constructFromJsonFile("src/resources/inputs/doors2.json");
     assertEquals(constructor.toString(),
         "Types:\n" +
@@ -86,12 +121,90 @@ public class ModelConstructorTest {
             "Mine: { W, wood }\n" +
             "Mine: { M1, metal }\n" +
             "Mine: { M2, metal }\n");
+
+    assertEquals(mapGrid.toString(),
+        "MapGrid:\n" +
+            " 0|1|2|3|4|5|6|7|8|9|0|1|2|3|4|5|6|7|8|9|0|1|2|3|4|5|6|7|8|9|\n" +
+            "0F| | | | | | | | | | | | | | | | | | | | | | | | | | | | | |\n" +
+            "1 | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |\n" +
+            "2 | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |\n" +
+            "3 | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |\n" +
+            "4 | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |\n" +
+            "5 | | | | |F| | | | | | | | | | | | | | | | | | | | | | | | |\n" +
+            "6 | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |\n" +
+            "7 | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |\n" +
+            "8 | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |\n" +
+            "9 | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |\n" +
+            "0 | | | | | | | | | |F| | | | | | | | | | | | | | | | | | | |\n" +
+            "1 | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |\n" +
+            "2 | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |\n" +
+            "3 | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |\n" +
+            "4 | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |\n" +
+            "5 | | | | | | | | | | | | | | |M| | | | | | | | | | | | | | |\n" +
+            "6 | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |\n" +
+            "7 | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |\n" +
+            "8 | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |\n" +
+            "9 | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |\n" +
+            "0 | | | | | | | | | | | | | | | | | | | |M| | | | | | | | | |\n" +
+            "1 | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |\n" +
+            "2 | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |\n" +
+            "3 | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |\n" +
+            "4 | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |\n" +
+            "5 | | | | | | | | | | | | | | | | | | | | | | | | |M| | | | |\n" +
+            "6 | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |\n" +
+            "7 | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |\n" +
+            "8 | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |\n" +
+            "9 | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |\n");
+  }
+
+  @Test
+  public void testConstructor3() throws IOException {
+    MapGrid mapGrid = new MapGrid(30, 30);
+    ModelManager modelManager = new ModelManager(mapGrid);
+    ModelConstructor constructor = new ModelConstructor(modelManager, mapGrid);
+    String resourcePath = getResourcePath("inputs/storage_with_coordinates.json");
+    constructor.constructFromJsonFile(resourcePath);
+
+    assertEquals(mapGrid.toString(),
+        "MapGrid:\n" +
+            " 0|1|2|3|4|5|6|7|8|9|0|1|2|3|4|5|6|7|8|9|0|1|2|3|4|5|6|7|8|9|\n" +
+            "0 | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |\n" +
+            "1 |S| | | | | | | | | | | | | | | | | | | | | | | | | | | | |\n" +
+            "2 | |F| | | | | | | | | | | | | | | | | | | | | | | | | | | |\n" +
+            "3 | | |F| | | | | | | | | | | | | | | | | | | | | | | | | | |\n" +
+            "4 | | | |F| | | | | | | | | | | | | | | | | | | | | | | | | |\n" +
+            "5 | | | | |M| | | | | | | | | | | | | | | | | | | | | | | | |\n" +
+            "6 | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |\n" +
+            "7 | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |\n" +
+            "8 | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |\n" +
+            "9 | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |\n" +
+            "0 | | | | | | | | | |M| | | | | | | | | | | | | | | | | | | |\n" +
+            "1 | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |\n" +
+            "2 | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |\n" +
+            "3 | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |\n" +
+            "4 | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |\n" +
+            "5 | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |\n" +
+            "6 | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |\n" +
+            "7 | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |\n" +
+            "8 | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |\n" +
+            "9 | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |\n" +
+            "0 | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |\n" +
+            "1 | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |\n" +
+            "2 | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |\n" +
+            "3 | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |\n" +
+            "4 | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |\n" +
+            "5 | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |\n" +
+            "6 | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |\n" +
+            "7 | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |\n" +
+            "8 | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |\n" +
+            "9 | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |\n");
   }
 
   @Test
   public void testRecipNameApostrophe() {
-    ModelManager m = new ModelManager();
-    ModelConstructor c = new ModelConstructor(m);
+    MapGrid mapGrid = new MapGrid();
+    ModelManager modelManager = new ModelManager(mapGrid);
+    ModelConstructor c = new ModelConstructor(modelManager, mapGrid);
     String resourcePath = getResourcePath("inputs/invalid_recipe_name.json");
 
     String expected = "Recipe name 'door's' contains an apostrophe which is not allowed";
@@ -105,8 +218,9 @@ public class ModelConstructorTest {
 
   @Test
   public void testDuplicateRecipName() {
-    ModelManager m = new ModelManager();
-    ModelConstructor c = new ModelConstructor(m);
+    MapGrid mapGrid = new MapGrid();
+    ModelManager modelManager = new ModelManager(mapGrid);
+    ModelConstructor c = new ModelConstructor(modelManager, mapGrid);
     String resourcePath = getResourcePath("inputs/duplicate_recipe_name.json");
 
     String expected = "Recipe name 'door' is not unique";
@@ -120,8 +234,9 @@ public class ModelConstructorTest {
 
   @Test
   public void testInvalidRecipLat() {
-    ModelManager m = new ModelManager();
-    ModelConstructor c = new ModelConstructor(m);
+    MapGrid mapGrid = new MapGrid();
+    ModelManager modelManager = new ModelManager(mapGrid);
+    ModelConstructor c = new ModelConstructor(modelManager, mapGrid);
     String resourcePath = getResourcePath("inputs/invalid_recipe_latency.json");
 
     String expected = "Recipe latency must be at least 1, got 0 for recipe 'door'";
@@ -135,8 +250,9 @@ public class ModelConstructorTest {
 
   @Test
   public void testUndefinedIngred() {
-    ModelManager m = new ModelManager();
-    ModelConstructor c = new ModelConstructor(m);
+    MapGrid mapGrid = new MapGrid();
+    ModelManager modelManager = new ModelManager(mapGrid);
+    ModelConstructor c = new ModelConstructor(modelManager, mapGrid);
     String resourcePath = getResourcePath("inputs/undefined_ingredient.json");
 
     String expected = "Ingredient of recipe door not found: undefined_material";
@@ -150,8 +266,9 @@ public class ModelConstructorTest {
 
   @Test
   public void testMissingRecipeLat() {
-    ModelManager m = new ModelManager();
-    ModelConstructor c = new ModelConstructor(m);
+    MapGrid mapGrid = new MapGrid();
+    ModelManager modelManager = new ModelManager(mapGrid);
+    ModelConstructor c = new ModelConstructor(modelManager, mapGrid);
     String resourcePath = getResourcePath("inputs/missing_recipe_latency.json");
 
     String expected = "Missing latency of recipe door in JSON";
@@ -165,8 +282,9 @@ public class ModelConstructorTest {
 
   @Test
   public void testMissingRecipOutput() {
-    ModelManager m = new ModelManager();
-    ModelConstructor c = new ModelConstructor(m);
+    MapGrid mapGrid = new MapGrid();
+    ModelManager modelManager = new ModelManager(mapGrid);
+    ModelConstructor c = new ModelConstructor(modelManager, mapGrid);
     String resourcePath = getResourcePath("inputs/missing_recipe_output.json");
 
     assertThrows(
@@ -176,8 +294,9 @@ public class ModelConstructorTest {
 
   @Test
   public void testMissingRecipArr() {
-    ModelManager m = new ModelManager();
-    ModelConstructor c = new ModelConstructor(m);
+    MapGrid mapGrid = new MapGrid();
+    ModelManager modelManager = new ModelManager(mapGrid);
+    ModelConstructor c = new ModelConstructor(modelManager, mapGrid);
     String resourcePath = getResourcePath("inputs/missing_recipes_array.json");
 
     String expected = "Missing recipes array in JSON";
@@ -191,8 +310,9 @@ public class ModelConstructorTest {
 
   @Test
   public void testMissingRecipIngred() {
-    ModelManager m = new ModelManager();
-    ModelConstructor c = new ModelConstructor(m);
+    MapGrid mapGrid = new MapGrid();
+    ModelManager modelManager = new ModelManager(mapGrid);
+    ModelConstructor c = new ModelConstructor(modelManager, mapGrid);
     String resourcePath = getResourcePath("inputs/missing_recipe_ingredients.json");
 
     String expected = "Missing ingredients of recipe door in JSON";
@@ -207,8 +327,9 @@ public class ModelConstructorTest {
   // TYPE VALIDATION!!!!!
   @Test
   public void testTypeNameApostrophe() {
-    ModelManager m = new ModelManager();
-    ModelConstructor c = new ModelConstructor(m);
+    MapGrid mapGrid = new MapGrid();
+    ModelManager modelManager = new ModelManager(mapGrid);
+    ModelConstructor c = new ModelConstructor(modelManager, mapGrid);
     String resourcePath = getResourcePath("inputs/invalid_type_name.json");
 
     String expected = "Type name 'door's type' contains an apostrophe which is not allowed";
@@ -222,8 +343,9 @@ public class ModelConstructorTest {
 
   @Test
   public void testDuplicateName() {
-    ModelManager m = new ModelManager();
-    ModelConstructor c = new ModelConstructor(m);
+    MapGrid mapGrid = new MapGrid();
+    ModelManager modelManager = new ModelManager(mapGrid);
+    ModelConstructor c = new ModelConstructor(modelManager, mapGrid);
     String resourcePath = getResourcePath("inputs/duplicate_type_name.json");
 
     String expected = "Type name 'door' is not unique";
@@ -237,8 +359,9 @@ public class ModelConstructorTest {
 
   @Test
   public void testUndefinedRecip_Type() {
-    ModelManager m = new ModelManager();
-    ModelConstructor c = new ModelConstructor(m);
+    MapGrid mapGrid = new MapGrid();
+    ModelManager modelManager = new ModelManager(mapGrid);
+    ModelConstructor c = new ModelConstructor(modelManager, mapGrid);
     String resourcePath = getResourcePath("inputs/undefined_type_recipe.json");
 
     String expected = "Recipe of type door not found: undefined_recipe";
@@ -252,8 +375,9 @@ public class ModelConstructorTest {
 
   @Test
   public void testNoIngredTypeRecip() {
-    ModelManager m = new ModelManager();
-    ModelConstructor c = new ModelConstructor(m);
+    MapGrid mapGrid = new MapGrid();
+    ModelManager modelManager = new ModelManager(mapGrid);
+    ModelConstructor c = new ModelConstructor(modelManager, mapGrid);
     String resourcePath = getResourcePath("inputs/no_ingredients_type_recipe.json");
 
     String expected = "Recipe 'wood' used in type 'doorType' must have at least one ingredient for factories";
@@ -267,8 +391,9 @@ public class ModelConstructorTest {
 
   @Test
   public void testMissingRecip_type() {
-    ModelManager m = new ModelManager();
-    ModelConstructor c = new ModelConstructor(m);
+    MapGrid mapGrid = new MapGrid();
+    ModelManager modelManager = new ModelManager(mapGrid);
+    ModelConstructor c = new ModelConstructor(modelManager, mapGrid);
     String resourcePath = getResourcePath("inputs/missing_type_recipes.json");
 
     String expected = "Missing recipes array of type door in JSON";
@@ -282,8 +407,9 @@ public class ModelConstructorTest {
 
   @Test
   public void testmissingTypeName() {
-    ModelManager m = new ModelManager();
-    ModelConstructor c = new ModelConstructor(m);
+    MapGrid mapGrid = new MapGrid();
+    ModelManager modelManager = new ModelManager(mapGrid);
+    ModelConstructor c = new ModelConstructor(modelManager, mapGrid);
     String resourcePath = getResourcePath("inputs/missing_type_name.json");
 
     assertThrows(
@@ -293,8 +419,9 @@ public class ModelConstructorTest {
 
   @Test
   public void testMissingTypesArr() {
-    ModelManager m = new ModelManager();
-    ModelConstructor c = new ModelConstructor(m);
+    MapGrid mapGrid = new MapGrid();
+    ModelManager modelManager = new ModelManager(mapGrid);
+    ModelConstructor c = new ModelConstructor(modelManager, mapGrid);
     String resourcePath = getResourcePath("inputs/missing_types_array.json");
 
     String expected = "Missing types array in JSON";
@@ -308,8 +435,9 @@ public class ModelConstructorTest {
 
   @Test
   public void testParseJsonToObj() throws IOException {
-    ModelManager m = new ModelManager();
-    ModelConstructor c = new ModelConstructor(m);
+    MapGrid mapGrid = new MapGrid();
+    ModelManager modelManager = new ModelManager(mapGrid);
+    ModelConstructor c = new ModelConstructor(modelManager, mapGrid);
 
     Path temp = Files.createTempFile("invalid", ".json");
     Files.writeString(temp, "{invalid JSON}");
@@ -324,8 +452,9 @@ public class ModelConstructorTest {
   // Buildingv VALIDATION!!!!!
   @Test
   public void testBuildingApostrophe() {
-    ModelManager m = new ModelManager();
-    ModelConstructor c = new ModelConstructor(m);
+    MapGrid mapGrid = new MapGrid();
+    ModelManager modelManager = new ModelManager(mapGrid);
+    ModelConstructor c = new ModelConstructor(modelManager, mapGrid);
     String resourcePath = getResourcePath("inputs/invalid_building_name.json");
 
     String expected = "Building name 'door's factory' contains an apostrophe which is not allowed";
@@ -339,8 +468,9 @@ public class ModelConstructorTest {
 
   @Test
   public void testDuplicateBuildingName() {
-    ModelManager m = new ModelManager();
-    ModelConstructor c = new ModelConstructor(m);
+    MapGrid mapGrid = new MapGrid();
+    ModelManager modelManager = new ModelManager(mapGrid);
+    ModelConstructor c = new ModelConstructor(modelManager, mapGrid);
     String resourcePath = getResourcePath("inputs/duplicate_building_name.json");
 
     String expected = "Building name 'doorFactory' is not unique";
@@ -354,8 +484,9 @@ public class ModelConstructorTest {
 
   @Test
   public void test_Mine_WithSources() {
-    ModelManager m = new ModelManager();
-    ModelConstructor c = new ModelConstructor(m);
+    MapGrid mapGrid = new MapGrid();
+    ModelManager modelManager = new ModelManager(mapGrid);
+    ModelConstructor c = new ModelConstructor(modelManager, mapGrid);
     String resourcePath = getResourcePath("inputs/mine_with_sources.json");
 
     String expected = "Sources must be empty for mine type woodMine";
@@ -369,8 +500,9 @@ public class ModelConstructorTest {
 
   @Test
   public void testMineRecipe_Ingred() {
-    ModelManager m = new ModelManager();
-    ModelConstructor c = new ModelConstructor(m);
+    MapGrid mapGrid = new MapGrid();
+    ModelManager modelManager = new ModelManager(mapGrid);
+    ModelConstructor c = new ModelConstructor(modelManager, mapGrid);
     String resourcePath = getResourcePath("inputs/mine_recipe_with_ingredients.json");
 
     String expected = "Mine recipe 'door' for building 'doorMine' must have no ingredients";
@@ -384,8 +516,9 @@ public class ModelConstructorTest {
 
   @Test
   public void testUndefinedBuildType() {
-    ModelManager m = new ModelManager();
-    ModelConstructor c = new ModelConstructor(m);
+    MapGrid mapGrid = new MapGrid();
+    ModelManager modelManager = new ModelManager(mapGrid);
+    ModelConstructor c = new ModelConstructor(modelManager, mapGrid);
     String resourcePath = getResourcePath("inputs/undefined_building_type.json");
 
     String expected = "Type of building doorFactory not found: undefined_type";
@@ -399,8 +532,9 @@ public class ModelConstructorTest {
 
   @Test
   public void testUndefinedSourceBuild() {
-    ModelManager m = new ModelManager();
-    ModelConstructor c = new ModelConstructor(m);
+    MapGrid mapGrid = new MapGrid();
+    ModelManager modelManager = new ModelManager(mapGrid);
+    ModelConstructor c = new ModelConstructor(modelManager, mapGrid);
     String resourcePath = getResourcePath("inputs/undefined_source_building.json");
 
     String expected = "Source building undefined_source not found: undefined_source";
@@ -414,11 +548,12 @@ public class ModelConstructorTest {
 
   @Test
   public void testBuildingFactory_Mine() {
-    ModelManager m = new ModelManager();
-    ModelConstructor c = new ModelConstructor(m);
+    MapGrid mapGrid = new MapGrid();
+    ModelManager modelManager = new ModelManager(mapGrid);
+    ModelConstructor c = new ModelConstructor(modelManager, mapGrid);
     String resourcePath = getResourcePath("inputs/building_both_factory_and_mine.json");
 
-    String expected = "Building doorFactoryMine cannot be both a factory and a mine";
+    String expected = "Building doorFactoryMine must be either a factory, mine, or storage";
 
     InvalidInputException e = assertThrows(
         InvalidInputException.class,
@@ -429,11 +564,12 @@ public class ModelConstructorTest {
 
   @Test
   public void testBuildingNoFactory_mine() {
-    ModelManager m = new ModelManager();
-    ModelConstructor c = new ModelConstructor(m);
+    MapGrid mapGrid = new MapGrid();
+    ModelManager modelManager = new ModelManager(mapGrid);
+    ModelConstructor c = new ModelConstructor(modelManager, mapGrid);
     String resourcePath = getResourcePath("inputs/building_neither_factory_nor_mine.json");
 
-    String expected = "Building doorNothing must be either a factory or a mine";
+    String expected = "Building doorNothing must be either a factory, mine, or storage";
 
     InvalidInputException e = assertThrows(
         InvalidInputException.class,
@@ -444,8 +580,9 @@ public class ModelConstructorTest {
 
   @Test
   public void testMissingBuildingsAr() {
-    ModelManager mm = new ModelManager();
-    ModelConstructor c = new ModelConstructor(mm);
+    MapGrid mapGrid = new MapGrid();
+    ModelManager modelManager = new ModelManager(mapGrid);
+    ModelConstructor c = new ModelConstructor(modelManager, mapGrid);
     String resourcePath = getResourcePath("inputs/missing_buildings_array.json");
 
     String expected = "Missing buildings array in JSON";
@@ -459,8 +596,9 @@ public class ModelConstructorTest {
 
   @Test
   public void testFactory_Source_Ingred() {
-    ModelManager m = new ModelManager();
-    ModelConstructor c = new ModelConstructor(m);
+    MapGrid mapGrid = new MapGrid();
+    ModelManager modelManager = new ModelManager(mapGrid);
+    ModelConstructor c = new ModelConstructor(modelManager, mapGrid);
     String resourcePath = getResourcePath("inputs/factory_missing_ingredient_source.json");
 
     String expected = "Factory 'doorFactory' cannot get ingredient 'metal' from any of its sources";
@@ -474,17 +612,18 @@ public class ModelConstructorTest {
 
   @Test
   public void test_toString() {
-    ModelManager m = new ModelManager();
+    MapGrid mapGrid = new MapGrid();
+    ModelManager modelManager = new ModelManager(mapGrid);
     Recipe wood = new Recipe("wood", 1);
-    m.addRecipe(wood);
+    modelManager.addRecipe(wood);
 
     ArrayList<Recipe> recipes = new ArrayList<>();
     recipes.add(wood);
     Type woodType = new Type("woodType", recipes);
-    m.addType(woodType);
+    modelManager.addType(woodType);
     Mine woodMine = new Mine("woodMine", wood);
-    m.addBuilding(woodMine);
-    ModelConstructor c = new ModelConstructor(m);
+    modelManager.addBuilding(woodMine);
+    ModelConstructor c = new ModelConstructor(modelManager, mapGrid);
 
     String expected = "Types:\n" +
         "Type: { woodType, { wood } }\n" +

@@ -4,7 +4,7 @@ import edu.duke.ece651.group6.factorySimulation.ProductionController;
 import java.util.ArrayList;
 import java.util.Map;
 
-public class Factory extends BasicBuilding {
+public class Factory extends Building {
 
     private final Type type;
     /*
@@ -13,7 +13,13 @@ public class Factory extends BasicBuilding {
     private ArrayList<Building> sources;
 
     public Factory(String name, Type type) {
-        super(name);
+        super(name, -1, -1);
+        this.type = type;
+        this.sources = new ArrayList<>();
+    }
+
+    public Factory(String name, Type type, int x, int y) {
+        super(name, x, y);
         this.type = type;
         this.sources = new ArrayList<>();
     }
@@ -40,7 +46,7 @@ public class Factory extends BasicBuilding {
      * @param sourceRecipe the recipe that the factory lacks
      * @return the source building that can produce the recipe
      */
-    private Building sourceSelect(Recipe sourceRecipe) {
+    public Building sourceSelect(Recipe sourceRecipe) {
 
         ArrayList<Building> availableSources = new ArrayList<>();
 
@@ -68,37 +74,6 @@ public class Factory extends BasicBuilding {
             System.out.println("    Selecting " + selectedSource.getName());
         }
         return selectedSource;
-    }
-
-    public void addRequest(Recipe recipe, Building targetBuilding) {
-        // print the request message
-        super.addRequest(recipe, targetBuilding);
-
-        this.requestQueue.add(new RequestItem(recipe, RequestItem.Status.WAITING, targetBuilding));
-
-        // for each ingredient, add a request to the source building
-        int ingredientCount = 0;
-        // if the recipe has ingredients, print the source selection message
-        if (recipe.getIngredientsIterable().iterator().hasNext()) {
-            // print the source selection message
-            if (ProductionController.getVerbose() >= 2) {
-                System.out.println("[source selection]: " + this.name + " has request for " + recipe.getName()
-                        + " on " + ProductionController.getCurrTimeStep());
-            }
-        }
-        for (Map.Entry<Recipe, Integer> ingredient : recipe.getIngredientsIterable()) {
-            for (int i = 0; i < ingredient.getValue(); i++) {
-                // print the ingredient selection message
-                if (ProductionController.getVerbose() >= 2) {
-                    System.out.println(
-                            "[" + this.name + ":" + recipe.getName() + ":" + ingredientCount + "] For ingredient "
-                                    + ingredient.getKey().getName());
-                }
-                Building sourceBuilding = sourceSelect(ingredient.getKey());
-                sourceBuilding.addRequest(ingredient.getKey(), this);
-                ingredientCount++;
-            }
-        }
     }
 
     /*
@@ -133,8 +108,7 @@ public class Factory extends BasicBuilding {
                                 if (ProductionController.getVerbose() > 0) {
 
                                     System.out.println(
-                                            "    " + readyCount + ": " + requestItem.recipe.getName() + " is ready"
-                                    );
+                                            "    " + readyCount + ": " + requestItem.recipe.getName() + " is ready");
                                 }
                                 readyCount++;
                             }
