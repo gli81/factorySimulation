@@ -39,6 +39,32 @@ public class ModelConstructor {
         constructTypes(jsonObject);
         constructBuildings(jsonObject);
         constructMapGrid();
+        // connectAllBuildings();
+    }
+
+    /**
+     * Connect all source buildings to their target buildings
+     */
+    private void connectAllBuildings() {
+        for (Building building : modelManager.getAllBuildingsIterable()) {
+            if (building instanceof Factory) {
+                Factory factory = (Factory) building;
+                for (Building source : factory.getSourcesIterable()) {
+                    if (!mapGrid.connectBuildings(source, factory)) {
+                        throw new InvalidInputException("Failed to connect building " + source.getName() + " to "
+                                + factory.getName());
+                    }
+                }
+            } else if (building instanceof Storage) {
+                Storage storage = (Storage) building;
+                for (Building source : storage.getSourcesIterable()) {
+                    if (!mapGrid.connectBuildings(source, storage)) {
+                        throw new InvalidInputException("Failed to connect building " + source.getName() + " to "
+                                + storage.getName());
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -68,11 +94,7 @@ public class ModelConstructor {
                 }
                 // set the building's coordinates
                 building.setCoordinates(availableCoordinate.getKey(), availableCoordinate.getValue());
-            }
-
-            if (!mapGrid.addMapObject(building, building.getX(), building.getY())) {
-                throw new InvalidInputException("Failed to add building " + building.getName()
-                        + " to map grid at coordinates (" + building.getX() + ", " + building.getY() + ")");
+                mapGrid.addMapObject(building, building.getX(), building.getY());
             }
 
         }
@@ -356,22 +378,37 @@ public class ModelConstructor {
                 modelManager.addBuilding(factory);
 
             } else if (isStorage && !isMine && !isFactory) {
-                // storage type
-                Storage storage = new Storage(name, x, y);
+
+                // capacity
+                int capacity = buildingObject.get("capacity").getAsInt();
+                if (capacity <= 0) {
+                    throw new InvalidInputException("Capacity of building " + name + " must be positive");
+                }
+
+                // priority
+                double priority = buildingObject.get("priority").getAsDouble();
+                if (priority <= 0) {
+                    throw new InvalidInputException("Priority of building " + name + " must be positive");
+                }
+
+                Storage storage = new Storage(name, capacity, priority, x, y);
                 modelManager.addBuilding(storage);
+
             } else {
                 throw new InvalidInputException("Building " + name + " must be either a factory, mine, or storage");
             }
         }
 
         // check 3: buildings named in the sources of a building must be defined in the
-        // buildings section. Then add the building objects to the factory object
+        // buildings section. Then add the building objects
+        // to the factory/storage object
         Iterator<Building> buildingIterator = modelManager.getAllBuildingsIterable().iterator();
         Iterator<ArrayList<String>> sourcesIterator = sourcesList.iterator();
 
         while (buildingIterator.hasNext() && sourcesIterator.hasNext()) {
             Building building = buildingIterator.next();
             ArrayList<String> sources = sourcesIterator.next();
+
             if (building instanceof Factory) {
                 Factory factory = (Factory) building;
                 for (String sourceName : sources) {
@@ -381,10 +418,19 @@ public class ModelConstructor {
                                 "Source building " + sourceName + " not found: " + sourceName);
                     }
                     factory.addSource(sourceBuilding);
-
                 }
                 // check 9: For each factory, all ingredients it might need must be available
                 checkFactoryIngredientsAvailability(factory);
+            } else if (building instanceof Storage) {
+                Storage storage = (Storage) building;
+                for (String sourceName : sources) {
+                    Building sourceBuilding = modelManager.getBuilding(sourceName);
+                    if (sourceBuilding == null) {
+                        throw new InvalidInputException(
+                                "Source building " + sourceName + " not found: " + sourceName);
+                    }
+                    storage.addSource(sourceBuilding);
+                }
             }
         }
     }

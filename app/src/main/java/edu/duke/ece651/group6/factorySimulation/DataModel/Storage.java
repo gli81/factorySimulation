@@ -1,8 +1,35 @@
 package edu.duke.ece651.group6.factorySimulation.DataModel;
 
+import java.util.ArrayList;
+
 public class Storage extends Building {
-    public Storage(String name, int x, int y) {
+    private int capacity;
+    private double priority;
+    /*
+     * the sources list of the building
+     */
+    private ArrayList<Building> sources;
+
+    public Storage(String name, int capacity, double priority) {
+        super(name, -1, -1);
+        this.capacity = capacity;
+        this.priority = priority;
+        this.sources = new ArrayList<>();
+    }
+
+    public Storage(String name, int capacity, double priority, int x, int y) {
         super(name, x, y);
+        this.capacity = capacity;
+        this.priority = priority;
+        this.sources = new ArrayList<>();
+    }
+
+    public void addSource(Building source) {
+        this.sources.add(source);
+    }
+
+    public Iterable<Building> getSourcesIterable() {
+        return new ArrayList<Building>(this.sources);
     }
 
     @Override

@@ -228,14 +228,22 @@ public class MapGrid {
         return sb.toString();
     }
 
+    /**
+     * Connect two buildings
+     * 
+     * @param sourceBuilding The source building
+     * @param targetBuilding The target building
+     * @return true if the buildings are connected, false otherwise
+     */
     // TODO: Robin
-    public void connectBuildings(Building sourceBuilding, Building targetBuilding) {
+    public Boolean connectBuildings(Building sourceBuilding, Building targetBuilding) {
         // get the coordinates of the buildings
         int x1 = sourceBuilding.getX();
         int y1 = sourceBuilding.getY();
         int x2 = targetBuilding.getX();
         int y2 = targetBuilding.getY();
         //
+        return true;
     }
 
     /**
