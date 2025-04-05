@@ -59,7 +59,7 @@ html, body, #root {
 }
 
 /* Button styling */
-.request-button {
+/* .request-button {
   padding: 0.75rem 1.5rem;
   font-size: 1.1rem;
   margin-bottom: 1rem;
@@ -73,7 +73,7 @@ html, body, #root {
 
 .request-button:hover {
   background-color: #0056b3;
-}
+} */
 
 /* Grid layout */
 .grid-container {
