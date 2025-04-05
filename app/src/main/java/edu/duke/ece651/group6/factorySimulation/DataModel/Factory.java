@@ -83,41 +83,41 @@ public class Factory extends Building {
      */
     public void addStorage(Recipe ingredientDelivered) {
 
-        boolean isDone = false;
+        boolean isUpdated = false;
         int readyCount = 0;
         // traverse the request queue and update the missing ingredients
-        for (RequestItem requestItem : this.requestQueue) {
+        for (RequestItem requestItem : this.getRequestQueue()) {
             // for every ready request, print the message
-            if (requestItem.status == RequestItem.Status.READY) {
+            if (requestItem.isReady()) {
                 if (ProductionController.getVerbose() > 0) {
-                    System.out.println("    " + readyCount + ": " + requestItem.recipe.getName() + " is ready");
+                    System.out.println("    " + readyCount + ": " + requestItem.getRecipe().getName() + " is ready");
                 }
                 readyCount++;
             }
 
             // for the waiting request, check the missing list
-            if (requestItem.status == RequestItem.Status.WAITING && !isDone) {
-                for (Map.Entry<Recipe, Integer> missingIngredient : requestItem.missingIngredients.entrySet()) {
+            if (requestItem.isWaiting() && !isUpdated) {
+                for (Map.Entry<Recipe, Integer> missingIngredient : requestItem.getMissingIngredients().entrySet()) {
                     // if the ingredient fits the missing list, update
                     if (missingIngredient.getKey().equals(ingredientDelivered)) {
                         if (missingIngredient.getValue() == 1) {
                             // if the ingredient is the last one, remove
-                            requestItem.missingIngredients.remove(missingIngredient.getKey());
-                            if (requestItem.missingIngredients.isEmpty()) {
-                                requestItem.status = RequestItem.Status.READY;
+                            requestItem.getMissingIngredients().remove(missingIngredient.getKey());
+                            if (requestItem.getMissingIngredients().isEmpty()) {
+                                requestItem.setStatus(RequestItem.Status.READY);
                                 if (ProductionController.getVerbose() > 0) {
-
                                     System.out.println(
-                                            "    " + readyCount + ": " + requestItem.recipe.getName() + " is ready");
+                                            "    " + readyCount + ": " + requestItem.getRecipe().getName()
+                                                    + " is ready");
                                 }
                                 readyCount++;
                             }
                         } else {
                             // if not, decrease the quantity
-                            requestItem.missingIngredients.put(missingIngredient.getKey(),
+                            requestItem.getMissingIngredients().put(missingIngredient.getKey(),
                                     missingIngredient.getValue() - 1);
                         }
-                        isDone = true;
+                        isUpdated = true;
                         break;
                     }
                 }
@@ -138,15 +138,15 @@ public class Factory extends Building {
             return false;
 
         Factory factory = (Factory) o;
-        boolean isNameEqual = this.name.equals(factory.name);
-        boolean isTypeEqual = this.type.equals(factory.type);
+        boolean isNameEqual = this.getName().equals(factory.getName());
+        boolean isTypeEqual = this.getType().equals(factory.getType());
 
         return isNameEqual && isTypeEqual;
     }
 
     @Override
     public int hashCode() {
-        return 31 * type.hashCode() + name.hashCode();
+        return 31 * this.getType().hashCode() + this.getName().hashCode();
     }
 
     @Override
@@ -159,6 +159,7 @@ public class Factory extends Building {
         if (sourcesString.length() > 0) {
             sourcesString.deleteCharAt(sourcesString.length() - 2);
         }
-        return "Factory: { " + this.name + ", " + this.type.getName() + ", { " + sourcesString.toString() + "} }\n";
+        return "Factory: { " + this.getName() + ", " + this.getType().getName() + ", { " + sourcesString.toString()
+                + "} }\n";
     }
 }

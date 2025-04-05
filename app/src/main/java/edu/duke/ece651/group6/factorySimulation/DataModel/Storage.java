@@ -74,7 +74,7 @@ public class Storage extends Building {
         if (sourcesString.length() > 0) {
             sourcesString.deleteCharAt(sourcesString.length() - 2);
         }
-        return "Storage: { " + this.name + ", " + this.storedRecipe.getName() + ": " + this.capacity + ", "
+        return "Storage: { " + this.getName() + ", " + this.storedRecipe.getName() + ": " + this.capacity + ", "
                 + this.priority + ", { " + sourcesString.toString() + "} }\n";
     }
 }

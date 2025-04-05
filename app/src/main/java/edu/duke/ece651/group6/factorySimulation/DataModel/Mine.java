@@ -35,18 +35,18 @@ public class Mine extends Building {
             return false;
         }
         Mine mine = (Mine) obj;
-        boolean isNameEqual = this.name.equals(mine.name);
+        boolean isNameEqual = this.getName().equals(mine.getName());
         boolean isOutputItemEqual = this.outputItem.equals(mine.outputItem);
         return isNameEqual && isOutputItemEqual;
     }
 
     @Override
     public int hashCode() {
-        return 31 * name.hashCode() + outputItem.hashCode();
+        return 31 * this.getName().hashCode() + this.outputItem.hashCode();
     }
 
     @Override
     public String toString() {
-        return "Mine: { " + this.name + ", " + this.outputItem.getName() + " }\n";
+        return "Mine: { " + this.getName() + ", " + this.outputItem.getName() + " }\n";
     }
 }
