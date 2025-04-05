@@ -10,30 +10,20 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.duke.ece651.group6.factorySimulation.InputParser;
 import edu.duke.ece651.group6.factorySimulation.Model.Recipe;
 
-public class TypesRecipesHaveIngredientsRuleCheckerTest {
+public class MineRecipeHasNoIngredientsRuleCheckerTest {
     private InputStream j = this.getClass().getResourceAsStream(
         "/inputs/doors1.json"
     );
-    private final ObjectMapper mapper = new ObjectMapper();
     private final InputParser parser = new InputParser();
-
-
+    ObjectMapper mapper = new ObjectMapper();
+    
+    
     @Test
     void testCheckRule() throws IOException {
         JsonNode node = mapper.readTree(j);
         List<Recipe> rLst = parser.parseRecipes(node.get("recipes"));
-        TypesRecipesHaveIngredientsRuleChecker checker =
-            new TypesRecipesHaveIngredientsRuleChecker(null, rLst);
-        assertNull(checker.checkRule(node.get("types")));
-        j = this.getClass().getResourceAsStream(
-            "/inputs/no_ingredients_type_recipe.json"
-        );
-        node = mapper.readTree(j);
-        rLst = parser.parseRecipes(node.get("recipes"));
-        checker = new TypesRecipesHaveIngredientsRuleChecker(null, rLst);
-        assertEquals(
-            "wood is produced by a factory but doesn't have ingredients",
-            checker.checkRule(node.get("types"))
-        );
+        MineRecipeHasNoIngredientsRuleChecker checker =
+            new MineRecipeHasNoIngredientsRuleChecker(null, rLst);
+        assertNull(checker.checkRule(node.get("buildings")));
     }
 }

@@ -23,8 +23,10 @@ public class TypesRecipesExistRuleChecker extends RuleChecker {
         Set<String> allRecipes = recipeList.stream()
             .map(r -> r.getOutput())
             .collect(Collectors.toSet());
+        // assume types is ARRAY, each type has recipes field
         for (JsonNode type : typesNode) {
             JsonNode recipesNode = type.get("recipes");
+            // assume recipes is ARRAY
             for (JsonNode recipe : recipesNode) {
                 if (!allRecipes.contains(recipe.asText())) {
                     return "type's recipe " + recipe.asText() +

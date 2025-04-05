@@ -43,7 +43,7 @@ public class MineOrTypeAndSourcesRuleChecker extends RuleChecker {
             if (node.get("mine").getNodeType() != JsonNodeType.STRING) {
                 return "mine field is not the expected type";
             }
-            // check mine has no sources or 
+            // check mine has no sources or sources is empty
             if (
                 node.has("sources") &&
                 node.get("sources").getNodeType() == JsonNodeType.ARRAY &&

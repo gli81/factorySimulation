@@ -22,7 +22,7 @@ public class RecipeIngredientsExistRuleChecker extends RuleChecker {
         JsonNode recipes = root.get("recipes");
         for (JsonNode r : recipes) {
             JsonNode ingredientsNode = r.get("ingredients");
-            // TODO check ingredients is OBJECT
+            // assume ingredients is OBJECT
             // json file guarantees that each key is STRING
             Iterator<String> ingredients = ingredientsNode.fieldNames();
             while (ingredients.hasNext()) {

@@ -28,7 +28,8 @@ public class TypesRecipesHaveIngredientsRuleChecker extends RuleChecker {
                 );
                 if (!r.hasIngredients()) {
                     return r.getOutput()
-                        + " is produced by factory but doesn't have ingredients";
+                        + " is produced by a factory"
+                        + " but doesn't have ingredients";
                 }
             }
         }
