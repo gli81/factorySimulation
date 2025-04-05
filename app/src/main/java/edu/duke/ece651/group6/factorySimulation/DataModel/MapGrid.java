@@ -254,6 +254,7 @@ public class MapGrid {
      * @return The shortest path between the two buildings
      */
     public int shortestPath(Building sourceBuilding, Building targetBuilding) {
+        // if the target is the user, the path is 0
         if (targetBuilding == null) {
             return 0;
         }

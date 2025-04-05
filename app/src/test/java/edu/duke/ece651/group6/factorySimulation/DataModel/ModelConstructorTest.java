@@ -165,6 +165,25 @@ public class ModelConstructorTest {
     String resourcePath = getResourcePath("inputs/storage_with_coordinates.json");
     constructor.constructFromJsonFile(resourcePath);
 
+    assertEquals(constructor.toString(),
+        "Types:\n" +
+            "Type: { door, { door } }\n" +
+            "Type: { handle, { handle } }\n" +
+            "Type: { hinge, { hinge } }\n\n" +
+            "Recipes:\n" +
+            "Recipe: { door, 12, { wood: 1, handle: 1, hinge: 3 } }\n" +
+            "Recipe: { handle, 5, { metal: 1 } }\n" +
+            "Recipe: { hinge, 1, { metal: 1 } }\n" +
+            "Recipe: { wood, 1, { } }\n" +
+            "Recipe: { metal, 1, { } }\n\n" +
+            "Buildings:\n" +
+            "Storage: { Metal Storage, metal: 100, 2.0, { M } }\n" +
+            "Factory: { D, door, { W, Hi, Ha } }\n" +
+            "Factory: { Ha, handle, { Metal Storage } }\n" +
+            "Factory: { Hi, hinge, { Metal Storage } }\n" +
+            "Mine: { W, wood }\n" +
+            "Mine: { M, metal }\n");
+
     assertEquals(mapGrid.toString(),
         "MapGrid:\n" +
             " 0|1|2|3|4|5|6|7|8|9|0|1|2|3|4|5|6|7|8|9|0|1|2|3|4|5|6|7|8|9|\n" +
@@ -601,7 +620,7 @@ public class ModelConstructorTest {
     ModelConstructor c = new ModelConstructor(modelManager, mapGrid);
     String resourcePath = getResourcePath("inputs/factory_missing_ingredient_source.json");
 
-    String expected = "Factory 'doorFactory' cannot get ingredient 'metal' from any of its sources";
+    String expected = "Building 'doorFactory' cannot get recipe 'metal' from any of its sources";
 
     InvalidInputException e = assertThrows(
         InvalidInputException.class,

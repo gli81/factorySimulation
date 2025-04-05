@@ -11,37 +11,102 @@ class RequestItem {
         public static final int DONE = 3;
     }
 
-    protected final Recipe recipe;
+    private final Recipe recipe;
     /*
      * 0: waiting for resource
      * 1: ready to be processed
      * 2: working on it
      * 3: done
      */
-    protected int status;
-    protected final Building targetBuilding;
-    protected int deliveryTime;
+    private int status;
+    private final Building targetBuilding;
+
+    /**
+     * if done, it is time left to deliver the product
+     */
+    private int deliveryTime;
+
+    /**
+     * if working, it is the time left to complete the request
+     */
+    private int workingTime;
 
     /**
      * the missing ingredients list
      * key: the ingredient
      * value: the quantity of the ingredient
      */
-    protected final Map<Recipe, Integer> missingIngredients;
+    private final Map<Recipe, Integer> missingIngredients;
 
     public RequestItem(Recipe recipe, int status, Building targetBuilding, int deliveryTime) {
         this.recipe = recipe;
         this.status = status;
         this.targetBuilding = targetBuilding;
         this.deliveryTime = deliveryTime;
+        this.workingTime = recipe.getLatency();
         this.missingIngredients = new LinkedHashMap<>();
         for (Map.Entry<Recipe, Integer> ingredient : recipe.getIngredientsIterable()) {
             this.missingIngredients.put(ingredient.getKey(), ingredient.getValue());
         }
     }
 
-    public void reduceDeliveryTime() {
-        if (this.deliveryTime > 0) {
+    public Recipe getRecipe() {
+        return this.recipe;
+    }
+
+    public int getStatus() {
+        return this.status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
+    public Building getTargetBuilding() {
+        return this.targetBuilding;
+    }
+
+    public void setWorkingTime(int workingTime) {
+        this.workingTime = workingTime;
+    }
+
+    public Map<Recipe, Integer> getMissingIngredients() {
+        return this.missingIngredients;
+    }
+
+    public boolean isWaiting() {
+        return this.status == Status.WAITING;
+    }
+
+    public boolean isReady() {
+        return this.status == Status.READY;
+    }
+
+    public boolean isWorking() {
+        return this.status == Status.WORKING;
+    }
+
+    public boolean isDone() {
+        return this.status == Status.DONE;
+    }
+
+    public boolean isReadyToDeliver() {
+        return this.status == Status.WORKING && this.workingTime == 0;
+    }
+
+    public boolean isDelivered() {
+        return this.status == Status.DONE && this.deliveryTime == 0;
+    }
+
+    /**
+     * if the request is working, decrease the working time
+     * if the request is done, decrease the delivery time
+     * if the request is waiting/ready, do nothing
+     */
+    public void doWork() {
+        if (this.status == Status.WORKING) {
+            this.workingTime--;
+        } else if (this.status == Status.DONE) {
             this.deliveryTime--;
         }
     }

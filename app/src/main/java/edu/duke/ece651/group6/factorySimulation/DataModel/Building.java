@@ -9,25 +9,37 @@ abstract class Building extends MapObject {
     /*
      * the name of the building
      */
-    protected final String name;
+    private final String name;
 
-    protected ArrayList<RequestItem> requestQueue;
+    private ArrayList<RequestItem> requestQueue;
 
-    protected int workingTimeStep;
+    private boolean isWorking;
 
     public Building(String name, int x, int y) {
         super(x, y);
         this.name = name;
-        this.workingTimeStep = 0;
         this.requestQueue = new ArrayList<>();
+        this.isWorking = false;
     }
 
     public String getName() {
         return this.name;
     }
 
+    public ArrayList<RequestItem> getRequestQueue() {
+        return this.requestQueue;
+    }
+
     public int getQueueSize() {
         return this.requestQueue.size();
+    }
+
+    public boolean isWorking() {
+        return this.isWorking;
+    }
+
+    public void setWorkingStatus(boolean isWorking) {
+        this.isWorking = isWorking;
     }
 
     public abstract boolean isRecipeSupported(Recipe recipe);
@@ -37,29 +49,37 @@ abstract class Building extends MapObject {
     }
 
     /**
-     * select the recipe to work on
+     * select a request in the queue to work on
      * print the recipe selection message
      * 
-     * @return the index of the recipe to work on,
-     *         -1 if all the recipes are not ready
+     * @return the index of the request to work on,
+     *         -1 if all the requests are not ready
      */
     private int recipeSelection() {
         if (ProductionController.getVerbose() >= 2)
             System.out.println("[recipe selection]: " + this.name + " has fifo on cycle "
                     + ProductionController.getCurrTimeStep());
 
-        int index = 0;
-        for (RequestItem request : this.requestQueue) {
-            if (request.status == RequestItem.Status.READY) {
-                if (ProductionController.getVerbose() >= 2)
-                    System.out.println("    " + index + ": " + request.recipe.getName() + " is ready");
-            } else if (request.status == RequestItem.Status.WAITING) {
+        int firstReadyIndex = -1;
 
+        // traverse the request queue to print the recipe selection message
+        int printIndex = 0;
+        int indexInQueue = 0;
+        for (RequestItem request : this.requestQueue) {
+            if (request.isReady()) {
+                if (ProductionController.getVerbose() >= 2)
+                    System.out.println("    " + printIndex + ": " + request.getRecipe().getName() + " is ready");
+                if (firstReadyIndex == -1) {
+                    firstReadyIndex = indexInQueue;
+                }
+                printIndex++;
+
+            } else if (request.isWaiting()) {
                 // get the all the missing ingredients
                 StringBuilder waitingOn = new StringBuilder("{");
 
                 // traverse the ingredients and get the missing number
-                for (Map.Entry<Recipe, Integer> missingIngredient : request.missingIngredients.entrySet()) {
+                for (Map.Entry<Recipe, Integer> missingIngredient : request.getMissingIngredients().entrySet()) {
                     int missingNumber = missingIngredient.getValue();
                     if (missingNumber > 1) {
                         waitingOn.append(missingNumber + "x ");
@@ -72,16 +92,19 @@ abstract class Building extends MapObject {
                 waitingOn.append("}");
 
                 if (ProductionController.getVerbose() >= 2)
-                    System.out.println("    " + index + ": " + request.recipe.getName()
+                    System.out.println("    " + printIndex + ": " + request.getRecipe().getName()
                             + " is not ready, waiting on " + waitingOn);
+                printIndex++;
+
             }
-            index++;
+            indexInQueue++;
         }
 
-        if (this.requestQueue.get(0).status == RequestItem.Status.READY) {
+        // if there is a ready request, select it
+        if (firstReadyIndex != -1) {
             if (ProductionController.getVerbose() >= 2)
-                System.out.println("    Selecting " + 0);
-            return 0;
+                System.out.println("    Selecting " + firstReadyIndex);
+            return firstReadyIndex;
         }
 
         return -1;
@@ -93,69 +116,77 @@ abstract class Building extends MapObject {
             return;
         }
 
-        // if the first request is not working, select the recipe to work on
-        if (this.requestQueue.get(0).status != RequestItem.Status.WORKING) {
-            if (this.recipeSelection() == -1) {
+        boolean isAllOnDelivery = true;
+        for (RequestItem request : this.requestQueue) {
+            if (!request.isDone()) {
+                isAllOnDelivery = false;
+            }
+        }
+
+        // if the building is not working, select the recipe to work on
+        if (!this.isWorking() && !isAllOnDelivery) {
+            int index = this.recipeSelection();
+            if (index == -1) {
                 // if all the recipes are not ready, do nothing
                 return;
             } else {
                 // if there is a recipe to work on, set the status to working
-                this.requestQueue.get(0).status = RequestItem.Status.WORKING;
+                this.requestQueue.get(index).setStatus(RequestItem.Status.WORKING);
+                this.setWorkingStatus(true);
             }
         }
 
-        // get the first request in the queue
-        RequestItem request = this.requestQueue.get(0);
-        if (request.status == RequestItem.Status.WORKING) {
-            this.workingTimeStep++;
-
-            // check if the work is done
-            int latency = request.recipe.getLatency();
-            if (this.workingTimeStep == latency) {
-                request.status = RequestItem.Status.DONE;
-                this.workingTimeStep = 0;
+        // do delivery/working/waiting for all the requests
+        for (RequestItem request : this.requestQueue) {
+            request.doWork();
+            // if the request is done, set the status to done
+            if (request.isReadyToDeliver()) {
+                request.setStatus(RequestItem.Status.DONE);
+                this.setWorkingStatus(false);
             }
         }
-
     }
 
     /**
      * deliver the first request in the queue
      * 
      * @return the recipe delivered to user,
-     *         null if it is not the user request or the request is not done
+     *         null if nothing to deliver to USER
      */
     public Recipe doDelivery() {
-        // if the request queue is empty or the first request is not done, do nothing
-        if (this.requestQueue.isEmpty() ||
-                this.requestQueue.get(0).status != RequestItem.Status.DONE) {
-            return null;
+        for (RequestItem request : this.requestQueue) {
+            if (request.isDelivered()) {
+                // get the target building and the ingredient
+                Building targetBuilding = request.getTargetBuilding();
+                Recipe ingredient = request.getRecipe();
+
+                // remove the request from the queue since it is delivered
+                this.requestQueue.remove(request);
+
+                if (targetBuilding == null) {
+                    // if the target is the user, it means the request is done
+                    // and nothing else to do
+                    return ingredient;
+                } else if (targetBuilding instanceof Factory) {
+                    // if the target is a factory, add the ingredient to the factory
+                    Factory factory = (Factory) targetBuilding;
+                    if (ProductionController.getVerbose() >= 1) {
+                        System.out.println("[ingredient delivered]: " + ingredient.getName() + " to "
+                                + targetBuilding.getName()
+                                + " from " + this.getName() + " on cycle " + ProductionController.getCurrTimeStep());
+                    }
+                    factory.addStorage(ingredient);
+                    return null;
+                } else if (targetBuilding instanceof Storage) {
+                    // if the target is a storage, add the ingredient to the storage
+                    // TODO: hahah
+                    return null;
+                } else {
+                    // if the target is not a factory or a storage, throw an exception
+                    throw new IllegalArgumentException("Target building must be a factory or a storage");
+                }
+            }
         }
-
-        // get the target building and the ingredient
-        Building targetBuilding = this.requestQueue.get(0).targetBuilding;
-        Recipe ingredient = this.requestQueue.get(0).recipe;
-
-        // remove the first request from the queue since it is done
-        this.requestQueue.remove(0);
-
-        // if the target is the user, it means the request is done
-        if (targetBuilding == null) {
-            return ingredient;
-        }
-
-        // the target building must be a factory
-        if (!(targetBuilding instanceof Factory)) {
-            throw new IllegalArgumentException("Target building must be a factory");
-        }
-
-        // add the ingredient to the factory
-        Factory factory = (Factory) targetBuilding;
-        if (ProductionController.getVerbose() >= 1) {
-            System.out.println("[ingredient delivered]: " + ingredient.getName() + " to " + targetBuilding.getName()
-                    + " from " + this.getName() + " on cycle " + ProductionController.getCurrTimeStep());
-        }
-        factory.addStorage(ingredient);
         return null;
     }
 

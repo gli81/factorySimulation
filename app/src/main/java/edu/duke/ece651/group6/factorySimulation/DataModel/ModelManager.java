@@ -3,9 +3,6 @@ package edu.duke.ece651.group6.factorySimulation.DataModel;
 import java.util.ArrayList;
 import java.util.Map;
 import edu.duke.ece651.group6.factorySimulation.ProductionController;
-import java.util.Stack;
-import java.util.Set;
-import java.util.HashSet;
 
 public class ModelManager {
     private ArrayList<Type> types;
