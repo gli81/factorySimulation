@@ -1,35 +1,57 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+// src/App.jsx
+import { useState } from 'react';
+import styled from 'styled-components';
+import SimulationGrid from './components/SimulationGrid';
+import RequestButton from './components/RequestButton';
+import RequestModal from './components/RequestModal';
+
+const AppContainer = styled.div`
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+`;
+
+const ControlBar = styled.div`
+  display: flex;
+  margin-bottom: 20px;
+`;
+
+// Dummy data for demonstration
+const dummyBuildings = [
+  { name: 'Factory 1', type: 'factory', x: 0, y: 0 },
+  { name: 'Mine 1', type: 'mine', x: 0, y: 3 },
+  { name: 'Storage 1', type: 'storage', x: 3, y: 2 }
+];
+
+// Dummy data for dropdown options
+const dummySources = ['Factory 1', 'Mine 1', 'Storage 1'];
+const dummyRecipes = ['door', 'window', 'bolt', 'screw', 'metal'];
 
 function App() {
-  const [count, setCount] = useState(0)
-
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  
+  const handleRequestSubmit = (source, recipe) => {
+    console.log(`Requested ${recipe} from ${source}`);
+    // In a real implementation, this would call your backend API
+  };
+  
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <AppContainer>
+      <ControlBar>
+        <RequestButton onClick={() => setIsModalOpen(true)} />
+      </ControlBar>
+      
+      <SimulationGrid buildings={dummyBuildings} />
+      
+      <RequestModal 
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSubmit={handleRequestSubmit}
+        sources={dummySources}
+        recipes={dummyRecipes}
+      />
+    </AppContainer>
+  );
 }
 
-export default App
+export default App;
