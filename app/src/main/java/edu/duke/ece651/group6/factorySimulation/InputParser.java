@@ -68,8 +68,21 @@ public class InputParser {
         return null;
     }
 
-    protected List<Type> parseTypes(JsonNode root) {
-        return null;
+    protected List<Type> parseTypes(JsonNode typesRoot, List<Recipe> rList) {
+        List<Type> types = new ArrayList<>();
+        for (JsonNode type : typesRoot) {
+            String name = type.get("name").asText();
+            List<Recipe> recipes = new ArrayList<>();
+            JsonNode recipesNode = type.get("recipes");
+            for (JsonNode r : recipesNode) {
+                Recipe recipe = Recipe.getRecipeFromListByOutput(
+                    rList, r.asText()
+                );
+                recipes.add(recipe);
+            }
+            types.add(new Type(name, recipes));
+        }
+        return types;
     }
 
     public void parseJsonFile(
@@ -95,7 +108,7 @@ public class InputParser {
         RuleChecker typeChecker = this.f.getTypeChecker(recipeLst);
         JsonNode typeRoot = root.get("types");
         typeChecker.checkJson(typeRoot);
-        typeLst.addAll(parseTypes(typeRoot));
+        typeLst.addAll(parseTypes(typeRoot, recipeLst));
         // parse Building
         // check Building
         RuleChecker bldgChecker = this.f.getBuildingChecker(recipeLst, typeLst);
