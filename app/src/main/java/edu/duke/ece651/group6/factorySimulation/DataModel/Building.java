@@ -63,14 +63,17 @@ abstract class Building extends MapObject {
         int firstReadyIndex = -1;
 
         // traverse the request queue to print the recipe selection message
-        int index = 0;
+        int printIndex = 0;
+        int indexInQueue = 0;
         for (RequestItem request : this.requestQueue) {
             if (request.isReady()) {
                 if (ProductionController.getVerbose() >= 2)
-                    System.out.println("    " + index + ": " + request.getRecipe().getName() + " is ready");
+                    System.out.println("    " + printIndex + ": " + request.getRecipe().getName() + " is ready");
                 if (firstReadyIndex == -1) {
-                    firstReadyIndex = index;
+                    firstReadyIndex = indexInQueue;
                 }
+                printIndex++;
+
             } else if (request.isWaiting()) {
                 // get the all the missing ingredients
                 StringBuilder waitingOn = new StringBuilder("{");
@@ -89,10 +92,12 @@ abstract class Building extends MapObject {
                 waitingOn.append("}");
 
                 if (ProductionController.getVerbose() >= 2)
-                    System.out.println("    " + index + ": " + request.getRecipe().getName()
+                    System.out.println("    " + printIndex + ": " + request.getRecipe().getName()
                             + " is not ready, waiting on " + waitingOn);
+                printIndex++;
+
             }
-            index++;
+            indexInQueue++;
         }
 
         // if there is a ready request, select it
@@ -111,8 +116,15 @@ abstract class Building extends MapObject {
             return;
         }
 
+        boolean isAllOnDelivery = true;
+        for (RequestItem request : this.requestQueue) {
+            if (!request.isDone()) {
+                isAllOnDelivery = false;
+            }
+        }
+
         // if the building is not working, select the recipe to work on
-        if (!this.isWorking()) {
+        if (!this.isWorking() && !isAllOnDelivery) {
             int index = this.recipeSelection();
             if (index == -1) {
                 // if all the recipes are not ready, do nothing
@@ -128,7 +140,7 @@ abstract class Building extends MapObject {
         for (RequestItem request : this.requestQueue) {
             request.doWork();
             // if the request is done, set the status to done
-            if (request.isDone()) {
+            if (request.isReadyToDeliver()) {
                 request.setStatus(RequestItem.Status.DONE);
                 this.setWorkingStatus(false);
             }

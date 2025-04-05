@@ -87,6 +87,10 @@ class RequestItem {
     }
 
     public boolean isDone() {
+        return this.status == Status.DONE;
+    }
+
+    public boolean isReadyToDeliver() {
         return this.status == Status.WORKING && this.workingTime == 0;
     }
 
