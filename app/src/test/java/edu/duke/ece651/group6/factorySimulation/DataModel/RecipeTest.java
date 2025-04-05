@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -107,7 +106,7 @@ public class RecipeTest {
     Recipe null1 = new Recipe(null, 3);
     Recipe null2 = new Recipe(null, 3);
     Recipe null3 = new Recipe(null, 4);
-    Recipe woodRecipe = new Recipe("wood", 3); 
+    Recipe woodRecipe = new Recipe("wood", 3);
     assertTrue(null1.equals(null1));
     assertTrue(null1.equals(null2));
     assertFalse(null1.equals(null3));

@@ -1,11 +1,16 @@
 package edu.duke.ece651.group6.factorySimulation.DataModel;
 
-public class Mine extends BasicBuilding {
+public class Mine extends Building {
 
     private final Recipe outputItem;
 
     public Mine(String name, Recipe outputItem) {
-        super(name);
+        super(name, -1, -1);
+        this.outputItem = outputItem;
+    }
+
+    public Mine(String name, Recipe outputItem, int x, int y) {
+        super(name, x, y);
         this.outputItem = outputItem;
     }
 
@@ -15,13 +20,6 @@ public class Mine extends BasicBuilding {
 
     public boolean isRecipeSupported(Recipe recipe) {
         return this.outputItem.equals(recipe);
-    }
-
-    public void addRequest(Recipe recipe, Building targetBuilding) {
-        // print the request message
-        super.addRequest(recipe, targetBuilding);
-        int status = RequestItem.Status.READY;
-        this.requestQueue.add(new RequestItem(recipe, status, targetBuilding));
     }
 
     /*
@@ -37,18 +35,18 @@ public class Mine extends BasicBuilding {
             return false;
         }
         Mine mine = (Mine) obj;
-        boolean isNameEqual = this.name.equals(mine.name);
+        boolean isNameEqual = this.getName().equals(mine.getName());
         boolean isOutputItemEqual = this.outputItem.equals(mine.outputItem);
         return isNameEqual && isOutputItemEqual;
     }
 
     @Override
     public int hashCode() {
-        return 31 * name.hashCode() + outputItem.hashCode();
+        return 31 * this.getName().hashCode() + this.outputItem.hashCode();
     }
 
     @Override
     public String toString() {
-        return "Mine: { " + this.name + ", " + this.outputItem.getName() + " }\n";
+        return "Mine: { " + this.getName() + ", " + this.outputItem.getName() + " }\n";
     }
 }

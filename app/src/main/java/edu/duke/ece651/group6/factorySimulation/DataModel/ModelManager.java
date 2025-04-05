@@ -8,6 +8,7 @@ public class ModelManager {
     private ArrayList<Type> types;
     private ArrayList<Recipe> recipes;
     private ArrayList<Building> buildings;
+    private MapGrid mapGrid;
 
     /**
      * order of buildings to be processed
@@ -18,11 +19,16 @@ public class ModelManager {
      */
     private ArrayList<Map.Entry<Integer, Map.Entry<Recipe, Building>>> userRequestQueue;
 
-    public ModelManager() {
+    public ModelManager(MapGrid mapGrid) {
         this.types = new ArrayList<>();
         this.recipes = new ArrayList<>();
         this.buildings = new ArrayList<>();
         this.userRequestQueue = new ArrayList<>();
+        this.mapGrid = mapGrid;
+    }
+
+    public MapGrid getMapGrid() {
+        return this.mapGrid;
     }
 
     public void addType(Type type) {
@@ -106,8 +112,64 @@ public class ModelManager {
         this.userRequestQueue.add(Map.entry(ProductionController.getAndIncrementCurrRequestIndex(),
                 Map.entry(recipe, sourceBuilding)));
 
-        // the target building is null because target is the user
-        sourceBuilding.addRequest(recipe, null);
+        // start the recursive task distribution
+        // target building is null because it is delivered to the user
+        DFSRecursiveTaskDistribution(sourceBuilding, recipe, null);
+    }
+
+    private void DFSRecursiveTaskDistribution(Building sourceBuilding, Recipe recipe, Building targetBuilding) {
+        // print the ingredient assignment message if the target is not user-requested
+        if (ProductionController.getVerbose() >= 1 && targetBuilding != null) {
+            int orderNumber = ProductionController.getAndIncrementCurrRequestIndex();
+            if (ProductionController.getVerbose() >= 3) {
+                System.out
+                        .println("TEST:[Order Number: " + orderNumber + "]");
+            }
+            System.out.println(
+                    "[ingredient assignment]: " + recipe.getName() + " assigned to " + sourceBuilding.getName()
+                            + " to deliver to "
+                            + targetBuilding.getName());
+        }
+
+        if (sourceBuilding.getClass() == Mine.class) {
+            // if the source building is a mine
+            int status = RequestItem.Status.READY;
+            int deliveryTime = mapGrid.shortestPath(sourceBuilding, targetBuilding);
+            sourceBuilding.addRequest(new RequestItem(recipe, status, targetBuilding, deliveryTime));
+
+        } else if (sourceBuilding.getClass() == Factory.class) {
+            Factory sourceFactory = (Factory) sourceBuilding;
+            // if the source building is a factory
+            int deliveryTime = mapGrid.shortestPath(sourceBuilding, targetBuilding);
+            sourceFactory.addRequest(new RequestItem(recipe, RequestItem.Status.WAITING, targetBuilding, deliveryTime));
+
+            // for each ingredient, add a request to the source building
+            int ingredientCount = 0;
+            // if the recipe has ingredients, print the source selection message
+            if (recipe.getIngredientsIterable().iterator().hasNext()) {
+                // print the source selection message
+                if (ProductionController.getVerbose() >= 2) {
+                    System.out
+                            .println("[source selection]: " + sourceFactory.getName() + " has request for "
+                                    + recipe.getName()
+                                    + " on " + ProductionController.getCurrTimeStep());
+                }
+            }
+            for (Map.Entry<Recipe, Integer> ingredient : recipe.getIngredientsIterable()) {
+                for (int i = 0; i < ingredient.getValue(); i++) {
+                    // print the ingredient selection message
+                    if (ProductionController.getVerbose() >= 2) {
+                        System.out.println(
+                                "[" + sourceFactory.getName() + ":" + recipe.getName() + ":" + ingredientCount
+                                        + "] For ingredient "
+                                        + ingredient.getKey().getName());
+                    }
+                    Building selectedSource = sourceFactory.sourceSelect(ingredient.getKey());
+                    DFSRecursiveTaskDistribution(selectedSource, ingredient.getKey(), sourceFactory);
+                    ingredientCount++;
+                }
+            }
+        }
     }
 
     public void processOneTimeStep() {
