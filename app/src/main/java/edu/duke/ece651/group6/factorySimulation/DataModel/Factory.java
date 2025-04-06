@@ -4,7 +4,7 @@ import edu.duke.ece651.group6.factorySimulation.ProductionController;
 import java.util.ArrayList;
 import java.util.Map;
 
-public class Factory extends BasicBuilding {
+public class Factory extends Building {
 
     private final Type type;
     /*
@@ -13,7 +13,13 @@ public class Factory extends BasicBuilding {
     private ArrayList<Building> sources;
 
     public Factory(String name, Type type) {
-        super(name);
+        super(name, -1, -1);
+        this.type = type;
+        this.sources = new ArrayList<>();
+    }
+
+    public Factory(String name, Type type, int x, int y) {
+        super(name, x, y);
         this.type = type;
         this.sources = new ArrayList<>();
     }
@@ -40,7 +46,7 @@ public class Factory extends BasicBuilding {
      * @param sourceRecipe the recipe that the factory lacks
      * @return the source building that can produce the recipe
      */
-    private Building sourceSelect(Recipe sourceRecipe) {
+    public Building sourceSelect(Recipe sourceRecipe) {
 
         ArrayList<Building> availableSources = new ArrayList<>();
 
@@ -70,37 +76,6 @@ public class Factory extends BasicBuilding {
         return selectedSource;
     }
 
-    public void addRequest(Recipe recipe, Building targetBuilding) {
-        // print the request message
-        super.addRequest(recipe, targetBuilding);
-
-        this.requestQueue.add(new RequestItem(recipe, RequestItem.Status.WAITING, targetBuilding));
-
-        // for each ingredient, add a request to the source building
-        int ingredientCount = 0;
-        // if the recipe has ingredients, print the source selection message
-        if (recipe.getIngredientsIterable().iterator().hasNext()) {
-            // print the source selection message
-            if (ProductionController.getVerbose() >= 2) {
-                System.out.println("[source selection]: " + this.name + " has request for " + recipe.getName()
-                        + " on " + ProductionController.getCurrTimeStep());
-            }
-        }
-        for (Map.Entry<Recipe, Integer> ingredient : recipe.getIngredientsIterable()) {
-            for (int i = 0; i < ingredient.getValue(); i++) {
-                // print the ingredient selection message
-                if (ProductionController.getVerbose() >= 2) {
-                    System.out.println(
-                            "[" + this.name + ":" + recipe.getName() + ":" + ingredientCount + "] For ingredient "
-                                    + ingredient.getKey().getName());
-                }
-                Building sourceBuilding = sourceSelect(ingredient.getKey());
-                sourceBuilding.addRequest(ingredient.getKey(), this);
-                ingredientCount++;
-            }
-        }
-    }
-
     /*
      * add the recipe to the storage
      * and then check is any recipe ready,
@@ -108,42 +83,41 @@ public class Factory extends BasicBuilding {
      */
     public void addStorage(Recipe ingredientDelivered) {
 
-        boolean isDone = false;
+        boolean isUpdated = false;
         int readyCount = 0;
         // traverse the request queue and update the missing ingredients
-        for (RequestItem requestItem : this.requestQueue) {
+        for (RequestItem requestItem : this.getRequestQueue()) {
             // for every ready request, print the message
-            if (requestItem.status == RequestItem.Status.READY) {
+            if (requestItem.isReady()) {
                 if (ProductionController.getVerbose() > 0) {
-                    System.out.println("    " + readyCount + ": " + requestItem.recipe.getName() + " is ready");
+                    System.out.println("    " + readyCount + ": " + requestItem.getRecipe().getName() + " is ready");
                 }
                 readyCount++;
             }
 
             // for the waiting request, check the missing list
-            if (requestItem.status == RequestItem.Status.WAITING && !isDone) {
-                for (Map.Entry<Recipe, Integer> missingIngredient : requestItem.missingIngredients.entrySet()) {
+            if (requestItem.isWaiting() && !isUpdated) {
+                for (Map.Entry<Recipe, Integer> missingIngredient : requestItem.getMissingIngredients().entrySet()) {
                     // if the ingredient fits the missing list, update
                     if (missingIngredient.getKey().equals(ingredientDelivered)) {
                         if (missingIngredient.getValue() == 1) {
                             // if the ingredient is the last one, remove
-                            requestItem.missingIngredients.remove(missingIngredient.getKey());
-                            if (requestItem.missingIngredients.isEmpty()) {
-                                requestItem.status = RequestItem.Status.READY;
+                            requestItem.getMissingIngredients().remove(missingIngredient.getKey());
+                            if (requestItem.getMissingIngredients().isEmpty()) {
+                                requestItem.setStatus(RequestItem.Status.READY);
                                 if (ProductionController.getVerbose() > 0) {
-
                                     System.out.println(
-                                            "    " + readyCount + ": " + requestItem.recipe.getName() + " is ready"
-                                    );
+                                            "    " + readyCount + ": " + requestItem.getRecipe().getName()
+                                                    + " is ready");
                                 }
                                 readyCount++;
                             }
                         } else {
                             // if not, decrease the quantity
-                            requestItem.missingIngredients.put(missingIngredient.getKey(),
+                            requestItem.getMissingIngredients().put(missingIngredient.getKey(),
                                     missingIngredient.getValue() - 1);
                         }
-                        isDone = true;
+                        isUpdated = true;
                         break;
                     }
                 }
@@ -164,15 +138,15 @@ public class Factory extends BasicBuilding {
             return false;
 
         Factory factory = (Factory) o;
-        boolean isNameEqual = this.name.equals(factory.name);
-        boolean isTypeEqual = this.type.equals(factory.type);
+        boolean isNameEqual = this.getName().equals(factory.getName());
+        boolean isTypeEqual = this.getType().equals(factory.getType());
 
         return isNameEqual && isTypeEqual;
     }
 
     @Override
     public int hashCode() {
-        return 31 * type.hashCode() + name.hashCode();
+        return 31 * this.getType().hashCode() + this.getName().hashCode();
     }
 
     @Override
@@ -185,6 +159,7 @@ public class Factory extends BasicBuilding {
         if (sourcesString.length() > 0) {
             sourcesString.deleteCharAt(sourcesString.length() - 2);
         }
-        return "Factory: { " + this.name + ", " + this.type.getName() + ", { " + sourcesString.toString() + "} }\n";
+        return "Factory: { " + this.getName() + ", " + this.getType().getName() + ", { " + sourcesString.toString()
+                + "} }\n";
     }
 }

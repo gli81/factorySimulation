@@ -1,0 +1,111 @@
+{
+    "types" : [
+        {
+            "name" : "door",
+            "recipes" : [
+                "door"
+            ]
+        },
+        {
+            "name" : "handle",
+            "recipes" : [
+                "handle"
+            ]
+        },
+        {
+            "name" : "hinge",
+            "recipes" : [
+                "hinge"
+            ]
+        }
+    ],
+    "buildings" : [
+        {
+            "name" : "Metal Storage",
+            "x" : 1,
+            "y" : 1,
+            "stores" : "metal",
+            "capacity" : 100,
+            "priority" : 2.0,
+            "sources" : [
+                "M"
+            ]
+        },
+        {
+            "name" : "D",
+            "x" : 2,
+            "y" : 2,
+            "type" : "door",
+            "sources" : [
+                "W",
+                "Hi",
+                "Ha"
+            ]
+        },
+        {
+            "name" : "Ha",
+            "x" : 3,
+            "y" : 3,
+            "type" : "handle",
+            "sources" : [
+                "Metal Storage"
+            ]
+        },
+        {
+            "name" : "Hi",
+            "x" : 4,
+            "y" : 4,
+            "type" : "hinge",
+            "sources" : [
+                "Metal Storage"
+            ]
+        },
+        {
+            "name" : "W",
+            "x" : 5,
+            "y" : 5,
+            "mine" : "wood",
+            "sources" : []
+        },
+        {
+            "name" : "M",
+            "mine" : "metal",
+            "sources" : []
+        }
+    ],
+    "recipes" : [
+        {
+            "output" : "door",
+            "ingredients" : {
+                "wood" : 1,
+                "handle" : 1,
+                "hinge" : 3
+            },
+            "latency" : 12
+        },
+        {
+            "output" : "handle",
+            "ingredients" : {
+                "metal" : 1
+            },
+            "latency" : 5
+        },
+        {
+            "output" : "hinge",
+            "ingredients" : {
+                "metal" : 1
+            },
+            "latency" : 1
+        },
+        {
+            "output" : "wood",
+            "ingredients" : {},
+            "latency" : 1
+        },
+        {
+            "output" : "metal",
+            "ingredients" : {},
+            "latency" : 1
+        }
+    ]
+}

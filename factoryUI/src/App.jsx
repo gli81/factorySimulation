@@ -1,7 +1,5 @@
-// src/App.jsx
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import SimulationGrid from './components/SimulationGrid';
 import RequestButton from './components/RequestButton';
 import RequestModal from './components/RequestModal';
 import ConnectionButton from './components/ConnectionButton'; 
@@ -9,13 +7,8 @@ import ConnectionModal from './components/ConnectionModal';
 import StepButton from './components/StepButton';
 import FinishButton from './components/FinishButton';
 import VerbositySlider from './components/VerbositySlider';
-import OutputConsole from './components/OutputConsole';
-
-const AppContainer = styled.div`
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
-`;
+import Cell from './Cell';
+import './App.css'
 
 const ControlBar = styled.div`
   display: flex;
@@ -68,6 +61,7 @@ const dummyBuildings = [
 const dummySources = ['Factory 1', 'Mine 1', 'Storage 1'];
 const dummyRecipes = ['door', 'window', 'bolt', 'screw', 'metal'];
 
+
 function App() {
   const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
   const [isConnectionModalOpen, setIsConnectionModalOpen] = useState(false);
@@ -113,12 +107,25 @@ function App() {
     // call backend API
   };
   
-  const handleFinish = () => {
-    console.log('Finishing simulation');
-    
-    addConsoleMessage('Finishing simulation...', 'info');
-    
-    // call backend API
+  const handleFinish = async () => {
+    try {
+      console.log('Finishing the simulation');
+      const response = await fetch('/api/finish', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ finish: true }),
+      });
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      const data = await response.json();
+      console.log(data.output);
+    } catch (error) {
+      console.error('Error finishing:', error);
+    }
+    console.log('Finished');
   };
   
   const handleVerbosityChange = (level) => {
@@ -134,8 +141,14 @@ function App() {
     setConsoleMessages([]);
   };
   
+  const [rows, setRows] = useState(0);
+  const [cols, setCols] = useState(0);
+  useEffect(() => {
+    setRows(8);setCols(8);
+  }, [])
+  const total = rows * cols;
   return (
-    <AppContainer>
+    <div className="page">
       <ControlBar>
         <ControlGroup>
           <StepButton onStep={handleStep} />
@@ -186,14 +199,19 @@ function App() {
         sources={dummySources}
         recipes={dummyRecipes}
       />
-      
-      <ConnectionModal 
-        isOpen={isConnectionModalOpen}
-        onClose={() => setIsConnectionModalOpen(false)}
-        onSubmit={handleConnectionSubmit}
-        buildings={dummyBuildings}
-      />
-    </AppContainer>
+    
+      <div
+        className="grid-container"
+        style={{
+          gridTemplateColumns: `repeat(${cols}, 1fr)`,
+          gridTemplateRows: `repeat(${rows}, 1fr)`,
+        }}
+      >
+        {Array.from({ length: total }).map((_, i) => (
+          <Cell key={i} />
+        ))}
+      </div>
+    </div>
   );
 }
 

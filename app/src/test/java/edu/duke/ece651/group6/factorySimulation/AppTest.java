@@ -15,7 +15,7 @@ import java.util.Objects;
 
 class AppTest {
     @Test
-    void testMain() throws IOException  {
+    void testMain() throws IOException {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         PrintStream out = new PrintStream(bytes, true);
         // InputStream oldIn = System.in;
@@ -36,7 +36,7 @@ class AppTest {
         try {
             System.setOut(out);
             // not exist file
-            App.main(new String[]{"./invalidjson.json"});
+            App.main(new String[] { "./invalidjson.json" });
         } finally {
             System.setOut(oldOut);
         }
@@ -49,23 +49,22 @@ class AppTest {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         PrintStream out = new PrintStream(bytes, true);
         InputStream input = this.getClass()
-            .getClassLoader().getResourceAsStream("./integration-test/input1.txt");
+                .getClassLoader().getResourceAsStream("./integration-test/input1.txt");
         assertNotNull(input);
         InputStream expectedStream = this.getClass()
-            .getClassLoader().getResourceAsStream("./integration-test/output1.txt");
+                .getClassLoader().getResourceAsStream("./integration-test/output1.txt");
         assertNotNull(expectedStream);
         InputStream oldIn = System.in;
         PrintStream oldOut = System.out;
         String path = Paths.get(
-            Objects.requireNonNull(
-                // getClass().getClassLoader().getResource("../../../../../resources/inputs/doors1.json")
-                getClass().getClassLoader().getResource("doors1.json")
-            ).toURI()
-        ).toString();
+                Objects.requireNonNull(
+                        // getClass().getClassLoader().getResource("../../../../../resources/inputs/doors1.json")
+                        getClass().getClassLoader().getResource("doors1.json")).toURI())
+                .toString();
         try {
             System.setIn(input);
             System.setOut(out);
-            App.main(new String[]{path});
+            App.main(new String[] { path });
         } finally {
             System.setIn(oldIn);
             System.setOut(oldOut);
@@ -75,24 +74,25 @@ class AppTest {
 
     // @Test
     // void testInvalidJson() throws IOException, URISyntaxException {
-    //     ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-    //     PrintStream out = new PrintStream(bytes, true);
-    //     String path = Paths.get(
-    //         Objects.requireNonNull(
-    //                 // getClass().getClassLoader().getResource("../../../../../resources/inputs/doors1.json")
-    //                 getClass().getClassLoader().getResource("inputs/invalid_recipe_name.json")
-    //         ).toURI()
-    //     ).toString();
-    //     PrintStream oldOut = System.out;
-    //     try {
-    //         System.setOut(out);
-    //         App.main(new String[]{path});
-    //     } finally {
-    //         System.setOut(oldOut);
-    //     }
-    //     assertEquals(
-    //         "Recipe name 'door's' contains an apostrophe which is not allowed\n",
-    //         bytes.toString()
-    //     );
+    // ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+    // PrintStream out = new PrintStream(bytes, true);
+    // String path = Paths.get(
+    // Objects.requireNonNull(
+    // //
+    // getClass().getClassLoader().getResource("../../../../../resources/inputs/doors1.json")
+    // getClass().getClassLoader().getResource("inputs/invalid_recipe_name.json")
+    // ).toURI()
+    // ).toString();
+    // PrintStream oldOut = System.out;
+    // try {
+    // System.setOut(out);
+    // App.main(new String[]{path});
+    // } finally {
+    // System.setOut(oldOut);
+    // }
+    // assertEquals(
+    // "Recipe name 'door's' contains an apostrophe which is not allowed\n",
+    // bytes.toString()
+    // );
     // }
 }
