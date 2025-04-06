@@ -52,9 +52,21 @@ function App() {
     // In a real implementation, this would call your backend API
   };
   
-  const handleFinish = () => {
-    console.log('Finishing simulation');
-    // In a real implementation, this would call your backend API
+  const handleFinish = async () => {
+    try {
+      const response = awaitfetch('/api/finish', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      console.log('Finished successfully');
+    } catch (error) {
+      console.error('Error finishing:', error);
+    }
   };
   
   const handleVerbosityChange = (level) => {
