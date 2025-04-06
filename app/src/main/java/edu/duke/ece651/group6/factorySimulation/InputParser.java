@@ -68,7 +68,7 @@ public class InputParser {
         return null;
     }
 
-    protected List<Type> parseTypes(JsonNode typesRoot, List<Recipe> rList) {
+    public List<Type> parseTypes(JsonNode typesRoot, List<Recipe> rList) {
         List<Type> types = new ArrayList<>();
         for (JsonNode type : typesRoot) {
             String name = type.get("name").asText();

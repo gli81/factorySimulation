@@ -105,26 +105,6 @@ public abstract class RuleChecker {
         return null;
     }
 
-    protected Set<String> getAllRecipes(
-        JsonNode root
-    ) throws InvalidJsonFileException {
-        if (!root.has("recipes")) {
-            throw new InvalidJsonFileException("recipes field is missing");
-        }
-        JsonNode recipes = root.get("recipes");
-        if (recipes.getNodeType() != JsonNodeType.ARRAY) {
-            throw new InvalidJsonFileException(
-                "recipes field is not the expected type"
-            );
-        }
-        // create set of all outputs
-        Set<String> allRecipes = new HashSet<>();
-        for (JsonNode r : recipes) {
-            allRecipes.add(r.get("output").asText());
-        }
-        return allRecipes;
-    }
-
     protected Set<String> getAllTypes(
         JsonNode root
     ) throws InvalidJsonFileException {

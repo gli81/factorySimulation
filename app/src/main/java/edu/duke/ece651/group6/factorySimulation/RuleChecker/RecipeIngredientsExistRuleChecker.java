@@ -1,5 +1,6 @@
 package edu.duke.ece651.group6.factorySimulation.RuleChecker;
 
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -31,16 +32,52 @@ public class RecipeIngredientsExistRuleChecker extends RuleChecker {
                     return "recipe ingredient " + ingredient +
                         " is not an output";
                 }
-                if (
-                    ingredientsNode.get(
-                        ingredient
-                    ).getNodeType() != JsonNodeType.NUMBER
+                JsonNode ingredientValue = ingredientsNode.get(ingredient);
+                if (ingredientValue.getNodeType() != JsonNodeType.NUMBER
                 ) {
                     return "recipe ingredient " + ingredient +
                         " has non-integer amount";
-                } // TODO check amount non negative
+                }
+                int amount = ingredientValue.asInt();
+                if (amount < 0) {
+                    return "recipe ingredient" + ingredient + "has negative amount";
+                }
             }
         }
         return null;
+    }
+
+    // private Set<String> getAllRecipes2(
+    //     JsonNode root
+    // ) throws InvalidJsonFileException {
+    //     // assume recipes exist and is array
+    //     // if (!root.has("recipes")) {
+    //     //     throw new InvalidJsonFileException("recipes field is missing");
+    //     // }
+    //     JsonNode recipes = root.get("recipes");
+    //     // if (recipes.getNodeType() != JsonNodeType.ARRAY) {
+    //     //     throw new InvalidJsonFileException(
+    //     //         "recipes field is not the expected type"
+    //     //     );
+    //     // }
+    //     // create set of all outputs
+    //     Set<String> allRecipes = new HashSet<>();
+    //     for (JsonNode r : recipes) {
+    //         allRecipes.add(r.get("output").asText());
+    //     }
+    //     return allRecipes;
+    // }
+
+    private Set<String> getAllRecipes(
+        JsonNode root
+    ) throws InvalidJsonFileException {
+        // assume recipes exist and is array
+        JsonNode recipes = root.get("recipes");
+        // create set of all outputs
+        Set<String> allRecipes = new HashSet<>();
+        for (JsonNode r : recipes) {
+            allRecipes.add(r.get("output").asText());
+        }
+        return allRecipes;
     }
 }

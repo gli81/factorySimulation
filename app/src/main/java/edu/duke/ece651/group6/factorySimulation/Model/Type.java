@@ -17,4 +17,13 @@ public class Type {
     public Iterator<Recipe> getRecipes() {
         return recipes.iterator();
     }
+
+    public static Type getTypeByName(List<Type> tList, String name) {
+        for (Type t : tList) {
+            if (t.name.equals(name)) {
+                return t;
+            }
+        }
+        return null;
+    }
 }

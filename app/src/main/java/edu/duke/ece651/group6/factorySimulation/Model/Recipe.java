@@ -1,6 +1,7 @@
 package edu.duke.ece651.group6.factorySimulation.Model;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -103,5 +104,9 @@ public class Recipe {
 
     public boolean hasIngredients() {
         return this.ingredients.size() > 0;
+    }
+
+    public Iterator<Recipe> getIngredients() {
+        return this.ingredients.keySet().iterator();
     }
 }
