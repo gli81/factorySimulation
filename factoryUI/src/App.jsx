@@ -7,6 +7,7 @@ import ConnectionModal from './components/ConnectionModal';
 import StepButton from './components/StepButton';
 import FinishButton from './components/FinishButton';
 import VerbositySlider from './components/VerbositySlider';
+import OutputConsole from './components/OutputConsole';
 import Cell from './Cell';
 import './App.css'
 
@@ -166,10 +167,6 @@ function App() {
       <TimeStepDisplay>Current Time Step: {currentStep}</TimeStepDisplay>
       
       <MainContent>
-        <GridSection>
-          <SectionTitle>Factory Layout</SectionTitle>
-          <SimulationGrid buildings={dummyBuildings} />
-        </GridSection>
         
         <ConsoleSection>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
