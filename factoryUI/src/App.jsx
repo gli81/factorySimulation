@@ -123,6 +123,7 @@ function App() {
       }
       const data = await response.json();
       console.log(data.output);
+      addConsoleMessage(data.output, 'info');
     } catch (error) {
       console.error('Error finishing:', error);
     }
