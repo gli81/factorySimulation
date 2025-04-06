@@ -56,7 +56,7 @@ public class FactoryCanGetIngredientsRuleChecker extends RuleChecker {
                 buildingOutputs.put(name, recipes);
             }
         }
-        System.out.println(buildingOutputs);
+        // System.out.println(buildingOutputs);
         // a set of available ingredients from sources
         Set<Recipe> availableIngredients = new HashSet<>();
         Set<Recipe> neededIngredients = new HashSet<>();

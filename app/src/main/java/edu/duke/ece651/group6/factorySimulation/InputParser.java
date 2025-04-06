@@ -10,6 +10,8 @@ import java.util.Map;
 import java.io.Reader;
 import edu.duke.ece651.group6.factorySimulation.Exception.InvalidJsonFileException;
 import edu.duke.ece651.group6.factorySimulation.Model.Building;
+import edu.duke.ece651.group6.factorySimulation.Model.Factory;
+import edu.duke.ece651.group6.factorySimulation.Model.Mine;
 import edu.duke.ece651.group6.factorySimulation.Model.Recipe;
 import edu.duke.ece651.group6.factorySimulation.Model.Type;
 import edu.duke.ece651.group6.factorySimulation.RuleChecker.*;
@@ -64,8 +66,37 @@ public class InputParser {
         return recipes;
     }
 
-    protected List<Building> parseBuildings(JsonNode root) {
-        return null;
+    protected List<Building> parseBuildings(
+        JsonNode bldgsRoot, List<Recipe> rLst, List<Type> tLst
+    ) {
+        List<Building> buildings = new ArrayList<>();
+        for (JsonNode node : bldgsRoot) {
+            String name = node.get("name").asText();
+            if (node.has("type")) {
+                // assume valid factory
+                List<String> srcStrs = new ArrayList<>();
+                JsonNode srcsNode = node.get("sources");
+                for (JsonNode src : srcsNode) {
+                    srcStrs.add(src.asText());
+                }
+                buildings.add(
+                    new Factory(
+                        name,
+                        Type.getTypeByName(tLst, node.get("type").asText()),
+                        srcStrs
+                    )
+                );
+            } else if (node.has("mine")) {
+                // assume valid mine
+                buildings.add(new Mine(name, Recipe.getRecipeFromListByOutput(
+                    rLst, node.get("mine").asText()
+                )));
+            }
+        }
+        for (Building b : buildings) {
+            b.setBuildingWithBuilding(buildings);
+        }
+        return buildings;
     }
 
     public List<Type> parseTypes(JsonNode typesRoot, List<Recipe> rList) {
@@ -114,6 +145,6 @@ public class InputParser {
         RuleChecker bldgChecker = this.f.getBuildingChecker(recipeLst, typeLst);
         JsonNode bldgRoot = root.get("buildings");
         bldgChecker.checkJson(bldgRoot);
-        bldgLst.addAll(parseBuildings(bldgRoot));
+        bldgLst.addAll(parseBuildings(bldgRoot, recipeLst, typeLst));
     }
 }

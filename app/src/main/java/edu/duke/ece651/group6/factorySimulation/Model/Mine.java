@@ -1,9 +1,19 @@
 package edu.duke.ece651.group6.factorySimulation.Model;
 
-public class Mine extends Building {
-    private final String type;
+import java.util.List;
 
-    public Mine(String type) {
-        this.type = type;
+public class Mine extends Building {
+    public Mine(String name, Recipe mine) {
+        super(name);
+        this.recipes.add(mine);
     }
+
+    public Mine(String name, Coordinate coord, Recipe mine) {
+        super(name, coord);
+        this.recipes.add(mine);
+    }
+
+
+    @Override
+    public void setBuildingWithBuilding(List<Building> bLst) {}
 }
