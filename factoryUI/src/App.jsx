@@ -54,19 +54,23 @@ function App() {
   
   const handleFinish = async () => {
     try {
-      const response = awaitfetch('/api/finish', {
+      console.log('Finishing the simulation');
+      const response = await fetch('/api/finish', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
+        body: JSON.stringify({ finish: true }),
       });
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
-      console.log('Finished successfully');
+      const data = await response.json();
+      console.log(data.output);
     } catch (error) {
       console.error('Error finishing:', error);
     }
+    console.log('Finished');
   };
   
   const handleVerbosityChange = (level) => {
