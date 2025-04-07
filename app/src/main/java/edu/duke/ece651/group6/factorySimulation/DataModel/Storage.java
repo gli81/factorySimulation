@@ -8,10 +8,6 @@ public class Storage extends Building {
     private Recipe storedRecipe;
     private int capacity;
     private double priority;
-    /*
-     * the sources list of the building
-     */
-    private ArrayList<Building> sources;
 
     /*
      * the count of the current inventory
@@ -27,7 +23,6 @@ public class Storage extends Building {
         this.storedRecipe = storedRecipe;
         this.capacity = capacity;
         this.priority = priority;
-        this.sources = new ArrayList<>();
         this.stock = 0;
     }
 
@@ -36,19 +31,10 @@ public class Storage extends Building {
         this.storedRecipe = storedRecipe;
         this.capacity = capacity;
         this.priority = priority;
-        this.sources = new ArrayList<>();
     }
 
     public Recipe getStoredRecipe() {
         return this.storedRecipe;
-    }
-
-    public void addSource(Building source) {
-        this.sources.add(source);
-    }
-
-    public Iterable<Building> getSourcesIterable() {
-        return new ArrayList<Building>(this.sources);
     }
 
     public int getStock() {
@@ -91,8 +77,18 @@ public class Storage extends Building {
             int f = (int) Math.ceil((double) (capacity * capacity) / r / priority);
             boolean shouldMakeRequest = ProductionController.getCurrTimeStep() % f == 0;
             if (shouldMakeRequest) {
+                // print the source selection message
+                if (ProductionController.getVerbose() >= 2) {
+                    System.out
+                            .println("[source selection]: " + this.getName() + " has request for "
+                                    + this.storedRecipe.getName()
+                                    + " on " + ProductionController.getCurrTimeStep() + "\n"
+                                    + "[" + this.getName() + ":" + this.storedRecipe.getName() + ":" + 0
+                                    + "] For recipe "
+                                    + this.storedRecipe.getName());
+                }
                 outstanding++;
-                return this.sourceSelect(this.storedRecipe);
+                return super.sourceSelect(this.storedRecipe);
             } else {
                 return null;
             }
@@ -150,7 +146,7 @@ public class Storage extends Building {
     @Override
     public String toString() {
         StringBuilder sourcesString = new StringBuilder();
-        this.sources.forEach(source -> {
+        this.getSourcesIterable().forEach(source -> {
             sourcesString.append(source.getName()).append(", ");
         });
         // remove the last comma
