@@ -117,6 +117,13 @@ public class ModelManager {
         DFSRecursiveTaskDistribution(sourceBuilding, recipe, null);
     }
 
+    /**
+     * Recursively distribute the task to the source building using DFS
+     * 
+     * @param sourceBuilding the source building
+     * @param recipe         the recipe
+     * @param targetBuilding the target building
+     */
     private void DFSRecursiveTaskDistribution(Building sourceBuilding, Recipe recipe, Building targetBuilding) {
         // print the ingredient assignment message if the target is not user-requested
         if (ProductionController.getVerbose() >= 1 && targetBuilding != null) {
@@ -133,10 +140,24 @@ public class ModelManager {
 
         if (sourceBuilding.getClass() == Mine.class) {
             // if the source building is a mine
-            int status = RequestItem.Status.READY;
+            // add a request to the source building
             int deliveryTime = mapGrid.shortestPath(sourceBuilding, targetBuilding);
-            sourceBuilding.addRequest(new RequestItem(recipe, status, targetBuilding, deliveryTime));
+            sourceBuilding.addRequest(new RequestItem(recipe, RequestItem.Status.READY, targetBuilding, deliveryTime));
 
+        } else if (sourceBuilding.getClass() == Storage.class) {
+            // if the source building is a storage
+            Storage storage = (Storage) sourceBuilding;
+            int deliveryTime = mapGrid.shortestPath(storage, targetBuilding);
+
+            if (storage.getStock() > 0) {
+                // if the storage has stock, start the delivery
+                storage.decreaseStock();
+                storage
+                        .addRequest(new RequestItem(recipe, RequestItem.Status.DONE, targetBuilding, deliveryTime));
+            } else {
+                // if the storage has no stock, add a request
+                storage.addRequest(new RequestItem(recipe, RequestItem.Status.WAITING, targetBuilding, deliveryTime));
+            }
         } else if (sourceBuilding.getClass() == Factory.class) {
             Factory sourceFactory = (Factory) sourceBuilding;
             // if the source building is a factory
@@ -172,9 +193,20 @@ public class ModelManager {
         }
     }
 
+    /**
+     * Process one time step
+     */
     public void processOneTimeStep() {
         for (Building building : this.buildings) {
             building.doWork();
+            // if the building is a storage, try to make a request
+            if (building instanceof Storage) {
+                Storage storage = (Storage) building;
+                Building sourceBuilding = storage.shouldMakeRequest();
+                if (sourceBuilding != null) {
+                    DFSRecursiveTaskDistribution(sourceBuilding, storage.getStoredRecipe(), storage);
+                }
+            }
         }
 
         for (Building building : this.buildings) {

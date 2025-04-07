@@ -3,11 +3,14 @@ package edu.duke.ece651.group6.factorySimulation.DataModel;
 import java.util.Map;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.List;
+import java.util.ArrayList;
 
 public class MapGrid {
     private MapObject[][] grid;
     private int width;
     private int height;
+    private List<Road> roads;
 
     // the set of occupied coordinates,
     // used to choose available coordinates
@@ -20,6 +23,7 @@ public class MapGrid {
         this.grid = new MapObject[height][width];
         this.xSet = new HashSet<>();
         this.ySet = new HashSet<>();
+        this.roads = new ArrayList<>();
     }
 
     public MapGrid(int width, int height) {
@@ -28,6 +32,7 @@ public class MapGrid {
         this.grid = new MapObject[height][width];
         this.xSet = new HashSet<>();
         this.ySet = new HashSet<>();
+        this.roads = new ArrayList<>();
     }
 
     /**
@@ -140,6 +145,16 @@ public class MapGrid {
     }
 
     /**
+     * Add a road to the grid
+     * 
+     * @param road The road to add
+     * @return true if the road was added successfully, false otherwise
+     */
+    public List<Road> getRoads() {
+        return new ArrayList<>(roads);
+    }
+
+    /**
      * Remove a map object from the specified position
      * 
      * @param x The x coordinate
@@ -237,6 +252,13 @@ public class MapGrid {
      */
     // TODO: Robin
     public Boolean connectBuildings(Building sourceBuilding, Building targetBuilding) {
+        // check if the buildings are already connected
+        if (sourceBuilding.getConnectedBuildings().contains(targetBuilding)) {
+            return true;
+        }
+        // add the target building to the source building's connected buildings
+        sourceBuilding.addConnectedBuildings(targetBuilding);
+
         // get the coordinates of the buildings
         int x1 = sourceBuilding.getX();
         int y1 = sourceBuilding.getY();

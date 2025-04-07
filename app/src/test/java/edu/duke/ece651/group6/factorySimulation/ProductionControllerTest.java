@@ -226,18 +226,209 @@ public class ProductionControllerTest {
         assertEquals(expectedOutput, output);
     }
 
-  @Test
+    private void setupForStorageWithCoordinates() {
+        ProductionController.setVerbose(2);
+        ProductionController.resetTimeStep();
+        ProductionController.resetCurrRequestIndex();
+
+        this.productionController = new ProductionController();
+        assertDoesNotThrow(
+                () -> productionController.constructFromFile(
+                        "src/resources/inputs/storage_with_coordinates.json"));
+    }
+
+    @Test
+    public void testStorageWithCoordinates() {
+        setupForStorageWithCoordinates();
+
+        this.productionController.addRequest("door", "D");
+
+        String output = captureSystemOut(() -> this.productionController.finishAllRequests());
+
+        String expectedOutput = "[recipe selection]: D has fifo on cycle 1\n" +
+                "    0: door is not ready, waiting on {wood, handle, 3x hinge}\n" +
+                "[recipe selection]: Ha has fifo on cycle 1\n" +
+                "    0: handle is not ready, waiting on {metal}\n" +
+                "[recipe selection]: Hi has fifo on cycle 1\n" +
+                "    0: hinge is not ready, waiting on {metal}\n" +
+                "    1: hinge is not ready, waiting on {metal}\n" +
+                "    2: hinge is not ready, waiting on {metal}\n" +
+                "[recipe selection]: W has fifo on cycle 1\n" +
+                "    0: wood is ready\n" +
+                "    Selecting 0\n" +
+                "[ingredient delivered]: wood to D from W on cycle 1\n" +
+                "[source selection]: Metal Storage has request for metal on 2\n" +
+                "[Metal Storage:metal:0] For recipe metal\n" +
+                "    M:0\n" +
+                "    Selecting M\n" +
+                "[ingredient assignment]: metal assigned to M to deliver to Metal Storage\n" +
+                "[recipe selection]: D has fifo on cycle 2\n" +
+                "    0: door is not ready, waiting on {handle, 3x hinge}\n" +
+                "[recipe selection]: Ha has fifo on cycle 2\n" +
+                "    0: handle is not ready, waiting on {metal}\n" +
+                "[recipe selection]: Hi has fifo on cycle 2\n" +
+                "    0: hinge is not ready, waiting on {metal}\n" +
+                "    1: hinge is not ready, waiting on {metal}\n" +
+                "    2: hinge is not ready, waiting on {metal}\n" +
+                "[recipe selection]: M has fifo on cycle 2\n" +
+                "    0: metal is ready\n" +
+                "    Selecting 0\n" +
+                "[ingredient delivered]: metal to Metal Storage from M on cycle 2\n" +
+                "[recipe selection]: D has fifo on cycle 3\n" +
+                "    0: door is not ready, waiting on {handle, 3x hinge}\n" +
+                "[recipe selection]: Ha has fifo on cycle 3\n" +
+                "    0: handle is not ready, waiting on {metal}\n" +
+                "[recipe selection]: Hi has fifo on cycle 3\n" +
+                "    0: hinge is not ready, waiting on {metal}\n" +
+                "    1: hinge is not ready, waiting on {metal}\n" +
+                "    2: hinge is not ready, waiting on {metal}\n" +
+                "[ingredient delivered]: metal to Ha from Metal Storage on cycle 3\n" +
+                "    0: handle is ready\n" +
+                "[source selection]: Metal Storage has request for metal on 4\n" +
+                "[Metal Storage:metal:0] For recipe metal\n" +
+                "    M:0\n" +
+                "    Selecting M\n" +
+                "[ingredient assignment]: metal assigned to M to deliver to Metal Storage\n" +
+                "[recipe selection]: D has fifo on cycle 4\n" +
+                "    0: door is not ready, waiting on {handle, 3x hinge}\n" +
+                "[recipe selection]: Ha has fifo on cycle 4\n" +
+                "    0: handle is ready\n" +
+                "    Selecting 0\n" +
+                "[recipe selection]: Hi has fifo on cycle 4\n" +
+                "    0: hinge is not ready, waiting on {metal}\n" +
+                "    1: hinge is not ready, waiting on {metal}\n" +
+                "    2: hinge is not ready, waiting on {metal}\n" +
+                "[recipe selection]: M has fifo on cycle 4\n" +
+                "    0: metal is ready\n" +
+                "    Selecting 0\n" +
+                "[ingredient delivered]: metal to Metal Storage from M on cycle 4\n" +
+                "[recipe selection]: D has fifo on cycle 5\n" +
+                "    0: door is not ready, waiting on {handle, 3x hinge}\n" +
+                "[recipe selection]: Hi has fifo on cycle 5\n" +
+                "    0: hinge is not ready, waiting on {metal}\n" +
+                "    1: hinge is not ready, waiting on {metal}\n" +
+                "    2: hinge is not ready, waiting on {metal}\n" +
+                "[ingredient delivered]: metal to Hi from Metal Storage on cycle 5\n" +
+                "    0: hinge is ready\n" +
+                "[source selection]: Metal Storage has request for metal on 6\n" +
+                "[Metal Storage:metal:0] For recipe metal\n" +
+                "    M:0\n" +
+                "    Selecting M\n" +
+                "[ingredient assignment]: metal assigned to M to deliver to Metal Storage\n" +
+                "[recipe selection]: D has fifo on cycle 6\n" +
+                "    0: door is not ready, waiting on {handle, 3x hinge}\n" +
+                "[recipe selection]: Hi has fifo on cycle 6\n" +
+                "    0: hinge is ready\n" +
+                "    1: hinge is not ready, waiting on {metal}\n" +
+                "    2: hinge is not ready, waiting on {metal}\n" +
+                "    Selecting 0\n" +
+                "[recipe selection]: M has fifo on cycle 6\n" +
+                "    0: metal is ready\n" +
+                "    Selecting 0\n" +
+                "[ingredient delivered]: hinge to D from Hi on cycle 6\n" +
+                "[ingredient delivered]: metal to Metal Storage from M on cycle 6\n" +
+                "[recipe selection]: D has fifo on cycle 7\n" +
+                "    0: door is not ready, waiting on {handle, 2x hinge}\n" +
+                "[recipe selection]: Hi has fifo on cycle 7\n" +
+                "    0: hinge is not ready, waiting on {metal}\n" +
+                "    1: hinge is not ready, waiting on {metal}\n" +
+                "[ingredient delivered]: metal to Hi from Metal Storage on cycle 7\n" +
+                "    0: hinge is ready\n" +
+                "[source selection]: Metal Storage has request for metal on 8\n" +
+                "[Metal Storage:metal:0] For recipe metal\n" +
+                "    M:0\n" +
+                "    Selecting M\n" +
+                "[ingredient assignment]: metal assigned to M to deliver to Metal Storage\n" +
+                "[recipe selection]: D has fifo on cycle 8\n" +
+                "    0: door is not ready, waiting on {handle, 2x hinge}\n" +
+                "[recipe selection]: Hi has fifo on cycle 8\n" +
+                "    0: hinge is ready\n" +
+                "    1: hinge is not ready, waiting on {metal}\n" +
+                "    Selecting 0\n" +
+                "[recipe selection]: M has fifo on cycle 8\n" +
+                "    0: metal is ready\n" +
+                "    Selecting 0\n" +
+                "[ingredient delivered]: handle to D from Ha on cycle 8\n" +
+                "[ingredient delivered]: hinge to D from Hi on cycle 8\n" +
+                "[ingredient delivered]: metal to Metal Storage from M on cycle 8\n" +
+                "[recipe selection]: D has fifo on cycle 9\n" +
+                "    0: door is not ready, waiting on {hinge}\n" +
+                "[recipe selection]: Hi has fifo on cycle 9\n" +
+                "    0: hinge is not ready, waiting on {metal}\n" +
+                "[ingredient delivered]: metal to Hi from Metal Storage on cycle 9\n" +
+                "    0: hinge is ready\n" +
+                "[source selection]: Metal Storage has request for metal on 10\n" +
+                "[Metal Storage:metal:0] For recipe metal\n" +
+                "    M:0\n" +
+                "    Selecting M\n" +
+                "[ingredient assignment]: metal assigned to M to deliver to Metal Storage\n" +
+                "[recipe selection]: D has fifo on cycle 10\n" +
+                "    0: door is not ready, waiting on {hinge}\n" +
+                "[recipe selection]: Hi has fifo on cycle 10\n" +
+                "    0: hinge is ready\n" +
+                "    Selecting 0\n" +
+                "[recipe selection]: M has fifo on cycle 10\n" +
+                "    0: metal is ready\n" +
+                "    Selecting 0\n" +
+                "[ingredient delivered]: hinge to D from Hi on cycle 10\n" +
+                "    0: door is ready\n" +
+                "[ingredient delivered]: metal to Metal Storage from M on cycle 10\n" +
+                "[recipe selection]: D has fifo on cycle 11\n" +
+                "    0: door is ready\n" +
+                "    Selecting 0\n" +
+                "[source selection]: Metal Storage has request for metal on 12\n" +
+                "[Metal Storage:metal:0] For recipe metal\n" +
+                "    M:0\n" +
+                "    Selecting M\n" +
+                "[ingredient assignment]: metal assigned to M to deliver to Metal Storage\n" +
+                "[recipe selection]: M has fifo on cycle 12\n" +
+                "    0: metal is ready\n" +
+                "    Selecting 0\n" +
+                "[ingredient delivered]: metal to Metal Storage from M on cycle 12\n" +
+                "[source selection]: Metal Storage has request for metal on 15\n" +
+                "[Metal Storage:metal:0] For recipe metal\n" +
+                "    M:0\n" +
+                "    Selecting M\n" +
+                "[ingredient assignment]: metal assigned to M to deliver to Metal Storage\n" +
+                "[recipe selection]: M has fifo on cycle 15\n" +
+                "    0: metal is ready\n" +
+                "    Selecting 0\n" +
+                "[ingredient delivered]: metal to Metal Storage from M on cycle 15\n" +
+                "[source selection]: Metal Storage has request for metal on 18\n" +
+                "[Metal Storage:metal:0] For recipe metal\n" +
+                "    M:0\n" +
+                "    Selecting M\n" +
+                "[ingredient assignment]: metal assigned to M to deliver to Metal Storage\n" +
+                "[recipe selection]: M has fifo on cycle 18\n" +
+                "    0: metal is ready\n" +
+                "    Selecting 0\n" +
+                "[ingredient delivered]: metal to Metal Storage from M on cycle 18\n" +
+                "[source selection]: Metal Storage has request for metal on 21\n" +
+                "[Metal Storage:metal:0] For recipe metal\n" +
+                "    M:0\n" +
+                "    Selecting M\n" +
+                "[ingredient assignment]: metal assigned to M to deliver to Metal Storage\n" +
+                "[recipe selection]: M has fifo on cycle 21\n" +
+                "    0: metal is ready\n" +
+                "    Selecting 0\n" +
+                "[ingredient delivered]: metal to Metal Storage from M on cycle 21\n" +
+                "[order complete] Order 0 completed (door) at time 22\n";
+
+        assertEquals(expectedOutput, output);
+    }
+
+    @Test
     public void test_setVerbose_negative_value() {
         // First set verbose to a known value
         ProductionController.setVerbose(2);
         assertEquals(2, ProductionController.getVerbose());
-        
+
         // Now try setting it to a negative value
         int oldValue = ProductionController.setVerbose(-1);
-        
+
         // The old value should be 2
         assertEquals(2, oldValue);
-        
+
         // The verbose level should still be 2 (unchanged)
         assertEquals(2, ProductionController.getVerbose());
     }
@@ -269,66 +460,51 @@ public class ProductionControllerTest {
     void testProcessCommand() throws EndOfProductionException {
         ProductionController pc = new ProductionController();
         assertEquals(
-            "Invalid command - Usage: request 'ITEM' from 'BUILDING'",
-            pc.processCommand("request 'a' from 'b")
-        );
+                "Invalid command - Usage: request 'ITEM' from 'BUILDING'",
+                pc.processCommand("request 'a' from 'b"));
         assertEquals(
-            "Invalid command - Usage: request 'ITEM' from 'BUILDING'",
-            pc.processCommand("request 'a'from 'b'")
-        );
+                "Invalid command - Usage: request 'ITEM' from 'BUILDING'",
+                pc.processCommand("request 'a'from 'b'"));
         assertEquals(
-            "Invalid command - Usage: request 'ITEM' from 'BUILDING'",
-            pc.processCommand("request 'a'from 'b'")
-        );
+                "Invalid command - Usage: request 'ITEM' from 'BUILDING'",
+                pc.processCommand("request 'a'from 'b'"));
         assertEquals(
-            "Invalid command - Usage: request 'ITEM' from 'BUILDING'",
-            pc.processCommand("request 'a from 'b'")
-        );
+                "Invalid command - Usage: request 'ITEM' from 'BUILDING'",
+                pc.processCommand("request 'a from 'b'"));
         assertEquals(
-            "Invalid command - Usage: request 'ITEM' from 'BUILDING'",
-            pc.processCommand("request a' from 'b'")
-        );
+                "Invalid command - Usage: request 'ITEM' from 'BUILDING'",
+                pc.processCommand("request a' from 'b'"));
         assertEquals(
-            "Invalid command - Usage: request 'ITEM' from 'BUILDING'",
-            pc.processCommand("request 'a' from b'")
-        );
+                "Invalid command - Usage: request 'ITEM' from 'BUILDING'",
+                pc.processCommand("request 'a' from b'"));
         assertEquals(
-            "Invalid command - Usage: request 'ITEM' from 'BUILDING'",
-            pc.processCommand("request 'a' from 'b'c")
-        );
+                "Invalid command - Usage: request 'ITEM' from 'BUILDING'",
+                pc.processCommand("request 'a' from 'b'c"));
         assertNull(pc.processCommand(""));
         assertNull(pc.processCommand("      "));
         assertEquals(
-            "Invalid command - Invalid verbose level",
-            pc.processCommand("verbose 3")
-        );
+                "Invalid command - Invalid verbose level",
+                pc.processCommand("verbose 3"));
         assertEquals(
-            "Invalid command - Usage: verbose <int:verbose-level>",
-            pc.processCommand("verbose -1")
-        );
+                "Invalid command - Usage: verbose <int:verbose-level>",
+                pc.processCommand("verbose -1"));
         assertEquals(
-            "Invalid command - Usage: finish",
-            pc.processCommand("finish lol")
-        );
+                "Invalid command - Usage: finish",
+                pc.processCommand("finish lol"));
         assertThrows(
-            EndOfProductionException.class,
-            () -> pc.processCommand("finish")    
-        );
+                EndOfProductionException.class,
+                () -> pc.processCommand("finish"));
         assertEquals(
-            "Invalid command - Usage: step <int:step>",
-            pc.processCommand("step 2 2")
-        );
+                "Invalid command - Usage: step <int:step>",
+                pc.processCommand("step 2 2"));
         assertEquals(
-            "Invalid command - Usage: step <int:step>",
-            pc.processCommand("step -2")
-        );
+                "Invalid command - Usage: step <int:step>",
+                pc.processCommand("step -2"));
         assertEquals(
-            "Invalid command - Please try again",
-            pc.processCommand("hhihi")
-        );
+                "Invalid command - Please try again",
+                pc.processCommand("hhihi"));
         assertEquals(
-            "Invalid request - Recipe not found: door",
-            pc.processCommand("request 'door' from 'F'")
-        );
+                "Invalid request - Recipe not found: door",
+                pc.processCommand("request 'door' from 'F'"));
     }
 }

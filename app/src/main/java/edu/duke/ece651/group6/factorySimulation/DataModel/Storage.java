@@ -2,21 +2,28 @@ package edu.duke.ece651.group6.factorySimulation.DataModel;
 
 import java.util.ArrayList;
 
+import edu.duke.ece651.group6.factorySimulation.ProductionController;
+
 public class Storage extends Building {
     private Recipe storedRecipe;
     private int capacity;
     private double priority;
+
     /*
-     * the sources list of the building
+     * the count of the current inventory
      */
-    private ArrayList<Building> sources;
+    private int stock;
+    /*
+     * the count of the outstanding requests
+     */
+    private int outstanding;
 
     public Storage(String name, Recipe storedRecipe, int capacity, double priority) {
         super(name, -1, -1);
         this.storedRecipe = storedRecipe;
         this.capacity = capacity;
         this.priority = priority;
-        this.sources = new ArrayList<>();
+        this.stock = 0;
     }
 
     public Storage(String name, Recipe storedRecipe, int capacity, double priority, int x, int y) {
@@ -24,19 +31,91 @@ public class Storage extends Building {
         this.storedRecipe = storedRecipe;
         this.capacity = capacity;
         this.priority = priority;
-        this.sources = new ArrayList<>();
     }
 
     public Recipe getStoredRecipe() {
         return this.storedRecipe;
     }
 
-    public void addSource(Building source) {
-        this.sources.add(source);
+    public int getStock() {
+        return this.stock;
     }
 
-    public Iterable<Building> getSourcesIterable() {
-        return new ArrayList<Building>(this.sources);
+    /**
+     * Add stock to the storage
+     */
+    public void increaseStock() {
+        this.outstanding--;
+        if (this.getQueueSize() == 0) {
+            this.stock++;
+        } else {
+            // find the first waiting request and set it to ready
+            for (RequestItem requestItem : this.getRequestQueue()) {
+                if (requestItem.getStatus() == RequestItem.Status.WAITING) {
+                    requestItem.setStatus(RequestItem.Status.READY);
+                    break;
+                }
+            }
+        }
+    }
+
+    public void decreaseStock() {
+        this.stock--;
+    }
+
+    /**
+     * Check if the storage should make a request
+     * 
+     * @return the source building to make the request
+     *         null if no need to make a request
+     */
+    public Building shouldMakeRequest() {
+        int r = capacity - stock - outstanding + this.getQueueSize();
+        if (r <= 0) {
+            return null;
+        } else {
+            int f = (int) Math.ceil((double) (capacity * capacity) / r / priority);
+            boolean shouldMakeRequest = ProductionController.getCurrTimeStep() % f == 0;
+            if (shouldMakeRequest) {
+                // print the source selection message
+                if (ProductionController.getVerbose() >= 2) {
+                    System.out
+                            .println("[source selection]: " + this.getName() + " has request for "
+                                    + this.storedRecipe.getName()
+                                    + " on " + ProductionController.getCurrTimeStep() + "\n"
+                                    + "[" + this.getName() + ":" + this.storedRecipe.getName() + ":" + 0
+                                    + "] For recipe "
+                                    + this.storedRecipe.getName());
+                }
+                outstanding++;
+                return super.sourceSelect(this.storedRecipe);
+            } else {
+                return null;
+            }
+        }
+    }
+
+    /**
+     * Get the size of the request queue
+     * does not count the done/delivering requests
+     * 
+     * @return the size of the request queue
+     */
+    @Override
+    public int getQueueSize() {
+        return super.getQueueSize() - this.stock;
+    }
+
+    /**
+     * Deliver the items received from the last cycle
+     */
+    @Override
+    public void doWork() {
+        for (RequestItem requestItem : this.getRequestQueue()) {
+            if (requestItem.getStatus() == RequestItem.Status.READY) {
+                requestItem.setStatus(RequestItem.Status.DONE);
+            }
+        }
     }
 
     @Override
@@ -67,7 +146,7 @@ public class Storage extends Building {
     @Override
     public String toString() {
         StringBuilder sourcesString = new StringBuilder();
-        this.sources.forEach(source -> {
+        this.getSourcesIterable().forEach(source -> {
             sourcesString.append(source.getName()).append(", ");
         });
         // remove the last comma

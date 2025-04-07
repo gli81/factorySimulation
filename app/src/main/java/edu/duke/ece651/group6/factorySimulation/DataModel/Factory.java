@@ -7,73 +7,23 @@ import java.util.Map;
 public class Factory extends Building {
 
     private final Type type;
-    /*
-     * the sources list of the building
-     */
-    private ArrayList<Building> sources;
 
     public Factory(String name, Type type) {
         super(name, -1, -1);
         this.type = type;
-        this.sources = new ArrayList<>();
     }
 
     public Factory(String name, Type type, int x, int y) {
         super(name, x, y);
         this.type = type;
-        this.sources = new ArrayList<>();
     }
 
     public Type getType() {
         return this.type;
     }
 
-    public void addSource(Building source) {
-        this.sources.add(source);
-    }
-
-    public Iterable<Building> getSourcesIterable() {
-        return new ArrayList<Building>(this.sources);
-    }
-
     public boolean isRecipeSupported(Recipe recipe) {
         return this.type.isRecipeSupported(recipe);
-    }
-
-    /**
-     * Select the source building that can produce the recipe
-     * 
-     * @param sourceRecipe the recipe that the factory lacks
-     * @return the source building that can produce the recipe
-     */
-    public Building sourceSelect(Recipe sourceRecipe) {
-
-        ArrayList<Building> availableSources = new ArrayList<>();
-
-        // find all available sources for the recipe
-        for (Building sourceBuilding : this.sources) {
-            if (sourceBuilding.isRecipeSupported(sourceRecipe)) {
-                availableSources.add(sourceBuilding);
-            }
-        }
-
-        // find the source building with the least request queue size
-        int minRequestQueueSize = Integer.MAX_VALUE;
-        Building selectedSource = null;
-        for (Building sourceBuilding : availableSources) {
-            if (ProductionController.getVerbose() >= 2) {
-                System.out.println("    " + sourceBuilding.getName() + ":" + sourceBuilding.getQueueSize());
-            }
-            if (sourceBuilding.getQueueSize() < minRequestQueueSize) {
-                minRequestQueueSize = sourceBuilding.getQueueSize();
-                selectedSource = sourceBuilding;
-            }
-        }
-
-        if (ProductionController.getVerbose() >= 2 && selectedSource != null) {
-            System.out.println("    Selecting " + selectedSource.getName());
-        }
-        return selectedSource;
     }
 
     /*
@@ -152,7 +102,7 @@ public class Factory extends Building {
     @Override
     public String toString() {
         StringBuilder sourcesString = new StringBuilder();
-        this.sources.forEach(source -> {
+        this.getSourcesIterable().forEach(source -> {
             sourcesString.append(source.getName()).append(", ");
         });
         // remove the last comma
