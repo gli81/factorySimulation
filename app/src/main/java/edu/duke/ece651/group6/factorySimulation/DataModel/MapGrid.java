@@ -141,6 +141,10 @@ public class MapGrid {
         grid[y][x] = mapObject;
         xSet.add(x);
         ySet.add(y);
+
+        if (mapObject instanceof Road) {
+            roads.add((Road) mapObject);
+        }
         return true;
     }
 
