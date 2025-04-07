@@ -15,11 +15,14 @@ abstract class Building extends MapObject {
 
     private boolean isWorking;
 
+    private ArrayList<Building> sources;
+
     public Building(String name, int x, int y) {
         super(x, y);
         this.name = name;
         this.requestQueue = new ArrayList<>();
         this.isWorking = false;
+        this.sources = new ArrayList<>();
     }
 
     public String getName() {
@@ -30,8 +33,28 @@ abstract class Building extends MapObject {
         return this.requestQueue;
     }
 
+    /**
+     * Get the size of the request queue
+     * does not count the done/delivering requests
+     * 
+     * @return the size of the request queue
+     */
     public int getQueueSize() {
-        return this.requestQueue.size();
+        int size = 0;
+        for (RequestItem request : this.requestQueue) {
+            if (!request.isDone()) {
+                size++;
+            }
+        }
+        return size;
+    }
+
+    public void addSource(Building source) {
+        this.sources.add(source);
+    }
+
+    public Iterable<Building> getSourcesIterable() {
+        return new ArrayList<Building>(this.sources);
     }
 
     public boolean isWorking() {
@@ -46,6 +69,42 @@ abstract class Building extends MapObject {
 
     public void addRequest(RequestItem requestItem) {
         this.requestQueue.add(requestItem);
+    }
+
+    /**
+     * Select the source building that can produce the recipe
+     * 
+     * @param sourceRecipe the recipe that the factory lacks
+     * @return the source building that can produce the recipe
+     */
+    public Building sourceSelect(Recipe sourceRecipe) {
+
+        ArrayList<Building> availableSources = new ArrayList<>();
+
+        // find all available sources for the recipe
+        for (Building sourceBuilding : this.sources) {
+            if (sourceBuilding.isRecipeSupported(sourceRecipe)) {
+                availableSources.add(sourceBuilding);
+            }
+        }
+
+        // find the source building with the least request queue size
+        int minRequestQueueSize = Integer.MAX_VALUE;
+        Building selectedSource = null;
+        for (Building sourceBuilding : availableSources) {
+            if (ProductionController.getVerbose() >= 2) {
+                System.out.println("    " + sourceBuilding.getName() + ":" + sourceBuilding.getQueueSize());
+            }
+            if (sourceBuilding.getQueueSize() < minRequestQueueSize) {
+                minRequestQueueSize = sourceBuilding.getQueueSize();
+                selectedSource = sourceBuilding;
+            }
+        }
+
+        if (ProductionController.getVerbose() >= 2 && selectedSource != null) {
+            System.out.println("    Selecting " + selectedSource.getName());
+        }
+        return selectedSource;
     }
 
     /**
@@ -110,6 +169,13 @@ abstract class Building extends MapObject {
         return -1;
     }
 
+    /**
+     * Do the work for the building
+     * 
+     * if the request queue is empty or all the requests are on delivery, do nothing
+     * if the building is not working, select a recipe to work on
+     * do delivery/working/waiting for all the requests
+     */
     public void doWork() {
         // if the request queue is empty, do nothing
         if (this.requestQueue.isEmpty()) {
@@ -150,6 +216,9 @@ abstract class Building extends MapObject {
     /**
      * deliver the first request in the queue
      * 
+     * if the request is delivered to the user, return the recipe
+     * if the request is delivered to a building, add the recipe to the storage
+     * 
      * @return the recipe delivered to user,
      *         null if nothing to deliver to USER
      */
@@ -163,28 +232,26 @@ abstract class Building extends MapObject {
                 // remove the request from the queue since it is delivered
                 this.requestQueue.remove(request);
 
+                // if the target is the user, it means the request is done
                 if (targetBuilding == null) {
-                    // if the target is the user, it means the request is done
-                    // and nothing else to do
                     return ingredient;
-                } else if (targetBuilding instanceof Factory) {
-                    // if the target is a factory, add the ingredient to the factory
-                    Factory factory = (Factory) targetBuilding;
-                    if (ProductionController.getVerbose() >= 1) {
-                        System.out.println("[ingredient delivered]: " + ingredient.getName() + " to "
-                                + targetBuilding.getName()
-                                + " from " + this.getName() + " on cycle " + ProductionController.getCurrTimeStep());
-                    }
-                    factory.addStorage(ingredient);
-                    return null;
+                }
+
+                // print the delivery message
+                if (ProductionController.getVerbose() >= 1) {
+                    System.out.println("[ingredient delivered]: " + ingredient.getName() + " to "
+                            + targetBuilding.getName()
+                            + " from " + this.getName() + " on cycle " + ProductionController.getCurrTimeStep());
+                }
+
+                if (targetBuilding instanceof Factory) {
+                    ((Factory) targetBuilding).addStorage(ingredient);
                 } else if (targetBuilding instanceof Storage) {
-                    // if the target is a storage, add the ingredient to the storage
-                    // TODO: hahah
-                    return null;
+                    ((Storage) targetBuilding).increaseStock();
                 } else {
-                    // if the target is not a factory or a storage, throw an exception
                     throw new IllegalArgumentException("Target building must be a factory or a storage");
                 }
+                return null;
             }
         }
         return null;

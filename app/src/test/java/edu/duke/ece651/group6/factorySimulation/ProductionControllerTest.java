@@ -226,18 +226,42 @@ public class ProductionControllerTest {
         assertEquals(expectedOutput, output);
     }
 
-  @Test
+    private void setupForStorageWithCoordinates() {
+        ProductionController.setVerbose(2);
+        ProductionController.resetTimeStep();
+        ProductionController.resetCurrRequestIndex();
+
+        this.productionController = new ProductionController();
+        assertDoesNotThrow(
+                () -> productionController.constructFromFile("src/resources/inputs/storage_with_coordinates.json"));
+    }
+
+    @Test
+    public void testStorageWithCoordinates() {
+        setupForStorageWithCoordinates();
+
+        this.productionController.addRequest("metal", "Metal Storage");
+        this.productionController.addRequest("metal", "Metal Storage");
+
+        String output = captureSystemOut(() -> this.productionController.addTimeStep(50));
+
+        String expectedOutput = "";
+
+        assertEquals(expectedOutput, output);
+    }
+
+    @Test
     public void test_setVerbose_negative_value() {
         // First set verbose to a known value
         ProductionController.setVerbose(2);
         assertEquals(2, ProductionController.getVerbose());
-        
+
         // Now try setting it to a negative value
         int oldValue = ProductionController.setVerbose(-1);
-        
+
         // The old value should be 2
         assertEquals(2, oldValue);
-        
+
         // The verbose level should still be 2 (unchanged)
         assertEquals(2, ProductionController.getVerbose());
     }
@@ -269,66 +293,51 @@ public class ProductionControllerTest {
     void testProcessCommand() throws EndOfProductionException {
         ProductionController pc = new ProductionController();
         assertEquals(
-            "Invalid command - Usage: request 'ITEM' from 'BUILDING'",
-            pc.processCommand("request 'a' from 'b")
-        );
+                "Invalid command - Usage: request 'ITEM' from 'BUILDING'",
+                pc.processCommand("request 'a' from 'b"));
         assertEquals(
-            "Invalid command - Usage: request 'ITEM' from 'BUILDING'",
-            pc.processCommand("request 'a'from 'b'")
-        );
+                "Invalid command - Usage: request 'ITEM' from 'BUILDING'",
+                pc.processCommand("request 'a'from 'b'"));
         assertEquals(
-            "Invalid command - Usage: request 'ITEM' from 'BUILDING'",
-            pc.processCommand("request 'a'from 'b'")
-        );
+                "Invalid command - Usage: request 'ITEM' from 'BUILDING'",
+                pc.processCommand("request 'a'from 'b'"));
         assertEquals(
-            "Invalid command - Usage: request 'ITEM' from 'BUILDING'",
-            pc.processCommand("request 'a from 'b'")
-        );
+                "Invalid command - Usage: request 'ITEM' from 'BUILDING'",
+                pc.processCommand("request 'a from 'b'"));
         assertEquals(
-            "Invalid command - Usage: request 'ITEM' from 'BUILDING'",
-            pc.processCommand("request a' from 'b'")
-        );
+                "Invalid command - Usage: request 'ITEM' from 'BUILDING'",
+                pc.processCommand("request a' from 'b'"));
         assertEquals(
-            "Invalid command - Usage: request 'ITEM' from 'BUILDING'",
-            pc.processCommand("request 'a' from b'")
-        );
+                "Invalid command - Usage: request 'ITEM' from 'BUILDING'",
+                pc.processCommand("request 'a' from b'"));
         assertEquals(
-            "Invalid command - Usage: request 'ITEM' from 'BUILDING'",
-            pc.processCommand("request 'a' from 'b'c")
-        );
+                "Invalid command - Usage: request 'ITEM' from 'BUILDING'",
+                pc.processCommand("request 'a' from 'b'c"));
         assertNull(pc.processCommand(""));
         assertNull(pc.processCommand("      "));
         assertEquals(
-            "Invalid command - Invalid verbose level",
-            pc.processCommand("verbose 3")
-        );
+                "Invalid command - Invalid verbose level",
+                pc.processCommand("verbose 3"));
         assertEquals(
-            "Invalid command - Usage: verbose <int:verbose-level>",
-            pc.processCommand("verbose -1")
-        );
+                "Invalid command - Usage: verbose <int:verbose-level>",
+                pc.processCommand("verbose -1"));
         assertEquals(
-            "Invalid command - Usage: finish",
-            pc.processCommand("finish lol")
-        );
+                "Invalid command - Usage: finish",
+                pc.processCommand("finish lol"));
         assertThrows(
-            EndOfProductionException.class,
-            () -> pc.processCommand("finish")    
-        );
+                EndOfProductionException.class,
+                () -> pc.processCommand("finish"));
         assertEquals(
-            "Invalid command - Usage: step <int:step>",
-            pc.processCommand("step 2 2")
-        );
+                "Invalid command - Usage: step <int:step>",
+                pc.processCommand("step 2 2"));
         assertEquals(
-            "Invalid command - Usage: step <int:step>",
-            pc.processCommand("step -2")
-        );
+                "Invalid command - Usage: step <int:step>",
+                pc.processCommand("step -2"));
         assertEquals(
-            "Invalid command - Please try again",
-            pc.processCommand("hhihi")
-        );
+                "Invalid command - Please try again",
+                pc.processCommand("hhihi"));
         assertEquals(
-            "Invalid request - Recipe not found: door",
-            pc.processCommand("request 'door' from 'F'")
-        );
+                "Invalid request - Recipe not found: door",
+                pc.processCommand("request 'door' from 'F'"));
     }
 }

@@ -22,6 +22,27 @@ public class Mine extends Building {
         return this.outputItem.equals(recipe);
     }
 
+    /**
+     * Mines do not have sources
+     * 
+     * @param source the source to add
+     * @throws UnsupportedOperationException if the mine has sources
+     */
+    @Override
+    public void addSource(Building source) {
+        throw new UnsupportedOperationException("Mines do not have sources");
+    }
+
+    /**
+     * Mines do not have sources
+     * 
+     * @return null
+     */
+    @Override
+    public Building sourceSelect(Recipe sourceRecipe) {
+        throw new UnsupportedOperationException("Mines do not have sources");
+    }
+
     /*
      * two mines are equal if they have the same name and output item
      * since name is unique for each mine

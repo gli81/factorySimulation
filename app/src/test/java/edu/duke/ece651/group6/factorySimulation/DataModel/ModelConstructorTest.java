@@ -177,7 +177,7 @@ public class ModelConstructorTest {
             "Recipe: { wood, 1, { } }\n" +
             "Recipe: { metal, 1, { } }\n\n" +
             "Buildings:\n" +
-            "Storage: { Metal Storage, metal: 100, 2.0, { M } }\n" +
+            "Storage: { Metal Storage, metal: 10, 5.0, { M } }\n" +
             "Factory: { D, door, { W, Hi, Ha } }\n" +
             "Factory: { Ha, handle, { Metal Storage } }\n" +
             "Factory: { Hi, hinge, { Metal Storage } }\n" +
@@ -217,6 +217,7 @@ public class ModelConstructorTest {
             "7 | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |\n" +
             "8 | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |\n" +
             "9 | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |\n");
+
   }
 
   @Test

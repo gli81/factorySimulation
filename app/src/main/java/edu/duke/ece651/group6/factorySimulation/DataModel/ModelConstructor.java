@@ -39,7 +39,7 @@ public class ModelConstructor {
         constructTypes(jsonObject);
         constructBuildings(jsonObject);
         constructMapGrid();
-        // connectAllBuildings();
+        connectAllBuildings();
     }
 
     /**
@@ -315,7 +315,7 @@ public class ModelConstructor {
                     sources.add(source.getAsString());
                 }
             }
-            // add the sources to the temporary sources list
+            // add the sources list to the temporary sources list
             sourcesList.add(sources);
 
             // get the coordinates
@@ -416,30 +416,23 @@ public class ModelConstructor {
             Building building = buildingIterator.next();
             ArrayList<String> sources = sourcesIterator.next();
 
-            if (building instanceof Factory) {
-                Factory factory = (Factory) building;
-                for (String sourceName : sources) {
-                    Building sourceBuilding = modelManager.getBuilding(sourceName);
-                    if (sourceBuilding == null) {
-                        throw new InvalidInputException(
-                                "Source building " + sourceName + " not found: " + sourceName);
-                    }
-                    factory.addSource(sourceBuilding);
+            for (String sourceName : sources) {
+                Building sourceBuilding = modelManager.getBuilding(sourceName);
+                if (sourceBuilding == null) {
+                    throw new InvalidInputException(
+                            "Source building " + sourceName + " not found: " + sourceName);
                 }
+                building.addSource(sourceBuilding);
+            }
+            if (building instanceof Factory) {
                 // check 9: For each factory, all ingredients it might need must be available
-                checkFactoryIngredientsAvailability(factory);
+                checkFactoryIngredientsAvailability((Factory) building);
             } else if (building instanceof Storage) {
                 Storage storage = (Storage) building;
-                for (String sourceName : sources) {
-                    Building sourceBuilding = modelManager.getBuilding(sourceName);
-                    if (sourceBuilding == null) {
-                        throw new InvalidInputException(
-                                "Source building " + sourceName + " not found: " + sourceName);
-                    }
-                    storage.addSource(sourceBuilding);
-                    // check 9: For each storage, all recipes it might need must be available
-                    checkStorageRecipesAvailability(storage);
-                }
+                // check 9: For each storage, the recipe it stores must be available
+                Map<String, Boolean> requiredRecipes = new LinkedHashMap<>();
+                requiredRecipes.put(storage.getStoredRecipe().getName(), false);
+                checkAvailability(storage.getName(), requiredRecipes, storage.getSourcesIterable());
             }
         }
     }
@@ -495,21 +488,6 @@ public class ModelConstructor {
         }
 
         checkAvailability(factory.getName(), requiredIngredients, factory.getSourcesIterable());
-    }
-
-    /**
-     * Check if the recipe needed by a storage is available from at least one of
-     * its source buildings
-     * 
-     * @param storage the storage to check
-     * @throws InvalidInputException if a recipe is not available
-     */
-    private void checkStorageRecipesAvailability(Storage storage) {
-        Map<String, Boolean> requiredRecipes = new LinkedHashMap<>();
-
-        requiredRecipes.put(storage.getStoredRecipe().getName(), false);
-
-        checkAvailability(storage.getName(), requiredRecipes, storage.getSourcesIterable());
     }
 
     /**
