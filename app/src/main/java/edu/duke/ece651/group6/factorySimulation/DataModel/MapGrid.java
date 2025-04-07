@@ -1,10 +1,14 @@
 package edu.duke.ece651.group6.factorySimulation.DataModel;
 
-import java.util.Map;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.PriorityQueue;
+import java.util.Queue;
+import java.util.Set;
 
 public class MapGrid {
     private MapObject[][] grid;
@@ -247,58 +251,360 @@ public class MapGrid {
         return sb.toString();
     }
 
-    /**
-     * Connect two buildings
-     * 
-     * @param sourceBuilding The source building
-     * @param targetBuilding The target building
-     * @return true if the buildings are connected, false otherwise
-     */
-    // TODO: Robin
-    public Boolean connectBuildings(Building sourceBuilding, Building targetBuilding) {
-        // check if the buildings are already connected
-        if (sourceBuilding.getConnectedBuildings().contains(targetBuilding)) {
-            return true;
-        }
-        // add the target building to the source building's connected buildings
-        sourceBuilding.addConnectedBuildings(targetBuilding);
+  public int shortestPath(Building sourceBuilding, Building targetBuilding) {
+    // Handle special cases
+    if (targetBuilding == null) {
+      return 0;
+    }
+    if (sourceBuilding == targetBuilding) {
+      return 0;
+    }
+    // If buildings are adjacent, no road needed
+    if (sourceBuilding.getY() == targetBuilding.getY()
+        && Math.abs(sourceBuilding.getX() - targetBuilding.getX()) == 1) {
+      return 0;
+    }
+    if (sourceBuilding.getX() == targetBuilding.getX()
+        && Math.abs(sourceBuilding.getY() - targetBuilding.getY()) == 1) {
+      return 0;
+    }
 
-        // get the coordinates of the buildings
-        int x1 = sourceBuilding.getX();
-        int y1 = sourceBuilding.getY();
-        int x2 = targetBuilding.getX();
-        int y2 = targetBuilding.getY();
-        //
+    // Initialize the queue for BFS and visited array
+    Queue<int[]> queue = new LinkedList<>();
+    boolean[][] visited = new boolean[height][width];
+
+    // Start BFS from the source building
+    queue.add(new int[] { sourceBuilding.getX(), sourceBuilding.getY(), 0 });
+    visited[sourceBuilding.getY()][sourceBuilding.getX()] = true;
+
+    // System.out.println("Starting BFS from: (" + sourceBuilding.getX() + "," +
+    // sourceBuilding.getY() + ")");
+    // System.out.println("Target building at: (" + targetBuilding.getX() + "," +
+    // targetBuilding.getY() + ")");
+
+    // BFS to find the shortest path
+    while (!queue.isEmpty()) {
+      int[] current = queue.poll();
+      int x = current[0];
+      int y = current[1];
+      int distance = current[2];
+
+      // System.out.println("Visiting: (" + x + "," + y + ") at distance " +
+      // distance);
+
+      // Try all four directions
+      int[][] directions = { { 0, -1 }, { 0, 1 }, { -1, 0 }, { 1, 0 } }; // up, down, left, right
+
+      for (int d = 0; d < directions.length; d++) {
+        int[] dir = directions[d];
+        int newX = x + dir[0];
+        int newY = y + dir[1];
+
+        // Skip if out of bounds
+        if (newX < 0 || newX >= width || newY < 0 || newY >= height) {
+          continue;
+        }
+
+        // Skip if already visited
+        if (visited[newY][newX]) {
+          continue;
+        }
+
+        // Check what's at this position
+        MapObject obj = getMapObject(newX, newY);
+        // System.out.println(" Checking: (" + newX + "," + newY + ") - " +
+        // (obj == null ? "empty" : obj.getClass().getSimpleName()));
+
+        // Check if we reached the target building
+        if (obj == targetBuilding) {
+          // System.out.println("Found target at distance: " + (distance + 1));
+          return distance + 1;
+        }
+
+        // Check if this is a road
+        if (obj instanceof Road) {
+          // System.out.println(" Adding road to queue");
+          visited[newY][newX] = true;
+          queue.add(new int[] { newX, newY, distance + 1 });
+        }
+      }
+    }
+
+    // System.out.println("No path found");
+    // If no path is found, return -1
+    return -1;
+  }
+
+  /**
+   * Connect two buildings by creating a path of roads between them
+   * 
+   * @param sourceBuilding The source building
+   * @param targetBuilding The target building
+   * @return true if the buildings are connected, false otherwise
+   */
+  public Boolean connectBuildings(Building sourceBuilding, Building targetBuilding) {
+    // Check if buildings are already connected
+    if (sourceBuilding.getConnectedBuildings().contains(targetBuilding)) {
+      return true;
+    }
+
+    // Add the connection to the building's list
+    sourceBuilding.addConnectedBuildings(targetBuilding);
+
+    // Find the optimal path
+    List<int[]> path = findOptimalPath(sourceBuilding, targetBuilding);
+
+    // If no path was found
+    if (path == null) {
+      return false;
+    }
+
+    // Build roads along the path
+    buildRoadsAlongPath(path, sourceBuilding, targetBuilding);
+
+    return true;
+  }
+
+  /**
+   * Finds the optimal path between source and target buildings
+   * that minimizes (total distance + new roads added)
+   * 
+   * @param sourceBuilding The source building
+   * @param targetBuilding The target building
+   * @return List of coordinates for the path, or null if no path found
+   */
+  private List<int[]> findOptimalPath(Building sourceBuilding, Building targetBuilding) {
+    int startX = sourceBuilding.getX();
+    int startY = sourceBuilding.getY();
+    int endX = targetBuilding.getX();
+    int endY = targetBuilding.getY();
+
+    // Initialize path info grid and priority queue
+    int[][][][] pathInfo = initializePathInfo();
+    pathInfo[startY][startX][0][0] = 0; // totalCost
+    pathInfo[startY][startX][1][0] = 0; // newRoadsAdded
+
+    PriorityQueue<int[]> pq = createPriorityQueue();
+    pq.add(new int[] { startX, startY, 0, 0 });
+
+    // Run the path finding algorithm
+    boolean pathFound = runDijkstraAlgorithm(pq, pathInfo, targetBuilding);
+
+    if (!pathFound) {
+      return null;
+    }
+
+    // Reconstruct and return the path
+    return reconstructPath(pathInfo, startX, startY, endX, endY);
+  }
+
+  /**
+   * Initializes the pathInfo grid
+   */
+  private int[][][][] initializePathInfo() {
+    int[][][][] pathInfo = new int[height][width][4][1];
+    for (int y = 0; y < height; y++) {
+      for (int x = 0; x < width; x++) {
+        pathInfo[y][x][0][0] = Integer.MAX_VALUE; // totalCost
+        pathInfo[y][x][1][0] = Integer.MAX_VALUE; // newRoadsAdded
+        pathInfo[y][x][2][0] = -1; // previousX
+        pathInfo[y][x][3][0] = -1; // previousY
+      }
+    }
+    return pathInfo;
+  }
+
+  /**
+   * Creates priority queue for path finding
+   */
+  private PriorityQueue<int[]> createPriorityQueue() {
+    return new PriorityQueue<>((a, b) -> {
+      // Compare by totalCost first
+      if (a[2] != b[2])
+        return Integer.compare(a[2], b[2]);
+      // If totalCost is the same, compare by newRoadsAdded
+      return Integer.compare(a[3], b[3]);
+    });
+  }
+
+  /**
+   * Runs Dijkstra's algorithm to find the optimal path
+   */
+  private boolean runDijkstraAlgorithm(PriorityQueue<int[]> pq, int[][][][] pathInfo,
+      Building targetBuilding) {
+    // Directions: up, down, left, right
+    int[][] directions = { { 0, -1 }, { 0, 1 }, { -1, 0 }, { 1, 0 } };
+    // Direction indices that correspond to the Road class
+    int[] dirIndices = { 0, 1, 2, 3 }; // 0: up, 1: down, 2: left, 3: right
+
+    int endX = targetBuilding.getX();
+    int endY = targetBuilding.getY();
+
+    while (!pq.isEmpty()) {
+      int[] current = pq.poll();
+      int x = current[0];
+      int y = current[1];
+      int currentTotalCost = current[2];
+      int currentNewRoads = current[3];
+
+      // If we've reached the target
+      if (x == endX && y == endY) {
         return true;
+      }
+
+      // Skip if we've found a better path already
+      if (currentTotalCost > pathInfo[y][x][0][0])
+        continue;
+
+      // Check all four directions
+      for (int d = 0; d < directions.length; d++) {
+        exploreDirection(x, y, d, directions, dirIndices, currentTotalCost,
+            currentNewRoads, pathInfo, pq, targetBuilding);
+      }
     }
 
-    /**
-     * Get the shortest path between two buildings using BFS
-     * 
-     * @param sourceBuilding The source building
-     * @param targetBuilding The target building
-     * @return The shortest path between the two buildings
-     */
-    public int shortestPath(Building sourceBuilding, Building targetBuilding) {
-        // if the target is the user, the path is 0
-        if (targetBuilding == null) {
-            return 0;
-        }
-        if (sourceBuilding == targetBuilding) {
-            return 0;
-        }
-        if (sourceBuilding.getY() == targetBuilding.getY()
-                && Math.abs(sourceBuilding.getX() - targetBuilding.getX()) == 1) {
-            return 0;
-        }
-        if (sourceBuilding.getX() == targetBuilding.getX()
-                && Math.abs(sourceBuilding.getY() - targetBuilding.getY()) == 1) {
-            return 0;
-        }
+    return false;
+  }
 
-        // keep this function return 0 if u r not done
-        return 0;
-        // TODO: Robin
+  /**
+   * Explores a single direction from the current position
+   */
+  private void exploreDirection(int x, int y, int d, int[][] directions, int[] dirIndices,
+      int currentTotalCost, int currentNewRoads,
+      int[][][][] pathInfo, PriorityQueue<int[]> pq,
+      Building targetBuilding) {
+    int newX = x + directions[d][0];
+    int newY = y + directions[d][1];
+
+    // Skip if out of bounds
+    if (!isValidPosition(newX, newY))
+      return;
+
+    // Skip if it's a building (other than the target)
+    MapObject obj = getMapObject(newX, newY);
+    if (obj instanceof Building && !(obj == targetBuilding))
+      return;
+
+    // Calculate costs for this move
+    int newDistance = currentTotalCost + 1; // One step further
+    int newRoadsAdded = currentNewRoads;
+
+    // Check if this is a new road or reusing existing road
+    boolean needNewRoad = true;
+
+    if (obj instanceof Road) {
+      Road road = (Road) obj;
+      // Check if the road already allows movement in this direction
+      if (road.isDirectionAvailable(dirIndices[d])) {
+        // We can reuse this road
+        needNewRoad = false;
+      }
     }
 
+    if (needNewRoad) {
+      newRoadsAdded++;
+    }
+
+    // Calculate total cost
+    int newTotalCost = newDistance + newRoadsAdded;
+
+    // Check if this is a better path
+    if (newTotalCost < pathInfo[newY][newX][0][0] ||
+        (newTotalCost == pathInfo[newY][newX][0][0] && newRoadsAdded < pathInfo[newY][newX][1][0])) {
+
+      pathInfo[newY][newX][0][0] = newTotalCost;
+      pathInfo[newY][newX][1][0] = newRoadsAdded;
+      pathInfo[newY][newX][2][0] = x;
+      pathInfo[newY][newX][3][0] = y;
+
+      pq.add(new int[] { newX, newY, newTotalCost, newRoadsAdded });
+    }
+  }
+
+  /**
+   * Reconstructs the path from the pathInfo grid
+   */
+  private List<int[]> reconstructPath(int[][][][] pathInfo, int startX, int startY,
+      int endX, int endY) {
+    List<int[]> path = new ArrayList<>();
+    int currX = endX;
+    int currY = endY;
+
+    while (currX != startX || currY != startY) {
+      path.add(new int[] { currX, currY });
+      int prevX = pathInfo[currY][currX][2][0];
+      int prevY = pathInfo[currY][currX][3][0];
+      currX = prevX;
+      currY = prevY;
+    }
+
+    // Reverse the path to go from source to target
+    Collections.reverse(path);
+    return path;
+  }
+
+  /**
+   * Builds or updates roads along the found path
+   */
+  private void buildRoadsAlongPath(List<int[]> path, Building sourceBuilding,
+      Building targetBuilding) {
+    for (int i = 0; i < path.size(); i++) {
+      int pathX = path.get(i)[0];
+      int pathY = path.get(i)[1];
+
+      // Skip the target building position
+      if (pathX == targetBuilding.getX() && pathY == targetBuilding.getY()) {
+        continue;
+      }
+
+      // Determine the direction for this road segment
+      int dirIndex = -1;
+
+      if (i < path.size() - 1) {
+        dirIndex = determineDirection(pathX, pathY, path.get(i + 1)[0], path.get(i + 1)[1]);
+      }
+
+      // Create or update road
+      createOrUpdateRoad(pathX, pathY, dirIndex);
+    }
+  }
+
+  /**
+   * Determines the direction index based on current and next positions
+   */
+  private int determineDirection(int currX, int currY, int nextX, int nextY) {
+    if (nextX == currX && nextY == currY - 1)
+      return 0; // up
+    else if (nextX == currX && nextY == currY + 1)
+      return 1; // down
+    else if (nextX == currX - 1 && nextY == currY)
+      return 2; // left
+    else if (nextX == currX + 1 && nextY == currY)
+      return 3; // right
+    else
+      return -1; // invalid direction
+  }
+
+  /**
+   * Creates a new road or updates an existing one
+   */
+  private void createOrUpdateRoad(int x, int y, int dirIndex) {
+    MapObject obj = getMapObject(x, y);
+
+    // Create a new road or update an existing one
+    if (obj == null) {
+      // Create new road
+      Road road = new Road(x, y);
+      if (dirIndex != -1) {
+        road.setDirectionAvailable(dirIndex, true);
+      }
+      addMapObject(road, x, y);
+    } else if (obj instanceof Road) {
+      // Update existing road
+      Road road = (Road) obj;
+      if (dirIndex != -1 && !road.isDirectionAvailable(dirIndex)) {
+        road.setDirectionAvailable(dirIndex, true);
+      }
+    }
+  }
 }
