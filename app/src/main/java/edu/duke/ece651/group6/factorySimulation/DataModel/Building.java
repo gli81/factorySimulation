@@ -3,8 +3,9 @@ package edu.duke.ece651.group6.factorySimulation.DataModel;
 import edu.duke.ece651.group6.factorySimulation.ProductionController;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.List;
 
-abstract class Building extends MapObject {
+public abstract class Building extends MapObject {
 
     /*
      * the name of the building
@@ -17,12 +18,15 @@ abstract class Building extends MapObject {
 
     private ArrayList<Building> sources;
 
+    private ArrayList<Building> connectedBuildings;
+
     public Building(String name, int x, int y) {
         super(x, y);
         this.name = name;
         this.requestQueue = new ArrayList<>();
         this.isWorking = false;
         this.sources = new ArrayList<>();
+        this.connectedBuildings = new ArrayList<>();
     }
 
     public String getName() {
@@ -66,6 +70,14 @@ abstract class Building extends MapObject {
     }
 
     public abstract boolean isRecipeSupported(Recipe recipe);
+
+    public void addConnectedBuildings(Building building) {
+        this.connectedBuildings.add(building);
+    }
+
+    public List<Building> getConnectedBuildings() {
+        return new ArrayList<Building>(this.connectedBuildings);
+    }
 
     public void addRequest(RequestItem requestItem) {
         this.requestQueue.add(requestItem);

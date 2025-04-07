@@ -2,6 +2,11 @@ package edu.duke.ece651.group6.factorySimulation;
 
 import edu.duke.ece651.group6.factorySimulation.DataModel.*;
 import java.io.IOException;
+import java.util.Map;
+import java.util.List;
+import java.util.ArrayList;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 
 public class ProductionController {
     /**
@@ -82,6 +87,134 @@ public class ProductionController {
 
     public void addRequest(String recipeName, String sourceBuildingName) {
         modelManager.addUserRequest(recipeName, sourceBuildingName);
+    }
+
+    private String capsystem_Output(Runnable runnable) {
+        PrintStream out = System.out;
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        PrintStream printStream = new PrintStream(outputStream);
+        System.setOut(printStream);
+        try {
+            runnable.run();
+            return outputStream.toString();
+        } finally {
+            System.setOut(out);
+        }
+    }
+
+    /**
+     * 1. get size of grid
+     * 
+     * @return the x y coordinates of the grid
+     */
+    public Map.Entry<Integer, Integer> getGridSize() {
+        int x = mapGrid.getWidth();
+        int y = mapGrid.getHeight();
+        return Map.entry(x, y);
+    }
+
+    /**
+     * 2. get information about building at start
+     * 
+     * @return a list of buildings
+     *         get the coordinate of the building:
+     *         building.getX()
+     *         building.getY()
+     */
+    public List<Building> getBuildingList() {
+        List<Building> buildings = new ArrayList<>();
+        for (Building building : modelManager.getAllBuildingsIterable()) {
+            buildings.add(building);
+        }
+        return buildings;
+    }
+
+    /**
+     * 3. step for frontend
+     * 
+     * @return the output displayed to user
+     */
+    public String stepWithLog() {
+        try {
+            String output = capsystem_Output(() -> incrementTimeStep());
+            return output;
+        } catch (Exception e) {
+            return "Simulation error at time-step " + currTimeStep + ":\n" + e.getMessage();
+        }
+    }
+
+    /**
+     * 4. finish all requests for frontend
+     */
+    public String finishWithLog() {
+        try {
+            String output = capsystem_Output(() -> finishAllRequests());
+            return output;
+        } catch (Exception e) {
+            return "Simulation error at time-step " + currTimeStep + ":\n" + e.getMessage();
+        }
+    }
+
+    /**
+     * 5. get all recipes supported by a building
+     * 
+     * @param buildingName the name of the building
+     * @return a list of recipes
+     */
+    public List<Recipe> getAllRecipesSupported(String buildingName) {
+        Building building = modelManager.getBuilding(buildingName);
+        List<Recipe> recipes = new ArrayList<>();
+        for (Recipe recipe : modelManager.getAllRecipesIterable()) {
+            if (building.isRecipeSupported(recipe)) {
+                recipes.add(recipe);
+            }
+        }
+        return recipes;
+    }
+
+    /**
+     * 6. add request for frontend
+     * 
+     * @param recipeName         the name of the recipe
+     * @param sourceBuildingName the name of the source building
+     * @return the output displayed to user
+     */
+    public String addRequestWithLog(String recipeName, String sourceBuildingName) {
+        modelManager.addUserRequest(recipeName, sourceBuildingName);
+        return "Request added at time-step " + currTimeStep;
+    }
+
+    /**
+     * 7. get list of destinations the building can be connected to
+     * 
+     * @param buildingName the name of the building
+     * @return a list of destinations
+     */
+    public List<Building> getConnectedBuildings(String buildingName) {
+        Building building = modelManager.getBuilding(buildingName);
+        return building.getConnectedBuildings();
+    }
+
+    /**
+     * 8. connect two buildings
+     * 
+     * @param sourceBuildingName the name of the source building
+     * @param targetBuildingName the name of the target building
+     * @return true if the buildings are connected, false otherwise
+     */
+    public boolean connectBuildings(String sourceBuildingName, String targetBuildingName) {
+        Building sourceBuilding = modelManager.getBuilding(sourceBuildingName);
+        Building targetBuilding = modelManager.getBuilding(targetBuildingName);
+        return mapGrid.connectBuildings(sourceBuilding, targetBuilding);
+    }
+
+    /**
+     * 9. get all the roads
+     * 
+     * @return a list of roads
+     */
+    public List<MapObject> getAllRoads() {
+        return mapGrid.getRoads();
     }
 
     public void displayOutput() throws IOException, EndOfProductionException {
