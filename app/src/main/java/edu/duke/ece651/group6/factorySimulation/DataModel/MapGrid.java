@@ -10,7 +10,7 @@ public class MapGrid {
     private MapObject[][] grid;
     private int width;
     private int height;
-    private List<MapObject> roads;
+    private List<Road> roads;
 
     // the set of occupied coordinates,
     // used to choose available coordinates
@@ -150,7 +150,7 @@ public class MapGrid {
      * @param road The road to add
      * @return true if the road was added successfully, false otherwise
      */
-    public List<MapObject> getRoads() {
+    public List<Road> getRoads() {
         return new ArrayList<>(roads);
     }
 

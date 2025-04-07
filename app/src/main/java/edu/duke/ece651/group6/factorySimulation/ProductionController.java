@@ -213,7 +213,7 @@ public class ProductionController {
      * 
      * @return a list of roads
      */
-    public List<MapObject> getAllRoads() {
+    public List<Road> getAllRoads() {
         return mapGrid.getRoads();
     }
 
