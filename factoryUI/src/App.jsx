@@ -37,14 +37,19 @@ const TimeStepDisplay = styled.div`
 const MainContent = styled.div`
   display: flex;
   gap: 20px;
+  position: relative;
+  height: calc(100vh - 150px);
 `;
 
 const GridSection = styled.div`
   flex: 2;
+  position: relative;
 `;
 
 const ConsoleSection = styled.div`
   flex: 1;
+  min-width: 300px;
+  max-width: 400px;
 `;
 
 const SectionTitle = styled.h3`
@@ -199,6 +204,29 @@ function App() {
       <TimeStepDisplay>Current Time Step: {currentStep}</TimeStepDisplay>
       
       <MainContent>
+        <GridSection>
+          <div
+            className="grid-wrapper"
+            style={{
+              position: "relative",
+              width: "min(40vw, 500px)",
+              height: "min(40vw, 500px)"
+            }}
+          >
+            <div
+              className="grid-container"
+              style={{
+                position: "static",
+                gridTemplateColumns: `repeat(${cols}, 1fr)`,
+                gridTemplateRows: `repeat(${rows}, 1fr)`,
+              }}
+            >
+              {Array.from({ length: total }).map((_, i) => (
+                <Cell key={i} />
+              ))}
+            </div>
+          </div>
+        </GridSection>
         
         <ConsoleSection>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -228,18 +256,13 @@ function App() {
         sources={dummySources}
         recipes={dummyRecipes}
       />
-    
-      <div
-        className="grid-container"
-        style={{
-          gridTemplateColumns: `repeat(${cols}, 1fr)`,
-          gridTemplateRows: `repeat(${rows}, 1fr)`,
-        }}
-      >
-        {Array.from({ length: total }).map((_, i) => (
-          <Cell key={i} />
-        ))}
-      </div>
+      
+      <ConnectionModal 
+        isOpen={isConnectionModalOpen}
+        onClose={() => setIsConnectionModalOpen(false)}
+        onSubmit={handleConnectionSubmit}
+        buildings={dummyBuildings}
+      />
     </div>
   );
 }
