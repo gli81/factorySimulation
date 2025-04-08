@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 const ModalOverlay = styled.div`
@@ -90,12 +90,44 @@ const Button = styled.button`
   }
 `;
 
-const RequestModal = ({ isOpen, onClose, onSubmit, sources = [], recipes = [] }) => {
+const RequestModal = (
+  {
+    isOpen, onClose, onSubmit,
+    sources = [],
+    // recipes = []
+  }
+) => {
   const [selectedSource, setSelectedSource] = useState('');
   const [selectedRecipe, setSelectedRecipe] = useState('');
-  
+  const [recipes, setRecipes] = useState([]);
+
+  useEffect(() => {
+    if (!selectedSource) {
+      setRecipes([]);
+      return;
+    }
+    const getRecipes = async (src) => {
+      try {
+        const response = await fetch(
+          `/api/recipes?source=${src}`,
+          {method: "GET"}
+        );
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        if (data.status === "ok") {
+          setRecipes(data.recipes);
+        }
+      } catch (error) {
+        console.error('Error fetching recipes:', error);
+      }
+    };
+    getRecipes(selectedSource);
+  }, [selectedSource]);
+
   if (!isOpen) return null;
-  
+
   const handleSubmit = (e) => {
     e.preventDefault();
     onSubmit(selectedSource, selectedRecipe);

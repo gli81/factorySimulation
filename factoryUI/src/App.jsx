@@ -64,7 +64,6 @@ const dummyBuildings = [
   { name: 'Storage 1', type: 'storage', x: 3, y: 2 }
 ];
 
-const dummySources = ['Factory 1', 'Mine 1', 'Storage 1'];
 const dummyRecipes = ['door', 'window', 'bolt', 'screw', 'metal'];
 
 
@@ -80,35 +79,41 @@ function App() {
     setConsoleMessages(prev => [...prev, { text, type }]);
   };
   
+  /**
+   * handle request submit
+   * @param {*} source 
+   * @param {*} recipe 
+   */
   const handleRequestSubmit = (source, recipe) => {
-    console.log(`Requested ${recipe} from ${source}`);
-    
-    addConsoleMessage(`Requested ${recipe} from ${source}`);
-    
+    try {
+      console.log(`requested '${recipe}' from '${source}'`);
+      console.log("Calling API");
+      const response = fetch("/api/request", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ source: source, recipe: recipe }),
+      });
+      addConsoleMessage(`Requested ${recipe} from ${source}`);
+    } catch (error) {
+      console.error("Error requesting recipe:", error);
+    }
   };
   
   const handleConnectionSubmit = (source, target) => {
     console.log(`Connecting ${source} to ${target}`);
     
     addConsoleMessage(`Connecting ${source} to ${target}`, 'info');
-    
-    // Example:
-    // api.connectBuildings(source, target)
-    //   .then(response => {
-    //     if (response.success) {
-    //       addConsoleMessage(`Connection created between ${source} and ${target}`, 'success');
-    //     } else {
-    //       addConsoleMessage(`Failed to connect: ${response.message}`, 'error');
-    //     }
-    //   });
   };
-  
+  /**
+   * function that handles step change
+   * @param {} steps 
+   */
   const handleStep = async (steps) => {
-    console.log(`Stepping ${steps} times`);
-    
-    addConsoleMessage(`Stepping ${steps} time${steps > 1 ? 's' : ''}`);
-    console.log("Calling API");
     try {
+      console.log(`Stepping ${steps} times`);
+      console.log("Calling API");
       const response = await fetch("/api/step", {
         method: "POST",
         headers: {
@@ -122,17 +127,22 @@ function App() {
       const data = await response.json();
       console.log(data.status);
       if (data.status === "ok") {
+        addConsoleMessage(`Stepping ${steps} time${steps > 1 ? 's' : ''}`);
         addConsoleMessage(data.output, 'info');
+        setCurrentStep(currentStep + steps);
       }
-      setCurrentStep(currentStep + steps);
     } catch (error) {
       console.error("Error stepping:", error);
     }
   };
   
+  /**
+   * function that handles finish
+   */
   const handleFinish = async () => {
-    console.log('Finishing the simulation');
     try {
+      console.log('Finishing the simulation');
+      console.log("Calling API");
       const response = await fetch('/api/finish', {
         method: 'POST',
         headers: {
@@ -152,11 +162,15 @@ function App() {
     console.log('Finished');
   };
   
+  /**
+   * function that handles verbosity change
+   * @param {*} level 
+   */
   const handleVerbosityChange = async (level) => {
-    console.log(`Setting verbosity to ${level}`);
-    setVerbosityLevel(level);
-    // call backend API
     try {
+      console.log(`Setting verbosity to ${level}`);
+      console.log("Calling API");
+      // call backend API
       const response = await fetch('/api/verbosity', {
         method: 'POST',
         headers: {
@@ -169,7 +183,12 @@ function App() {
       }
       const data = await response.json();
       console.log(data.status);
-      addConsoleMessage(`Verbosity level set to ${level}`, 'info');
+      if (data.status === 'ok') {
+        setVerbosityLevel(level);
+        addConsoleMessage(`Verbosity level set to ${level}`, 'info');
+      } else {
+        throw new Error("Failed to set verbosity level");
+      }
     } catch (error) {
       console.error('Error setting verbosity:', error);
     }
@@ -181,9 +200,34 @@ function App() {
   
   const [rows, setRows] = useState(0);
   const [cols, setCols] = useState(0);
+  const [sources, setSources] = useState([]);
   useEffect(() => {
-    setRows(8);setCols(8);
-  }, [])
+    const getSources = async () => {
+      try {
+        console.log("Calling API");
+        const response = await fetch("/api/sources", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        const data = await response.json();
+        console.log(data.status);
+        if (data.status === "ok") {
+          setSources(data.sources);
+        } else {
+          throw new Error("Failed to fetch sources");
+        }
+      } catch (error) {
+        console.error("Error fetching sources:", error);
+      }
+    }
+    getSources();
+    setRows(10);setCols(10);
+  }, []);
   const total = rows * cols;
   return (
     <div className="page">
@@ -229,7 +273,13 @@ function App() {
         </GridSection>
         
         <ConsoleSection>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={
+            {
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center'
+            }
+          }>
             <SectionTitle>Output Console (Verbosity: {verbosityLevel})</SectionTitle>
             <button 
               onClick={clearConsole}
@@ -253,8 +303,8 @@ function App() {
         isOpen={isRequestModalOpen}
         onClose={() => setIsRequestModalOpen(false)}
         onSubmit={handleRequestSubmit}
-        sources={dummySources}
-        recipes={dummyRecipes}
+        sources={sources}
+        // recipes={dummyRecipes}
       />
       
       <ConnectionModal 
