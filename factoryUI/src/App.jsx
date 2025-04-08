@@ -98,19 +98,36 @@ function App() {
     //   });
   };
   
-  const handleStep = (steps) => {
+  const handleStep = async (steps) => {
     console.log(`Stepping ${steps} times`);
     
     addConsoleMessage(`Stepping ${steps} time${steps > 1 ? 's' : ''}`);
-    
-    setCurrentStep(currentStep + steps);
-    
-    // call backend API
+    console.log("Calling API");
+    try {
+      const response = await fetch("/api/step", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ step: steps }),
+      });
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      const data = await response.json();
+      console.log(data.status);
+      if (data.status === "ok") {
+        addConsoleMessage(data.output, 'info');
+      }
+      setCurrentStep(currentStep + steps);
+    } catch (error) {
+      console.error("Error stepping:", error);
+    }
   };
   
   const handleFinish = async () => {
+    console.log('Finishing the simulation');
     try {
-      console.log('Finishing the simulation');
       const response = await fetch('/api/finish', {
         method: 'POST',
         headers: {
@@ -130,13 +147,27 @@ function App() {
     console.log('Finished');
   };
   
-  const handleVerbosityChange = (level) => {
+  const handleVerbosityChange = async (level) => {
     console.log(`Setting verbosity to ${level}`);
     setVerbosityLevel(level);
-    
-    addConsoleMessage(`Verbosity level set to ${level}`, 'info');
-    
     // call backend API
+    try {
+      const response = await fetch('/api/verbosity', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ level: level }),
+      });
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      const data = await response.json();
+      console.log(data.status);
+      addConsoleMessage(`Verbosity level set to ${level}`, 'info');
+    } catch (error) {
+      console.error('Error setting verbosity:', error);
+    }
   };
   
   const clearConsole = () => {

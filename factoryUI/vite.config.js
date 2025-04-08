@@ -8,11 +8,12 @@ export default defineConfig({
     host: true,
     proxy: {
       '/api': {
-        target: 'http://vcm-45176.vm.duke.edu:8080',
+        // target: 'http://vcm-45176.vm.duke.edu:8080',
+        target: 'http://ece651project.gli81.com:8080',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, '')
       }
     },
-    allowedHosts: ['vcm-45176.vm.duke.edu'],
+    allowedHosts: ['vcm-45176.vm.duke.edu', 'ece651project.gli81.com'],
   }
 })
