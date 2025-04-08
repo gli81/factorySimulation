@@ -520,8 +520,8 @@ public class MapGridTest {
     }
 
     // Print the grid before attempting connection
-    System.out.println("Grid with obstacles:");
-    System.out.println(testGrid.toString());
+    //    System.out.println("Grid with obstacles:");
+    // System.out.println(testGrid.toString());
 
     // Attempt to connect F1 to F2 - should fail because there's no possible path
     boolean connected = testGrid.connectBuildings(f1, f2);

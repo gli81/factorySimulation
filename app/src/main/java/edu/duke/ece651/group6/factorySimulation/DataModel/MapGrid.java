@@ -318,7 +318,7 @@ public class MapGrid {
         // Check if we reached the target building
         if (obj == targetBuilding) {
           // System.out.println("Found target at distance: " + (distance + 1));
-          return distance + 1;
+          return distance;
         }
 
         // Check if this is a road

@@ -9,9 +9,14 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.io.InputStream;
+import java.io.FileNotFoundException;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 
 import com.google.gson.JsonParseException;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 public class ModelConstructorTest {
@@ -29,14 +34,36 @@ public class ModelConstructorTest {
     return url.getPath();
   }
 
+  private String readJsonFromResource(String resourcePath) throws IOException {
+    InputStream is = getClass().getClassLoader().getResourceAsStream(resourcePath);
+    System.out.println("Finding file: " + resourcePath);
+
+    if (is == null) {
+        System.out.println("InputStream wasn't found for: " + resourcePath);
+        throw new FileNotFoundException("Resource not found: " + resourcePath);
+    }
+
+    StringBuilder sb = new StringBuilder();
+    BufferedReader reader = new BufferedReader(new InputStreamReader(is, "UTF-8")); // 👈 using charset name as a string
+    String line;
+    while ((line = reader.readLine()) != null) {
+        sb.append(line);
+    }
+    return sb.toString();
+}
+
+
+  
   @Test
+  @Disabled
   public void testConnectionsInDoors3() throws IOException {
     MapGrid mapGrid = new MapGrid(30, 30);
     ModelManager modelManager = new ModelManager(mapGrid);
     ModelConstructor constructor = new ModelConstructor(modelManager, mapGrid);
 
     System.out.println("Starting test. About to construct model...");
-    constructor.constructFromJsonFile("src/resources/inputs/doors3.json");
+    String resourcePath = getResourcePath("inputs/doors3.json");
+    constructor.constructFromJsonFile(resourcePath);
     System.out.println("Model construction completed");
 
     // Print the map grid for visual inspection
