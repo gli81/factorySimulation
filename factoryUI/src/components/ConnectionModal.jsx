@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+// src/components/ConnectionModal.jsx
+import React, { useState } from 'react';
 import styled from 'styled-components';
 
 const ModalOverlay = styled.div`
@@ -65,6 +66,15 @@ const Select = styled.select`
   color: #333;
 `;
 
+const Info = styled.div`
+  margin-top: 10px;
+  padding: 10px;
+  background-color: #f0f0f0;
+  border-radius: 4px;
+  color: #333;
+  font-size: 14px;
+`;
+
 const ButtonGroup = styled.div`
   display: flex;
   justify-content: flex-end;
@@ -78,7 +88,7 @@ const Button = styled.button`
   cursor: pointer;
   
   &.primary {
-    background-color: #4a90e2;
+    background-color: #27ae60;
     color: white;
     border: none;
   }
@@ -90,50 +100,18 @@ const Button = styled.button`
   }
 `;
 
-const RequestModal = (
-  {
-    isOpen, onClose, onSubmit,
-    sources = [],
-    // recipes = []
-  }
-) => {
-  const [selectedSource, setSelectedSource] = useState('');
-  const [selectedRecipe, setSelectedRecipe] = useState('');
-  const [recipes, setRecipes] = useState([]);
-
-  useEffect(() => {
-    if (!selectedSource) {
-      setRecipes([]);
-      return;
-    }
-    const getRecipes = async (src) => {
-      try {
-        const response = await fetch(
-          `/api/recipes?source=${src}`,
-          {method: "GET"}
-        );
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        const data = await response.json();
-        if (data.status === "ok") {
-          setRecipes(data.recipes);
-        }
-      } catch (error) {
-        console.error('Error fetching recipes:', error);
-      }
-    };
-    getRecipes(selectedSource);
-  }, [selectedSource]);
-
+const ConnectionModal = ({ isOpen, onClose, onSubmit, buildings = [] }) => {
+  const [sourceBuilding, setSourceBuilding] = useState('');
+  const [targetBuilding, setTargetBuilding] = useState('');
+  
   if (!isOpen) return null;
-
+  
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit(selectedSource, selectedRecipe);
+    onSubmit(sourceBuilding, targetBuilding);
     // Reset form
-    setSelectedSource('');
-    setSelectedRecipe('');
+    setSourceBuilding('');
+    setTargetBuilding('');
     onClose();
   };
   
@@ -141,7 +119,7 @@ const RequestModal = (
     <ModalOverlay onClick={onClose}>
       <ModalContent onClick={e => e.stopPropagation()}>
         <ModalHeader>
-          <ModalTitle>Request Item</ModalTitle>
+          <ModalTitle>Connect Buildings</ModalTitle>
           <CloseButton onClick={onClose}>&times;</CloseButton>
         </ModalHeader>
         
@@ -150,35 +128,42 @@ const RequestModal = (
             <Label htmlFor="source">Source Building:</Label>
             <Select 
               id="source"
-              value={selectedSource}
-              onChange={(e) => setSelectedSource(e.target.value)}
+              value={sourceBuilding}
+              onChange={(e) => setSourceBuilding(e.target.value)}
               required
             >
               <option value="">-- Select Source --</option>
-              {sources.map((source, index) => (
-                <option key={index} value={source.name || source}>
-                  {source.name || source}
+              {buildings.map((building, index) => (
+                <option key={index} value={building.name || building}>
+                  {building.name || building}
                 </option>
               ))}
             </Select>
           </FormGroup>
           
           <FormGroup>
-            <Label htmlFor="recipe">Recipe:</Label>
+            <Label htmlFor="target">Destination Building:</Label>
             <Select 
-              id="recipe"
-              value={selectedRecipe}
-              onChange={(e) => setSelectedRecipe(e.target.value)}
+              id="target"
+              value={targetBuilding}
+              onChange={(e) => setTargetBuilding(e.target.value)}
               required
             >
-              <option value="">-- Select Recipe --</option>
-              {recipes.map((recipe, index) => (
-                <option key={index} value={recipe.name || recipe}>
-                  {recipe.name || recipe}
-                </option>
+              <option value="">-- Select Destination --</option>
+              {buildings.map((building, index) => (
+                building.name !== sourceBuilding && (
+                  <option key={index} value={building.name || building}>
+                    {building.name || building}
+                  </option>
+                )
               ))}
             </Select>
           </FormGroup>
+          
+          <Info>
+            The system will automatically find the optimal path between these buildings,
+            minimizing total distance and reusing existing roads where possible.
+          </Info>
           
           <ButtonGroup>
             <Button 
@@ -191,9 +176,9 @@ const RequestModal = (
             <Button 
               type="submit" 
               className="primary" 
-              disabled={!selectedSource || !selectedRecipe}
+              disabled={!sourceBuilding || !targetBuilding}
             >
-              Submit
+              Connect
             </Button>
           </ButtonGroup>
         </Form>
@@ -202,4 +187,4 @@ const RequestModal = (
   );
 };
 
-export default RequestModal;
+export default ConnectionModal;
