@@ -25,3 +25,5 @@ bin
 .classpath
 
 .DS_Store
+
+factoryUI/node_modules
